@@ -1,0 +1,31 @@
+.skeleton-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  overflow: hidden;
+}
+
+.skeleton-list {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+.skeleton-line {
+  height: 14px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--surface-alt) 25%, var(--border) 50%, var(--surface-alt) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  margin-bottom: .5rem;
+}
+
+.skeleton-line:last-child { margin-bottom: 0; }
+.skeleton-line-title { height: 18px; width: 60%; }
+.skeleton-line-short { width: 40%; }
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

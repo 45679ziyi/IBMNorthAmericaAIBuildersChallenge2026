@@ -60,4 +60,34 @@ The primary prompt was the contents of `IBM_Bob_Initial_Prompt_AURORA.txt`, whic
 
 ---
 
+## Improvement session: UI polish & feature upgrades (November 3, 2026)
+
+### What IBM Bob did
+
+A second session focused entirely on upgrading the MVP to production-quality UI and adding missing features:
+
+| Task | Bob's role |
+|---|---|
+| Dark mode CSS variables (`[data-theme="dark"]`) + local-storage persistence | Written by Bob |
+| CSS custom properties for `--shadow-md`, `--transition`, card hover transitions, button active scale | Written by Bob |
+| `Toast.tsx` / `Toast.css` — notification system with `ToastProvider` context | Written by Bob |
+| `Skeleton.tsx` / `Skeleton.css` — loading skeleton components (`SkeletonCard`, `SkeletonList`) | Written by Bob |
+| `ConfirmModal.tsx` / `ConfirmModal.css` — accessible modal with `ConfirmProvider` context | Written by Bob |
+| `App.tsx` rewrite — dark mode toggle (Sun/Moon), nav badge counters for overdue tasks + announcements | Written by Bob |
+| `TodayScreen.tsx` full rewrite — AI Briefing card, DonutChart (pure SVG), skeleton loading, inline mark-done, Retry button, empty states | Written by Bob |
+| `PlannerScreen.tsx` upgrade — visual day-timeline (CSS-positioned blocks, 7am–11pm), Toast integration, Skeleton loading | Written by Bob |
+| `PlannerScreen.css` — `.timeline-outer`, `.timeline-track`, `.timeline-block-*` positioned layout | Written by Bob |
+| `CampusScreen.tsx` upgrade — Campus Pulse live sparkline component with 8s auto-poll, `getCampusPulse()` API wired, SVG sparklines | Written by Bob |
+| `AssistantScreen.tsx` full rewrite — chat thread bubble UI (user/assistant bubbles, avatar, typing indicator, auto-scroll) | Written by Bob |
+| `AssistantScreen.css` — `.chat-thread`, `.chat-bubble-*`, `.chat-avatar-*`, `.chat-typing` bounce animation, `.chat-input-bar` | Written by Bob |
+| `TodayScreen.css` — added `.today-header`, `.briefing-card`, `.donut-wrap`, `.overdue-text`, `.spin` animation | Written by Bob |
+| `global.css` — added `.font-medium`, `.justify-center` utility classes | Written by Bob |
+| All TypeScript type-checks passed, production build succeeded (222 kB JS gzip 68 kB), 20/20 pytest tests passing | Validated by Bob |
+
+### No new bugs introduced
+
+All improvements were additive (new components, new CSS classes, upgraded screens). The 20 existing backend tests passed unchanged.
+
+---
+
 > This record is truthful. No Bob usage is fabricated or exaggerated.

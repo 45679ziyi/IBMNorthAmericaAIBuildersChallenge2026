@@ -27,15 +27,28 @@
 
 /* Navigation */
 .main-nav {
-  display: flex; gap: .25rem; flex-wrap: wrap;
+  display: flex; gap: .25rem; flex-wrap: wrap; align-items: center;
 }
 .main-nav a {
+  display: inline-flex; align-items: center; gap: .3rem;
   padding: .35rem .75rem; border-radius: var(--radius);
   color: var(--text-muted); font-size: .9rem; font-weight: 500;
-  transition: background .12s, color .12s;
+  transition: background var(--transition), color var(--transition);
+  position: relative;
 }
 .main-nav a:hover { background: var(--surface-alt); color: var(--text); text-decoration: none; }
 .main-nav a.active { background: var(--surface-alt); color: var(--accent); font-weight: 600; }
+
+/* Nav badge counters */
+.nav-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 18px; height: 18px;
+  font-size: .68rem; font-weight: 700; line-height: 1;
+  padding: 0 4px;
+  background: var(--error); color: #fff;
+  border-radius: 20px;
+}
+.nav-badge-blue { background: var(--accent); }
 
 /* Main */
 .app-main { padding-top: 1.5rem; padding-bottom: 2rem; flex: 1; }
