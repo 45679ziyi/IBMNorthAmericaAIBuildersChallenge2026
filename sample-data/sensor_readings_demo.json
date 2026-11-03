@@ -1,0 +1,11 @@
+{
+  "_note": "SIMULATED DATA — NOT CONNECTED TO SBU SYSTEMS. Synthetic sensor readings for demo only.",
+  "readings": [
+    {"sensor_label": "Demo Building A / Room 101", "metric_type": "temperature", "value": 21.5, "unit": "°C", "data_origin": "synthetic"},
+    {"sensor_label": "Demo Building A / Room 101", "metric_type": "air_quality", "value": 42.0, "unit": "AQI", "data_origin": "synthetic"},
+    {"sensor_label": "Demo Building A / Room 101", "metric_type": "occupancy_count", "value": 18.0, "unit": "people", "data_origin": "synthetic"},
+    {"sensor_label": "Demo Library / Study Room 3", "metric_type": "temperature", "value": 22.1, "unit": "°C", "data_origin": "synthetic"},
+    {"sensor_label": "Demo Library / Study Room 3", "metric_type": "occupancy_count", "value": 4.0, "unit": "people", "data_origin": "synthetic"},
+    {"sensor_label": "Demo Campus Center", "metric_type": "device_health", "value": 98.0, "unit": "%", "data_origin": "synthetic"}
+  ]
+}

@@ -1,0 +1,125 @@
+{
+  "_note": "Curated public SBU knowledge pack. All content sourced from official public university pages. Retrieval dates are illustrative.",
+  "documents": [
+    {
+      "id": "kd-001",
+      "title": "FERPA — Student Privacy Rights at SBU",
+      "publisher": "Stony Brook University Registrar",
+      "canonical_url": "https://www.stonybrook.edu/registrar/info/ferpa.html",
+      "usage_note": "Public information from SBU Registrar. Curated excerpt.",
+      "last_verified_at_utc": "2026-11-02T00:00:00Z",
+      "chunks": [
+        {
+          "index": 0,
+          "text": "The Family Educational Rights and Privacy Act (FERPA) is a Federal law that protects the privacy of student education records. The law applies to all schools that receive funds under an applicable program of the U.S. Department of Education."
+        },
+        {
+          "index": 1,
+          "text": "FERPA gives parents certain rights with respect to their children's education records. These rights transfer to the student when he or she reaches the age of 18 or attends a school beyond the high school level."
+        },
+        {
+          "index": 2,
+          "text": "Students have the right to inspect and review their education records maintained by the school, the right to request that the school correct records they believe to be inaccurate, and the right to have some control over the disclosure of personally identifiable information."
+        },
+        {
+          "index": 3,
+          "text": "Stony Brook University maintains education records for enrolled students. Access to student-record databases is restricted to appropriate campus officials after required authorization. This prototype does not access, store, or display real student education records."
+        }
+      ]
+    },
+    {
+      "id": "kd-002",
+      "title": "SBU Student Access to Education Records Policy",
+      "publisher": "Stony Brook University Office of Institutional Policy",
+      "canonical_url": "https://www.stonybrook.edu/policy/_policies/student-access-to-education-records-policy.html",
+      "usage_note": "Public policy page — curated excerpt.",
+      "last_verified_at_utc": "2026-11-02T00:00:00Z",
+      "chunks": [
+        {
+          "index": 0,
+          "text": "Stony Brook University complies with the Family Educational Rights and Privacy Act (FERPA). Students have the right to inspect and review their education records within 45 days of making a request."
+        },
+        {
+          "index": 1,
+          "text": "Students wishing to inspect their records should submit a written request to the appropriate university official identifying the records they wish to inspect. The university will make arrangements for access and notify the student of the time and place where the records may be inspected."
+        }
+      ]
+    },
+    {
+      "id": "kd-003",
+      "title": "SBU Events Feed Documentation",
+      "publisher": "Stony Brook University Web Support",
+      "canonical_url": "https://www.stonybrook.edu/websupport/components/data-feeds-people/events-feed.html",
+      "usage_note": "Public developer documentation — curated excerpt.",
+      "last_verified_at_utc": "2026-11-02T00:00:00Z",
+      "chunks": [
+        {
+          "index": 0,
+          "text": "Stony Brook University provides an events feed for campus web pages. The events feed allows campus departments to display university events on their websites. To obtain the appropriate RSS feed URL, contact the responsible university source."
+        },
+        {
+          "index": 1,
+          "text": "The SBU events calendar is maintained by individual departments and the central web team. Events displayed through the feed represent official university and departmental events. Third-party applications should obtain the correct feed URL from an authorized SBU source."
+        }
+      ]
+    },
+    {
+      "id": "kd-004",
+      "title": "Stony Brook University — About",
+      "publisher": "Stony Brook University",
+      "canonical_url": "https://www.stonybrook.edu/about/",
+      "usage_note": "Public about page — curated excerpt.",
+      "last_verified_at_utc": "2026-11-02T00:00:00Z",
+      "chunks": [
+        {
+          "index": 0,
+          "text": "Stony Brook University, officially known as the State University of New York at Stony Brook, is a public research university located in Stony Brook, New York on Long Island. It is part of the State University of New York (SUNY) system."
+        },
+        {
+          "index": 1,
+          "text": "Stony Brook University was founded in 1957 and has grown to become one of the nation's important centers of learning and scholarship. The university offers more than 200 undergraduate programs and more than 100 graduate programs."
+        },
+        {
+          "index": 2,
+          "text": "The main campus covers approximately 1,454 acres and includes academic buildings, research facilities, residence halls, and the Stony Brook Medicine health system. The university is located approximately 60 miles east of New York City."
+        }
+      ]
+    },
+    {
+      "id": "kd-005",
+      "title": "SBU Academic Calendar — Key Dates",
+      "publisher": "Stony Brook University Registrar",
+      "canonical_url": "https://www.stonybrook.edu/registrar/calendar/",
+      "usage_note": "Public academic calendar — illustrative dates for demo purposes. Always verify with the official registrar.",
+      "last_verified_at_utc": "2026-11-02T00:00:00Z",
+      "chunks": [
+        {
+          "index": 0,
+          "text": "The Stony Brook University academic calendar includes registration dates, add/drop periods, withdrawal deadlines, final examination schedules, and commencement dates. Students should consult the official Registrar website for current and accurate dates."
+        },
+        {
+          "index": 1,
+          "text": "For the Fall 2026 semester (illustrative demo dates — verify with official registrar): Classes begin early September. Add/drop period ends mid-September. Thanksgiving recess is in late November. Final exams are in December."
+        }
+      ]
+    },
+    {
+      "id": "kd-006",
+      "title": "Melville Library — Services and Hours",
+      "publisher": "SBU Libraries",
+      "canonical_url": "https://library.stonybrook.edu/",
+      "usage_note": "Public library information — curated excerpt.",
+      "last_verified_at_utc": "2026-11-02T00:00:00Z",
+      "chunks": [
+        {
+          "index": 0,
+          "text": "The Frank Melville Jr. Memorial Library is the main library at Stony Brook University. It provides access to research databases, print and electronic journals, books, and special collections. Study spaces include individual carrels, group study rooms, and quiet reading areas."
+        },
+        {
+          "index": 1,
+          "text": "SBU Libraries offer research consultation services, interlibrary loan, 3D printing, and multimedia production support. Students can book group study rooms online through the library website."
+        }
+      ]
+    }
+  ]
+}

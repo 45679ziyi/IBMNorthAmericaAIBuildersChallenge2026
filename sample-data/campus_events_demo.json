@@ -1,0 +1,49 @@
+{
+  "_note": "DEMO DATA — Synthetic campus events. Not connected to SBU live event systems.",
+  "events": [
+    {
+      "id": "campus-evt-demo-01",
+      "title": "Fall Career Fair 2026",
+      "description": "Annual fall career fair hosted by the Career Center. Meet representatives from 80+ employers. Bring your resume and dress professionally.",
+      "start_at_utc": "2026-11-05T14:00:00Z",
+      "end_at_utc": "2026-11-05T19:00:00Z",
+      "location_text": "Island Federal Credit Union Arena",
+      "source_title": "SBU Career Center (Demo)",
+      "source_url": "https://www.stonybrook.edu/commcms/career-center/",
+      "is_demo_data": true
+    },
+    {
+      "id": "campus-evt-demo-02",
+      "title": "CS Colloquium: AI in Healthcare",
+      "description": "Department of Computer Science colloquium series. Speaker: Dr. Alex Rivera (fictional). Topic: Responsible AI in Clinical Decision Support.",
+      "start_at_utc": "2026-11-06T17:00:00Z",
+      "end_at_utc": "2026-11-06T18:00:00Z",
+      "location_text": "Computer Science Building, Room 2311",
+      "source_title": "SBU CS Department (Demo)",
+      "source_url": "https://www.cs.stonybrook.edu/",
+      "is_demo_data": true
+    },
+    {
+      "id": "campus-evt-demo-03",
+      "title": "Library Research Workshop: Finding Peer-Reviewed Sources",
+      "description": "Learn how to search for peer-reviewed journal articles using SBU Library databases. Open to all undergraduate students.",
+      "start_at_utc": "2026-11-04T10:00:00Z",
+      "end_at_utc": "2026-11-04T11:00:00Z",
+      "location_text": "Melville Library, Room N2017",
+      "source_title": "SBU Libraries (Demo)",
+      "source_url": "https://library.stonybrook.edu/",
+      "is_demo_data": true
+    },
+    {
+      "id": "campus-evt-demo-04",
+      "title": "Student Association Movie Night",
+      "description": "Free screening of a recent film. Popcorn provided. All students welcome.",
+      "start_at_utc": "2026-11-07T20:00:00Z",
+      "end_at_utc": "2026-11-07T22:30:00Z",
+      "location_text": "Stony Brook Union Auditorium",
+      "source_title": "Undergraduate Student Government (Demo)",
+      "source_url": "https://www.stonybrook.edu/commcms/usg/",
+      "is_demo_data": true
+    }
+  ]
+}

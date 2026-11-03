@@ -1,0 +1,62 @@
+[
+  {
+    "id": "task-demo-01",
+    "title": "Complete CSE 213 Programming Assignment 3",
+    "description": "Implement a generic stack using Java generics. Submit to course management system.",
+    "course_label": "CSE 213",
+    "due_at_utc": "2026-11-06T23:59:00Z",
+    "estimated_minutes": 120,
+    "priority": "high",
+    "status": "todo",
+    "source_type": "demo",
+    "source_url": null
+  },
+  {
+    "id": "task-demo-02",
+    "title": "Review MAT 203 lecture notes — Chapter 14",
+    "description": "Review partial derivatives and multiple integrals before Thursday quiz.",
+    "course_label": "MAT 203",
+    "due_at_utc": "2026-11-05T09:30:00Z",
+    "estimated_minutes": 45,
+    "priority": "urgent",
+    "status": "todo",
+    "source_type": "demo",
+    "source_url": null
+  },
+  {
+    "id": "task-demo-03",
+    "title": "Read CSE 214 Chapter 5 — Binary Search Trees",
+    "description": "Read textbook chapter and complete practice problems at end of chapter.",
+    "course_label": "CSE 214",
+    "due_at_utc": "2026-11-10T23:59:00Z",
+    "estimated_minutes": 60,
+    "priority": "normal",
+    "status": "todo",
+    "source_type": "demo",
+    "source_url": null
+  },
+  {
+    "id": "task-demo-04",
+    "title": "Write introduction for CSE 316 group project report",
+    "description": "Draft the problem statement and motivation sections. 500–700 words.",
+    "course_label": "CSE 316",
+    "due_at_utc": "2026-11-07T17:00:00Z",
+    "estimated_minutes": 90,
+    "priority": "high",
+    "status": "in_progress",
+    "source_type": "demo",
+    "source_url": null
+  },
+  {
+    "id": "task-demo-05",
+    "title": "Email professor about office hours",
+    "description": "Ask about the upcoming midterm study session.",
+    "course_label": null,
+    "due_at_utc": null,
+    "estimated_minutes": 10,
+    "priority": "low",
+    "status": "todo",
+    "source_type": "demo",
+    "source_url": null
+  }
+]

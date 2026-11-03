@@ -1,0 +1,10 @@
+.sources-table-wrap { overflow-x: auto; }
+.sources-table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+.sources-table th, .sources-table td { padding: .5rem .75rem; text-align: left; border-bottom: 1px solid var(--border); }
+.sources-table th { background: var(--surface); font-weight: 600; }
+
+.pulse-list { list-style: none; padding: 0; margin: .75rem 0 0; display: flex; flex-direction: column; gap: .4rem; }
+.pulse-row { display: flex; align-items: center; gap: .75rem; padding: .4rem .5rem; background: var(--surface); border-radius: var(--radius); flex-wrap: wrap; }
+
+.data-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+@media (max-width: 600px) { .data-controls { grid-template-columns: 1fr; } }

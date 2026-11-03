@@ -1,0 +1,6 @@
+.block-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: .5rem; margin: .5rem 0 0; }
+.block-item { border-left: 4px solid var(--border); }
+.block-fixed_event { border-left-color: var(--error); }
+.block-task { border-left-color: var(--accent); }
+.block-break { border-left-color: var(--success); }
+.block-suggestion { border-left-color: var(--secondary); }

@@ -1,0 +1,41 @@
+{
+  "_note": "DEMO DATA — These are synthetic fictional announcements. Not connected to SBU Brightspace.",
+  "announcements": [
+    {
+      "id": "ann-demo-01",
+      "course_label": "CSE 213",
+      "title": "Programming Assignment 3 Posted",
+      "body_summary": "Assignment 3 is now available. Implement a generic stack using Java generics. See the assignment description for full requirements. Due November 6, 2026 at 11:59 PM.",
+      "published_at_utc": "2026-10-30T14:00:00Z",
+      "source_url": null,
+      "source_type": "demo"
+    },
+    {
+      "id": "ann-demo-02",
+      "course_label": "MAT 203",
+      "title": "Quiz 4 on Thursday — Chapter 14",
+      "body_summary": "Reminder: Quiz 4 will be held during lecture on November 5. Topics include partial derivatives and introduction to multiple integrals (Chapter 14, Sections 1–3).",
+      "published_at_utc": "2026-11-01T10:00:00Z",
+      "source_url": null,
+      "source_type": "demo"
+    },
+    {
+      "id": "ann-demo-03",
+      "course_label": "CSE 214",
+      "title": "Midterm Grades Posted",
+      "body_summary": "Midterm grades have been posted. Please review your feedback. Office hours are extended this week: Monday and Wednesday 3–5 PM.",
+      "published_at_utc": "2026-10-28T09:00:00Z",
+      "source_url": null,
+      "source_type": "demo"
+    },
+    {
+      "id": "ann-demo-04",
+      "course_label": "CSE 316",
+      "title": "Group Project Milestone 2 Due November 7",
+      "body_summary": "Milestone 2 (introduction and background sections) is due November 7 at 5:00 PM. Please submit via the group submission portal. Contact your TA if you have questions.",
+      "published_at_utc": "2026-11-01T16:00:00Z",
+      "source_url": null,
+      "source_type": "demo"
+    }
+  ]
+}

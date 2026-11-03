@@ -1,0 +1,9 @@
+Build the AURORA Campus Intelligence MVP.
+
+First, open and read the complete file `AURORA_Campus_Intelligence_Project_Spec_for_IBM_Bob.md`. Treat it as the source of truth. Then inspect the current workspace and implement the project, not just a plan.
+
+Follow the specification's non-negotiable restrictions: use synthetic demo data; do not access or automate SBU SOLAR, authenticated Brightspace, campus networks, or real sensors; do not collect NetID passwords, student IDs, grades, or real student records; do not claim SBU/IBM endorsement, FERPA compliance, production deployment, or end-to-end encryption. Use safe mock adapters where institutional permission or credentials are missing.
+
+Implement in this order: project scaffold; FastAPI + SQLite models and API; task/calendar CRUD; timezone-safe ICS import; deterministic conflict-free daily planner; grounded public-campus knowledge assistant with source citations and abstention; responsive student dashboard; synthetic Brightspace/event/weather/sensor fixtures; privacy/source controls; tests; README and architecture docs.
+
+IBM Bob must be the primary coding tool. Keep an honest record of actual Bob-assisted work in `docs/IBM_BOB_USAGE.md`. Preserve useful existing workspace files. Run tests and a production build, fix failures, and report exact commands and actual results. Start by inspecting the workspace now.

@@ -1,0 +1,4 @@
+.tasks-list { list-style: none; padding: 0; margin: .5rem 0 0; display: flex; flex-direction: column; gap: .5rem; }
+.task-row { padding: .75rem 1rem; }
+.task-done { opacity: .6; }
+.task-done label { text-decoration: line-through; }
