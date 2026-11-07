@@ -131,8 +131,14 @@ class AnnouncementRead(BaseModel):
     source_type: str
     retrieved_at_utc: datetime
     is_demo: bool = True
+    is_read: bool = False
+    read_at_utc: Optional[datetime] = None
 
     model_config = {"from_attributes": True}
+
+
+class AnnouncementUpdate(BaseModel):
+    is_read: bool
 
 
 # ─── Campus Event ────────────────────────────────────────────────────────────
@@ -217,6 +223,8 @@ class AssistantAskResponse(BaseModel):
     answer: str
     sources: list[AssistantSource]
     coverage: Literal["supported", "partial", "not_found"]
+    coverage_score: float = 0.0
+    matched_terms: list[str] = []
     updated_at: datetime
     disclaimer: str = (
         "AI-generated responses are for informational purposes only. "
@@ -236,6 +244,34 @@ class SensorReadingRead(BaseModel):
     data_origin: str
 
     model_config = {"from_attributes": True}
+
+
+class PulseSeriesPoint(BaseModel):
+    recorded_at_utc: datetime
+    value: float
+    data_origin: str = "synthetic"
+
+
+class PulseSeries(BaseModel):
+    sensor_label: str
+    metric_type: str
+    unit: str
+    capacity: Optional[float] = None
+    points: list[PulseSeriesPoint]
+    data_origin: str = "synthetic"
+
+
+class PulseInsight(BaseModel):
+    id: str
+    severity: str
+    sensor_label: str
+    metric_type: str
+    message: str
+    evidence: dict[str, Any]
+    recommended_human_action: str
+    automated_action: Optional[str] = None
+    status: str = "needs_human_review"
+    data_origin: str = "synthetic"
 
 
 # ─── Connector Status ────────────────────────────────────────────────────────

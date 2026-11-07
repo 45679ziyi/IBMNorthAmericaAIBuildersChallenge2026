@@ -1,0 +1,43 @@
+/* StatusChip — all colors via token color-mix, no hex */
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  font-size: .72rem;
+  font-weight: 600;
+  padding: 2px var(--sp-2);
+  border-radius: var(--r-pill);
+  vertical-align: middle;
+  white-space: nowrap;
+  letter-spacing: .02em;
+}
+
+.status-chip-demo {
+  background: color-mix(in srgb, var(--amber) 18%, var(--paper));
+  color: var(--amber);
+}
+.status-chip-synthetic {
+  background: color-mix(in srgb, var(--violet) 18%, var(--paper));
+  color: var(--violet);
+}
+.status-chip-rule-based {
+  background: color-mix(in srgb, var(--ink-muted) 15%, var(--paper));
+  color: var(--ink-muted);
+}
+.status-chip-live {
+  background: color-mix(in srgb, var(--dawn) 15%, var(--paper));
+  color: color-mix(in srgb, var(--dawn) 80%, var(--ink));
+}
+.status-chip-info {
+  background: color-mix(in srgb, var(--dawn) 12%, var(--paper));
+  color: color-mix(in srgb, var(--dawn) 80%, var(--ink));
+}
+.status-chip-warn {
+  background: color-mix(in srgb, var(--amber) 18%, var(--paper));
+  color: var(--amber);
+}
+.status-chip-critical {
+  background: color-mix(in srgb, var(--red) 15%, var(--paper));
+  color: var(--red);
+}

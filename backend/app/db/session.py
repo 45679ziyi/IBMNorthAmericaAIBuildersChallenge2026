@@ -20,6 +20,23 @@ def init_db() -> None:
     """Create all tables and enable FTS5 virtual table for knowledge chunks."""
     Base.metadata.create_all(bind=engine)
     _setup_fts()
+    _ensure_columns()
+
+
+def _ensure_columns() -> None:
+    """Add missing columns to existing tables (safe to call multiple times)."""
+    with engine.connect() as conn:
+        rows = conn.execute(text("PRAGMA table_info(announcements)")).fetchall()
+        existing = {row[1] for row in rows}
+        if "is_read" not in existing:
+            conn.execute(
+                text("ALTER TABLE announcements ADD COLUMN is_read BOOLEAN NOT NULL DEFAULT 0")
+            )
+        if "read_at_utc" not in existing:
+            conn.execute(
+                text("ALTER TABLE announcements ADD COLUMN read_at_utc DATETIME")
+            )
+        conn.commit()
 
 
 def _setup_fts() -> None:

@@ -1,6 +1,8 @@
 """LLM provider abstraction — mock (deterministic) and watsonx adapters."""
 from __future__ import annotations
 
+import re
+
 from app.core.config import settings
 
 
@@ -10,31 +12,115 @@ class LLMResponse:
         self.provider = provider
 
 
-def _mock_answer(question: str, context_chunks: list[str]) -> str:
-    """Deterministic rule-based answer for demo without any external call."""
-    q_lower = question.lower()
+_ABSTENTION = (
+    "I could not verify this from the available sources. "
+    "Please check the official Stony Brook University website for accurate information."
+)
+
+_PARTIAL_PREFIX = "I found related information but couldn't fully verify this. "
+
+
+def _split_sentences(text: str) -> list[str]:
+    """Split text into sentences on '. ', '! ', '? '."""
+    parts = re.split(r"(?<=[.!?]) +", text.strip())
+    return [p.strip() for p in parts if p.strip()]
+
+
+def _score_sentence(sentence: str, terms: list[str]) -> int:
+    """Count how many terms appear in the sentence (lowercased)."""
+    sl = sentence.lower()
+    return sum(1 for t in terms if t in sl)
+
+
+def _mock_answer(
+    question: str,
+    context_chunks: list[str],
+    coverage: str = "supported",
+    matched_terms: list[str] | None = None,
+) -> str:
+    """Deterministic extractive answer for demo — no external call."""
     if not context_chunks:
-        return (
-            "I could not verify this from the available sources. "
-            "Please check the official Stony Brook University website for accurate information."
-        )
-    # Return a summary of retrieved context
-    combined = " ".join(context_chunks[:2])
-    if len(combined) > 600:
-        combined = combined[:600] + "..."
-    return (
-        f"Based on the available campus knowledge sources: {combined} "
-        "(Please verify with the official source linked below.)"
-    )
+        return _ABSTENTION
+
+    if matched_terms is None:
+        matched_terms = []
+
+    # Collect (sentence, chunk_index) pairs
+    candidates: list[tuple[str, int]] = []
+    for i, chunk in enumerate(context_chunks):
+        # Strip leading "[Source: ...]" header line
+        body = re.sub(r"^\[Source:[^\]]*\]\s*", "", chunk, count=1)
+        sentences = _split_sentences(body)
+        for s in sentences:
+            candidates.append((s, i))
+
+    if not candidates:
+        return _ABSTENTION
+
+    # Score each sentence by term overlap
+    scored = [(s, idx, _score_sentence(s, matched_terms)) for s, idx in candidates]
+    scored.sort(key=lambda x: -x[2])
+
+    # Pick top 2 from different chunks when possible, never cut mid-sentence
+    selected: list[tuple[str, int]] = []
+    seen_chunks: set[int] = set()
+    for s, idx, _ in scored:
+        if idx not in seen_chunks:
+            selected.append((s, idx))
+            seen_chunks.add(idx)
+        elif len(seen_chunks) >= 2:
+            # also allow a second sentence from same chunk if we don't have 2 yet
+            pass
+        if len(selected) == 2:
+            break
+
+    # If we still have fewer than 2, fill from any chunk
+    if len(selected) < 2:
+        for s, idx, _ in scored:
+            if (s, idx) not in selected:
+                selected.append((s, idx))
+            if len(selected) == 2:
+                break
+
+    # Sort selected by original chunk order (source order)
+    selected.sort(key=lambda x: x[1])
+
+    # Build answer — cap at ~450 chars without cutting mid-sentence
+    parts: list[str] = []
+    total = 0
+    for i, (s, idx) in enumerate(selected):
+        citation = f" [{idx + 1}]"
+        piece = s + citation
+        if total + len(piece) > 450:
+            break
+        parts.append(piece)
+        total += len(piece) + 1  # +1 for space
+
+    if not parts:
+        # At least include the highest-scored sentence even if it's long
+        s, idx, _ = scored[0]
+        parts = [s + f" [{idx + 1}]"]
+
+    answer = " ".join(parts) + " (Please verify with the official source linked below.)"
+
+    if coverage == "partial":
+        answer = _PARTIAL_PREFIX + answer
+
+    return answer
 
 
-def call_llm(question: str, context_chunks: list[str]) -> LLMResponse:
+def call_llm(
+    question: str,
+    context_chunks: list[str],
+    coverage: str = "supported",
+    matched_terms: list[str] | None = None,
+) -> LLMResponse:
     """Route to the configured LLM provider."""
     provider = settings.ai_provider.lower()
 
     if provider == "mock" or not provider:
         return LLMResponse(
-            text=_mock_answer(question, context_chunks),
+            text=_mock_answer(question, context_chunks, coverage=coverage, matched_terms=matched_terms),
             provider="mock",
         )
 
@@ -43,7 +129,7 @@ def call_llm(question: str, context_chunks: list[str]) -> LLMResponse:
 
     # Unknown provider → fall back to mock
     return LLMResponse(
-        text=_mock_answer(question, context_chunks),
+        text=_mock_answer(question, context_chunks, coverage=coverage, matched_terms=matched_terms),
         provider="mock-fallback",
     )
 

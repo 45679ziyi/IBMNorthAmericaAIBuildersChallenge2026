@@ -1,0 +1,73 @@
+/* Sheet — bottom sheet (mobile) / centered modal (desktop). Token colors only. */
+
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background: color-mix(in srgb, var(--ink) 45%, transparent);
+  z-index: 9998;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: sheet-fade-in .15s ease;
+}
+
+@keyframes sheet-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.sheet-box {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md) var(--r-md) 0 0;
+  width: 100%;
+  max-width: 100%;
+  max-height: 92dvh;
+  overflow-y: auto;
+  animation: sheet-slide-up .2s ease;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@keyframes sheet-slide-up {
+  from { transform: translateY(24px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-4) var(--sp-6);
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  background: var(--panel);
+  z-index: 1;
+}
+
+.sheet-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.sheet-body {
+  padding: var(--sp-4) var(--sp-6) var(--sp-6);
+}
+
+/* Desktop: centered modal */
+@media (min-width: 640px) {
+  .sheet-backdrop {
+    align-items: center;
+  }
+  .sheet-box {
+    max-width: 480px;
+    border-radius: var(--r-md);
+    max-height: 85dvh;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet-backdrop { animation: none; }
+  .sheet-box { animation: none; }
+}

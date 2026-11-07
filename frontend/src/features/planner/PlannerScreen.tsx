@@ -1,53 +1,71 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import './PlannerScreen.css'
 import { getEvents, getTasks, generatePlan, acceptPlan, rejectPlan, importICS, DailyPlan, CalendarEvent, Task } from '../../api/client'
 import { SkeletonList } from '../../components/Skeleton'
 import { useToast } from '../../components/Toast'
-import { Clock, Upload, Zap } from 'lucide-react'
+import { Clock, Upload, CalendarDays } from 'lucide-react'
+import { formatTime, CAMPUS_TZ } from '../../lib/time'
 
 // Day timeline: 7am–11pm = 16 hours
 const TIMELINE_START_H = 7
 const TIMELINE_END_H = 23
 const TIMELINE_HOURS = TIMELINE_END_H - TIMELINE_START_H
 
-function fmtTime(iso: string) {
-  return new Date(iso).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' })
-}
-
 function toMinutesFromMidnight(iso: string): number {
   const d = new Date(iso)
-  // Convert to NY time components
   const str = d.toLocaleString('en-US', {
     hour: 'numeric', minute: 'numeric', hour12: false,
-    timeZone: 'America/New_York',
+    timeZone: CAMPUS_TZ,
   })
   const [h, m] = str.split(':').map(Number)
   return h * 60 + (m || 0)
 }
 
-function blockTopPct(startIso: string): string {
+function blockTopPct(startIso: string): number {
   const mins = toMinutesFromMidnight(startIso)
-  const fromStart = mins - TIMELINE_START_H * 60
-  return `${(fromStart / (TIMELINE_HOURS * 60)) * 100}%`
+  return ((mins - TIMELINE_START_H * 60) / (TIMELINE_HOURS * 60)) * 100
 }
 
-function blockHeightPct(startIso: string, endIso: string): string {
+function blockHeightPct(startIso: string, endIso: string): number {
   const startMins = toMinutesFromMidnight(startIso)
   const endMins = toMinutesFromMidnight(endIso)
-  const dur = Math.max(endMins - startMins, 15) // min 15min visible
-  return `${(dur / (TIMELINE_HOURS * 60)) * 100}%`
+  const dur = Math.max(endMins - startMins, 15)
+  return (dur / (TIMELINE_HOURS * 60)) * 100
 }
 
-// ── Timeline component ──────────────────────────────────────────────────────
+function nowTopPct(): number {
+  const now = new Date()
+  const h = now.getHours() + now.getMinutes() / 60
+  return Math.max(0, Math.min(100, ((h - TIMELINE_START_H) / TIMELINE_HOURS) * 100))
+}
+
+// ── Timeline component ────────────────────────────────────────────────────────
 function DayTimeline({ plan }: { plan: DailyPlan }) {
+  const trackRef = useRef<HTMLDivElement>(null)
   const sorted = [...plan.blocks].sort(
     (a, b) => new Date(a.start_at_utc).getTime() - new Date(b.start_at_utc).getTime()
   )
   const hourLabels = Array.from({ length: TIMELINE_HOURS + 1 }, (_, i) => TIMELINE_START_H + i)
+  const pct = nowTopPct()
+
+  // Scroll to now-marker on mount (smooth)
+  useEffect(() => {
+    if (!trackRef.current) return
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const scrollTarget = trackRef.current.scrollHeight * (pct / 100) - 80
+    trackRef.current.scrollTo({ top: Math.max(0, scrollTarget), behavior: reducedMotion ? 'instant' : 'smooth' })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const BLOCK_LABELS: Record<string, string> = {
+    fixed_event: 'Fixed event',
+    task: 'Task',
+    break: 'Break',
+    suggestion: 'Suggested',
+  }
 
   return (
     <div className="timeline-outer" aria-label="Day timeline">
-      {/* Hour grid */}
       <div className="timeline-labels" aria-hidden="true">
         {hourLabels.map(h => (
           <div key={h} className="timeline-hour-label">
@@ -56,14 +74,14 @@ function DayTimeline({ plan }: { plan: DailyPlan }) {
         ))}
       </div>
 
-      {/* Track */}
-      <div className="timeline-track" role="list">
+      <div ref={trackRef} className="timeline-track" role="list">
         {/* Hour grid lines */}
         {hourLabels.map(h => (
           <div
             key={h}
             className="timeline-gridline"
-            style={{ top: `${((h - TIMELINE_START_H) / TIMELINE_HOURS) * 100}%` }}
+            /* computed position — geometry var */
+            style={{ '--pos': `${((h - TIMELINE_START_H) / TIMELINE_HOURS) * 100}%` } as React.CSSProperties}
             aria-hidden="true"
           />
         ))}
@@ -74,25 +92,35 @@ function DayTimeline({ plan }: { plan: DailyPlan }) {
             key={block.id}
             role="listitem"
             className={`timeline-block timeline-block-${block.block_type}`}
+            /* computed geometry — CSS vars */
             style={{
-              top: blockTopPct(block.start_at_utc),
-              height: blockHeightPct(block.start_at_utc, block.end_at_utc),
-            }}
-            title={`${block.title} · ${fmtTime(block.start_at_utc)}–${fmtTime(block.end_at_utc)}`}
-            aria-label={`${block.title}, ${fmtTime(block.start_at_utc)} to ${fmtTime(block.end_at_utc)}, ${block.block_type.replace('_', ' ')}`}
+              '--top':    `${blockTopPct(block.start_at_utc)}%`,
+              '--height': `${blockHeightPct(block.start_at_utc, block.end_at_utc)}%`,
+            } as React.CSSProperties}
+            title={`${block.title} · ${formatTime(block.start_at_utc)}–${formatTime(block.end_at_utc)}`}
+            aria-label={`${block.title}, ${formatTime(block.start_at_utc)} to ${formatTime(block.end_at_utc)}, ${block.block_type.replace('_', ' ')}`}
           >
             <span className="timeline-block-title">{block.title}</span>
+            <span className="timeline-block-type">{BLOCK_LABELS[block.block_type] ?? block.block_type}</span>
             <span className="timeline-block-time">
-              <Clock size={10} aria-hidden="true" /> {fmtTime(block.start_at_utc)}
+              <Clock size={10} aria-hidden="true" /> {formatTime(block.start_at_utc)}
             </span>
           </div>
         ))}
+
+        {/* Now marker */}
+        <div
+          className="timeline-now"
+          /* computed position — geometry var */
+          style={{ '--pos': `${pct}%` } as React.CSSProperties}
+          aria-hidden="true"
+        />
       </div>
     </div>
   )
 }
 
-// ── Main screen ─────────────────────────────────────────────────────────────
+// ── Main screen ───────────────────────────────────────────────────────────────
 export default function PlannerScreen() {
   const [events, setEvents] = useState<CalendarEvent[]>([])
   const [tasks, setTasks] = useState<Task[]>([])
@@ -101,8 +129,10 @@ export default function PlannerScreen() {
   const [generating, setGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [planDate, setPlanDate] = useState(() =>
-    new Date().toLocaleDateString('fr-CA', { timeZone: 'America/New_York' })
+    new Date().toLocaleDateString('fr-CA', { timeZone: CAMPUS_TZ })
   )
+  const [icsResult, setIcsResult] = useState<string | null>(null)
+  const [mobileView, setMobileView] = useState<'timeline' | 'list'>('timeline')
   const { showToast } = useToast()
 
   useEffect(() => {
@@ -116,7 +146,7 @@ export default function PlannerScreen() {
     try {
       const p = await generatePlan(planDate)
       setPlan(p)
-      showToast('Plan generated!', 'success')
+      showToast('Plan generated', 'success')
     } catch (e) { setError(String(e)); showToast(String(e), 'error') }
     setGenerating(false)
   }
@@ -126,7 +156,7 @@ export default function PlannerScreen() {
     try {
       const updated = await acceptPlan(plan.id)
       setPlan(updated)
-      showToast('Plan accepted ✓', 'success')
+      showToast('Plan accepted', 'success')
     } catch (e) { setError(String(e)) }
   }
 
@@ -144,11 +174,15 @@ export default function PlannerScreen() {
     if (!file) return
     try {
       const result = await importICS(file)
-      showToast(`Imported ${result.imported} events.`, 'success')
+      const msg = `Imported ${result.imported} event${result.imported !== 1 ? 's' : ''}.`
+      setIcsResult(msg)
+      showToast(msg, 'success')
       const ev = await getEvents()
       setEvents(ev)
     } catch (err) {
-      showToast(`Import failed: ${String(err)}`, 'error')
+      const msg = `Import failed: ${String(err)}`
+      setIcsResult(msg)
+      showToast(msg, 'error')
     }
     e.target.value = ''
   }
@@ -159,108 +193,141 @@ export default function PlannerScreen() {
     .filter(ev => ev.start_at_utc.startsWith(planDate))
     .sort((a, b) => new Date(a.start_at_utc).getTime() - new Date(b.start_at_utc).getTime())
 
+  const BLOCK_LABELS: Record<string, string> = {
+    fixed_event: 'Fixed event',
+    task: 'Task',
+    break: 'Break',
+    suggestion: 'Suggested',
+  }
+
   return (
-    <div>
+    <div className="planner-screen">
       <div className="screen-title">
         <h1>Planner</h1>
         <p>Import your calendar and generate a conflict-free daily plan.</p>
       </div>
 
       {/* ICS import */}
-      <div className="card mb-2">
-        <h3>Import Calendar (.ics)</h3>
-        <p className="text-muted text-sm">
-          Import a .ics file from your device. No live SBU SOLAR connection is used.
+      <div className="card mb-2 ics-row">
+        <div className="ics-left">
+          <label htmlFor="ics-input" className="btn btn-ghost btn-sm ics-label">
+            <Upload size={14} aria-hidden="true" /> Choose .ics file
+          </label>
+          <input id="ics-input" type="file" accept=".ics" onChange={handleICSUpload} className="sr-only" />
+          {icsResult && <span className="text-sm text-muted">{icsResult}</span>}
+        </div>
+        <p className="text-muted text-sm ics-note">
+          Import .ics from your device. No live SBU SOLAR connection.
         </p>
-        <label htmlFor="ics-input" className="btn btn-ghost btn-sm" style={{ display: 'inline-flex', cursor: 'pointer', width: 'auto', gap: '.4rem' }}>
-          <Upload size={14} aria-hidden="true" /> Choose .ics file
-        </label>
-        <input id="ics-input" type="file" accept=".ics" onChange={handleICSUpload} style={{ display: 'none' }} />
       </div>
 
-      {/* Plan generation controls */}
+      {/* Controls */}
       <div className="card mb-2">
-        <div className="flex items-center gap-2" style={{ flexWrap: 'wrap' }}>
-          <label htmlFor="plan-date" style={{ margin: 0, whiteSpace: 'nowrap' }}>Plan for:</label>
+        <div className="planner-controls">
+          <label htmlFor="plan-date" className="planner-date-label">Plan for:</label>
           <input
             id="plan-date" type="date" value={planDate}
             onChange={e => setPlanDate(e.target.value)}
-            style={{ width: '160px' }}
+            className="planner-date-input"
           />
-          <button className="btn btn-primary btn-sm" onClick={handleGenerate} disabled={generating}>
-            <Zap size={14} aria-hidden="true" /> {generating ? 'Generating…' : 'Generate My Day'}
-          </button>
-          {plan && plan.status === 'draft' && (
-            <>
-              <button className="btn btn-ghost btn-sm" style={{ color: 'var(--success)' }} onClick={handleAccept}>✓ Accept</button>
-              <button className="btn btn-ghost btn-sm" style={{ color: 'var(--error)' }} onClick={handleReject}>✗ Reject</button>
-            </>
-          )}
-          {plan && (
-            <span className={`badge badge-${plan.status === 'accepted' ? 'ok' : plan.status === 'rejected' ? 'err' : 'warn'}`}>
-              {plan.status}
-            </span>
-          )}
+          <div className="planner-ctrl-actions">
+            <button className="btn btn-primary btn-sm" onClick={handleGenerate} disabled={generating}>
+              <CalendarDays size={14} aria-hidden="true" /> {generating ? 'Generating…' : 'Generate plan'}
+            </button>
+            {plan && (
+              <span className={`badge badge-${plan.status === 'accepted' ? 'ok' : plan.status === 'rejected' ? 'err' : 'warn'}`}>
+                {plan.status}
+              </span>
+            )}
+          </div>
         </div>
-        {error && <p className="state-error mt-1">{error}</p>}
+        {error && <p className="state-error mt-1" role="alert">{error}</p>}
       </div>
 
-      {/* Visual timeline + sidebar */}
+      {/* Plan view */}
       {plan && plan.blocks.length > 0 && (
-        <div className="planner-layout">
-          <div>
-            <h2>Visual Timeline</h2>
-            <DayTimeline plan={plan} />
+        <>
+          {/* Mobile segment control */}
+          <div className="planner-segment" role="group" aria-label="Plan view">
+            <button
+              className={`segment-btn${mobileView === 'timeline' ? ' segment-btn-active' : ''}`}
+              onClick={() => setMobileView('timeline')}
+              aria-pressed={mobileView === 'timeline'}
+            >
+              Timeline
+            </button>
+            <button
+              className={`segment-btn${mobileView === 'list' ? ' segment-btn-active' : ''}`}
+              onClick={() => setMobileView('list')}
+              aria-pressed={mobileView === 'list'}
+            >
+              List
+            </button>
           </div>
 
-          <div>
-            {plan.warnings.length > 0 && (
-              <div className="card mb-2" style={{ borderColor: 'var(--warning)', background: 'var(--surface-alt)' }}>
-                <strong>⚠ Warnings</strong>
-                <ul className="text-sm" style={{ marginTop: '.5rem', paddingLeft: '1.2rem' }}>
-                  {plan.warnings.map((w, i) => <li key={i}>{w}</li>)}
-                </ul>
-              </div>
-            )}
+          <div className="planner-layout">
+            {/* Timeline */}
+            <div className={`planner-timeline-col${mobileView === 'list' ? ' planner-col-hidden' : ''}`}>
+              <h2>Timeline</h2>
+              <DayTimeline plan={plan} />
+            </div>
 
-            <h2>Blocks</h2>
-            <ul className="block-list">
-              {[...plan.blocks].sort((a, b) =>
-                new Date(a.start_at_utc).getTime() - new Date(b.start_at_utc).getTime()
-              ).map(block => (
-                <li key={block.id} className={`block-item card block-${block.block_type}`}>
-                  <div className="flex justify-between items-center">
-                    <strong className="text-sm">{block.title}</strong>
-                    <span className={`badge badge-${block.block_type === 'fixed_event' ? 'err' : block.block_type === 'break' ? 'ok' : 'warn'}`}>
-                      {block.block_type.replace('_', ' ')}
-                    </span>
-                  </div>
-                  <div className="text-muted text-sm">
-                    {fmtTime(block.start_at_utc)} – {fmtTime(block.end_at_utc)}
-                  </div>
-                  <details className="text-sm mt-1">
-                    <summary style={{ cursor: 'pointer', color: 'var(--accent)' }}>Why?</summary>
-                    <p style={{ marginTop: '.3rem', color: 'var(--text-muted)' }}>{block.reason}</p>
-                  </details>
-                </li>
-              ))}
-            </ul>
+            {/* Block list + unscheduled */}
+            <div className={`planner-list-col${mobileView === 'timeline' ? ' planner-col-hidden' : ''}`}>
+              {plan.warnings.length > 0 && (
+                <div className="card mb-2 planner-warnings">
+                  <strong>Warnings</strong>
+                  <ul className="text-sm">
+                    {plan.warnings.map((w, i) => <li key={i}>{w}</li>)}
+                  </ul>
+                </div>
+              )}
 
-            {plan.unscheduled.length > 0 && (
-              <div className="mt-2">
-                <h3>Unscheduled</h3>
-                <ul className="block-list">
-                  {plan.unscheduled.map((u, i) => (
-                    <li key={i} className="card" style={{ borderColor: 'var(--error)' }}>
-                      <strong className="text-sm">{u.title}</strong>
-                      <p className="text-muted text-sm" style={{ marginTop: '.25rem' }}>{u.reason}</p>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+              <h2>Blocks</h2>
+              <ul className="block-list">
+                {[...plan.blocks].sort((a, b) =>
+                  new Date(a.start_at_utc).getTime() - new Date(b.start_at_utc).getTime()
+                ).map(block => (
+                  <li key={block.id} className={`card block-item block-${block.block_type}`}>
+                    <div className="flex justify-between items-center">
+                      <strong className="text-sm">{block.title}</strong>
+                      <span className="badge badge-synth text-sm">{BLOCK_LABELS[block.block_type] ?? block.block_type}</span>
+                    </div>
+                    <div className="text-muted text-sm">
+                      {formatTime(block.start_at_utc)} – {formatTime(block.end_at_utc)}
+                    </div>
+                    <details className="text-sm mt-1">
+                      <summary className="planner-why-summary">Why?</summary>
+                      <p className="text-muted">{block.reason}</p>
+                    </details>
+                  </li>
+                ))}
+              </ul>
+
+              {plan.unscheduled.length > 0 && (
+                <div className="mt-2">
+                  <h3>Unscheduled</h3>
+                  <ul className="block-list">
+                    {plan.unscheduled.map((u, i) => (
+                      <li key={i} className="card planner-unscheduled">
+                        <strong className="text-sm">{u.title}</strong>
+                        <p className="text-muted text-sm">{u.reason}</p>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+
+          {/* Sticky action bar */}
+          {plan.status === 'draft' && (
+            <div className="planner-action-bar">
+              <button className="btn btn-primary btn-sm" onClick={handleAccept}>Accept plan</button>
+              <button className="btn btn-ghost btn-sm" onClick={handleReject}>Reject</button>
+            </div>
+          )}
+        </>
       )}
 
       {/* Fixed events for selected day */}
@@ -273,7 +340,7 @@ export default function PlannerScreen() {
                 <li key={ev.id} className="card block-item block-fixed_event">
                   <div className="flex justify-between">
                     <strong>{ev.title}</strong>
-                    <span className="text-muted text-sm">{fmtTime(ev.start_at_utc)} – {fmtTime(ev.end_at_utc)}</span>
+                    <span className="text-muted text-sm">{formatTime(ev.start_at_utc)} – {formatTime(ev.end_at_utc)}</span>
                   </div>
                   {ev.location_text && <p className="text-muted text-sm">{ev.location_text}</p>}
                 </li>

@@ -1,6 +1,8 @@
+/* Skeleton — token-only colors */
+
 .skeleton-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: var(--panel);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 1rem 1.25rem;
   overflow: hidden;
@@ -14,8 +16,13 @@
 
 .skeleton-line {
   height: 14px;
-  border-radius: 6px;
-  background: linear-gradient(90deg, var(--surface-alt) 25%, var(--border) 50%, var(--surface-alt) 75%);
+  border-radius: var(--r-sm);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--line) 60%, var(--panel)) 25%,
+    var(--line) 50%,
+    color-mix(in srgb, var(--line) 60%, var(--panel)) 75%
+  );
   background-size: 200% 100%;
   animation: shimmer 1.4s infinite;
   margin-bottom: .5rem;
@@ -28,4 +35,8 @@
 @keyframes shimmer {
   0%   { background-position: 200% 0; }
   100% { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-line { animation: none; }
 }

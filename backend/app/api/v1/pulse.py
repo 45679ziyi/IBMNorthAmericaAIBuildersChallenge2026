@@ -1,43 +1,84 @@
 """Campus Pulse — synthetic sensor data only."""
 from __future__ import annotations
 
-from datetime import datetime, timezone, timedelta
-import random
+from datetime import datetime, timezone
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 
-from app.schemas.schemas import SensorReadingRead
+from app.schemas.schemas import SensorReadingRead, PulseSeries, PulseSeriesPoint, PulseInsight
+from app.services.ops import sim as sim_mod
+from app.services.ops.analyzer import analyze
 
 router = APIRouter()
-
-SENSORS = [
-    ("Demo Building A / Room 101", "temperature", 21.5, "°C"),
-    ("Demo Building A / Room 101", "air_quality", 42.0, "AQI"),
-    ("Demo Building A / Room 101", "occupancy_count", 18.0, "people"),
-    ("Demo Library / Study Room 3", "temperature", 22.1, "°C"),
-    ("Demo Library / Study Room 3", "occupancy_count", 4.0, "people"),
-    ("Demo Campus Center", "device_health", 98.0, "%"),
-]
-
-_DISCLAIMER = "SIMULATED DATA — NOT CONNECTED TO SBU SYSTEMS"
 
 
 @router.get("/demo", response_model=list[SensorReadingRead])
 def campus_pulse_demo():
-    """Return synthetic sensor readings. data_origin is always 'synthetic'."""
+    """Return synthetic sensor readings (deterministic per 5-min bucket). data_origin='synthetic'."""
     now = datetime.now(timezone.utc)
-    readings = []
-    for i, (label, metric, base_val, unit) in enumerate(SENSORS):
-        jitter = random.uniform(-2.0, 2.0)
-        readings.append(
-            SensorReadingRead(
-                id=f"synth-{i:03d}",
-                sensor_label=label,
-                metric_type=metric,
-                value=round(base_val + jitter, 1),
-                unit=unit,
-                recorded_at_utc=now - timedelta(minutes=i),
-                data_origin="synthetic",
-            )
+    latest = sim_mod.generate_latest(now)
+    return [
+        SensorReadingRead(
+            id=r.id,
+            sensor_label=r.sensor_label,
+            metric_type=r.metric_type,
+            value=r.value,
+            unit=r.unit,
+            recorded_at_utc=r.recorded_at_utc,
+            data_origin=r.data_origin,
         )
-    return readings
+        for r in latest
+    ]
+
+
+@router.get("/series", response_model=list[PulseSeries])
+def campus_pulse_series(
+    points: int = Query(default=24, ge=1, le=288),
+    scenario: str = Query(default="demo_incident"),
+):
+    """Return per-sensor time-series for the last `points` 5-minute buckets."""
+    now = datetime.now(timezone.utc)
+    series_list = sim_mod.generate_series(now=now, points=points, scenario=scenario)
+    result: list[PulseSeries] = []
+    for s in series_list:
+        result.append(PulseSeries(
+            sensor_label=s.sensor_label,
+            metric_type=s.metric_type,
+            unit=s.unit,
+            capacity=s.capacity,
+            points=[
+                PulseSeriesPoint(
+                    recorded_at_utc=p.recorded_at_utc,
+                    value=p.value,
+                    data_origin=p.data_origin,
+                )
+                for p in s.points
+            ],
+            data_origin=s.data_origin,
+        ))
+    return result
+
+
+@router.get("/insights", response_model=list[PulseInsight])
+def campus_pulse_insights(
+    scenario: str = Query(default="demo_incident"),
+):
+    """Return rule-based insights from the current sensor series."""
+    now = datetime.now(timezone.utc)
+    series_list = sim_mod.generate_series(now=now, points=24, scenario=scenario)
+    raw_insights = analyze(series_list)
+    return [
+        PulseInsight(
+            id=ins.id,
+            severity=ins.severity,
+            sensor_label=ins.sensor_label,
+            metric_type=ins.metric_type,
+            message=ins.message,
+            evidence=ins.evidence,
+            recommended_human_action=ins.recommended_human_action,
+            automated_action=ins.automated_action,
+            status=ins.status,
+            data_origin=ins.data_origin,
+        )
+        for ins in raw_insights
+    ]

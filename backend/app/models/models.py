@@ -142,6 +142,8 @@ class Announcement(Base):
         Enum("demo", "approved_connector", name="ann_source_enum"), default="demo"
     )
     retrieved_at_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+    is_read: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    read_at_utc: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     user: Mapped[UserProfile] = relationship(back_populates="announcements")
 

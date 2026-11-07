@@ -1,13 +1,12 @@
 import { useState, useRef, useEffect } from 'react'
 import './AssistantScreen.css'
 import { askAssistant, AssistantResponse } from '../../api/client'
-import { Send, Bot, User, ExternalLink } from 'lucide-react'
+import { Send, ExternalLink, CheckCircle, AlertCircle, XCircle } from 'lucide-react'
 
-const EXAMPLE_PROMPTS = [
-  'What is FERPA and how does it protect student records?',
-  'How can I access my education records at SBU?',
-  'Where is Melville Library and what services does it offer?',
-  'What is the SBU events calendar feed?',
+const SUGGESTED_CHIPS = [
+  'What is FERPA?',
+  'How do I access my education records?',
+  'Where is the library?',
 ]
 
 function fmtDate(iso: string) {
@@ -24,25 +23,48 @@ interface ChatEntry {
   isLoading?: boolean
 }
 
-// ── Coverage badge ──────────────────────────────────────────────────────────
-function CoverageBadge({ coverage }: { coverage: 'supported' | 'partial' | 'not_found' }) {
-  const map: Record<string, { cls: string; label: string }> = {
-    supported: { cls: 'badge-ok', label: '✓ Supported' },
-    partial:   { cls: 'badge-warn', label: '⚠ Partial' },
-    not_found: { cls: 'badge-err', label: '✕ Not found' },
+// ── Coverage line (text + icon, not color-only) ───────────────────────────────
+function CoverageLine({ response }: { response: AssistantResponse }) {
+  const { coverage } = response
+
+  const providerNote = response.disclaimer
+    ? `Answer by: Rule-based summary`
+    : undefined
+
+  if (coverage === 'supported') {
+    return (
+      <div className="coverage-line coverage-line-supported">
+        <CheckCircle size={14} aria-hidden="true" />
+        <span>Verified from {response.sources.length} official source{response.sources.length !== 1 ? 's' : ''}</span>
+        {providerNote && <span className="coverage-provider">{providerNote}</span>}
+      </div>
+    )
   }
-  const { cls, label } = map[coverage] ?? map.not_found
-  return <span className={`badge ${cls}`}>{label}</span>
+  if (coverage === 'partial') {
+    return (
+      <div className="coverage-line coverage-line-partial">
+        <AlertCircle size={14} aria-hidden="true" />
+        <span>Partly covered. Check the sources below.</span>
+        {providerNote && <span className="coverage-provider">{providerNote}</span>}
+      </div>
+    )
+  }
+  return (
+    <div className="coverage-line coverage-line-not-found">
+      <XCircle size={14} aria-hidden="true" />
+      <span>Couldn't verify this. Try the official site.</span>
+    </div>
+  )
 }
 
-// ── Main screen ─────────────────────────────────────────────────────────────
+// ── Main screen ───────────────────────────────────────────────────────────────
 export default function AssistantScreen() {
   const [thread, setThread] = useState<ChatEntry[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [idCounter, setIdCounter] = useState(0)
   const bottomRef = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const inputRef = useRef<HTMLTextAreaElement>(null)
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {
@@ -55,15 +77,14 @@ export default function AssistantScreen() {
     return id
   }
 
-  async function handleAsk(q = input) {
-    if (!q.trim() || loading) return
+  async function handleAsk(q = input.trim()) {
+    if (!q || loading) return
     setInput('')
 
     const userId = nextId()
     const loadingId = userId + 1
     setIdCounter(loadingId)
 
-    // Add user bubble + loading bubble atomically
     setThread(prev => [
       ...prev,
       { id: userId, role: 'user', text: q },
@@ -81,7 +102,7 @@ export default function AssistantScreen() {
     } catch (err) {
       setThread(prev => prev.map(e =>
         e.id === loadingId
-          ? { id: loadingId, role: 'assistant', text: `Error: ${String(err)}` }
+          ? { id: loadingId, role: 'assistant', text: `Couldn't get an answer. Check that the backend is running on port 8000, then try again.` }
           : e
       ))
     }
@@ -89,34 +110,36 @@ export default function AssistantScreen() {
     inputRef.current?.focus()
   }
 
-  function handleExampleClick(p: string) {
-    setInput(p)
-    handleAsk(p)
+  function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    // Enter sends; Shift+Enter adds newline
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleAsk()
+    }
   }
 
   return (
     <div className="assistant-layout">
       <div className="screen-title">
-        <h1>Campus Assistant</h1>
-        <p>Ask questions grounded in the curated SBU public knowledge base.</p>
+        <h1>Ask</h1>
+        <p>Questions grounded in public SBU knowledge sources.</p>
       </div>
 
       <div className="assistant-notice card" role="note">
-        <p className="text-sm" style={{ margin: 0 }}>
-          <strong>Knowledge source:</strong> A small curated set of public SBU policy pages.
-          Answers are for informational purposes only. Verify important decisions with the official source.
+        <p className="text-sm">
+          <strong>Knowledge source:</strong> A curated set of public SBU policy pages.
+          Verify important decisions with the official source.
         </p>
       </div>
 
       {/* Chat thread */}
-      <div className="chat-thread" aria-label="Conversation" aria-live="polite">
+      <div className="chat-thread" aria-label="Conversation">
         {thread.length === 0 && (
           <div className="chat-empty">
-            <Bot size={32} strokeWidth={1.5} aria-hidden="true" />
-            <p>Ask anything about SBU policies, calendar, library, or campus events.</p>
-            <div className="example-prompts">
-              {EXAMPLE_PROMPTS.map(p => (
-                <button key={p} className="btn btn-ghost btn-sm" onClick={() => handleExampleClick(p)}>
+            <p className="chat-empty-prompt">Ask anything about SBU policies, calendar, library, or campus events.</p>
+            <div className="suggested-chips" aria-label="Suggested questions">
+              {SUGGESTED_CHIPS.map(p => (
+                <button key={p} className="chip-btn" onClick={() => handleAsk(p)}>
                   {p}
                 </button>
               ))}
@@ -124,87 +147,96 @@ export default function AssistantScreen() {
           </div>
         )}
 
-        {thread.map(entry => (
-          <div
-            key={entry.id}
-            className={`chat-bubble-row chat-bubble-row-${entry.role}`}
-          >
-            <div className={`chat-avatar chat-avatar-${entry.role}`} aria-hidden="true">
-              {entry.role === 'user' ? <User size={14} /> : <Bot size={14} />}
-            </div>
+        <div aria-live="polite" aria-label="Conversation messages">
+          {thread.map(entry => (
+            <div
+              key={entry.id}
+              className={`chat-bubble-row chat-bubble-row-${entry.role}`}
+            >
+              <div className={`chat-bubble chat-bubble-${entry.role}`}>
+                {entry.isLoading
+                  ? <span className="chat-searching" aria-label="Searching sources…">Searching sources…</span>
+                  : (
+                    <>
+                      <p className="chat-text">{entry.text}</p>
 
-            <div className={`chat-bubble chat-bubble-${entry.role}`}>
-              {entry.isLoading
-                ? (
-                  <span className="chat-typing" aria-label="Thinking…">
-                    <span /><span /><span />
-                  </span>
-                )
-                : (
-                  <>
-                    <p style={{ whiteSpace: 'pre-wrap', margin: 0 }}>{entry.text}</p>
+                      {entry.response && (
+                        <div className="chat-meta">
+                          <CoverageLine response={entry.response} />
 
-                    {entry.response && (
-                      <div className="chat-meta">
-                        <CoverageBadge coverage={entry.response.coverage} />
-                        {entry.response.sources.length > 0 && (
-                          <details className="sources-details">
-                            <summary className="text-sm" style={{ cursor: 'pointer', color: 'var(--accent)' }}>
-                              {entry.response.sources.length} source{entry.response.sources.length > 1 ? 's' : ''}
-                            </summary>
-                            <ul className="sources-list">
-                              {entry.response.sources.map((s, i) => (
-                                <li key={i} className="source-item">
-                                  <a href={s.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1">
-                                    {s.title} <ExternalLink size={11} aria-hidden="true" />
-                                  </a>
-                                  <span className="text-muted text-sm">
-                                    {s.publisher} · Verified: {fmtDate(s.last_verified_at_utc)}
-                                  </span>
-                                  <p className="text-muted text-sm excerpt">{s.excerpt}</p>
-                                </li>
-                              ))}
-                            </ul>
-                          </details>
-                        )}
-                        <p className="text-muted text-sm disclaimer">{entry.response.disclaimer}</p>
-                      </div>
-                    )}
-                  </>
-                )
-              }
+                          {entry.response.sources.length > 0 && (
+                            <details className="sources-details">
+                              <summary className="sources-summary">
+                                {entry.response.sources.length} source{entry.response.sources.length > 1 ? 's' : ''}
+                              </summary>
+                              <ul className="sources-list">
+                                {entry.response.sources.map((s, i) => (
+                                  <li key={i} className="source-item">
+                                    <a
+                                      href={s.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="source-link-row"
+                                    >
+                                      {s.title}
+                                      <ExternalLink size={11} aria-hidden="true" />
+                                    </a>
+                                    <span className="text-muted text-sm">
+                                      {s.publisher} · last verified {fmtDate(s.last_verified_at_utc)}
+                                    </span>
+                                    <details className="source-excerpt-details">
+                                      <summary className="text-sm source-excerpt-toggle">Show excerpt</summary>
+                                      <p className="text-muted text-sm source-excerpt">{s.excerpt}</p>
+                                    </details>
+                                  </li>
+                                ))}
+                              </ul>
+                            </details>
+                          )}
+
+                          <p className="chat-disclaimer text-muted">{entry.response.disclaimer}</p>
+                        </div>
+                      )}
+                    </>
+                  )
+                }
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
 
         <div ref={bottomRef} aria-hidden="true" />
       </div>
 
-      {/* Input bar */}
-      <form
-        className="chat-input-bar"
-        onSubmit={e => { e.preventDefault(); handleAsk() }}
-        aria-label="Ask assistant"
-      >
-        <input
-          ref={inputRef}
-          type="text"
-          placeholder="Ask about SBU policies, calendar, library, events…"
-          value={input}
-          onChange={e => setInput(e.target.value)}
-          aria-label="Your question"
-          disabled={loading}
-          autoComplete="off"
-        />
-        <button
-          type="submit"
-          className="btn btn-primary btn-icon"
-          disabled={loading || !input.trim()}
-          aria-label="Send"
+      {/* Composer — sticky at bottom, above tab bar */}
+      <div className="chat-composer-wrap">
+        <form
+          className="chat-input-bar"
+          onSubmit={e => { e.preventDefault(); handleAsk() }}
+          aria-label="Ask assistant"
         >
-          <Send size={16} aria-hidden="true" />
-        </button>
-      </form>
+          <textarea
+            ref={inputRef}
+            placeholder="Ask about SBU policies, calendar, library, events… (Enter to send)"
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            aria-label="Your question"
+            disabled={loading}
+            autoComplete="off"
+            rows={1}
+            className="chat-textarea"
+          />
+          <button
+            type="submit"
+            className="btn btn-primary btn-icon"
+            disabled={loading || !input.trim()}
+            aria-label="Send"
+          >
+            <Send size={16} aria-hidden="true" />
+          </button>
+        </form>
+      </div>
     </div>
   )
 }

@@ -91,3 +91,99 @@ All improvements were additive (new components, new CSS classes, upgraded screen
 ---
 
 > This record is truthful. No Bob usage is fabricated or exaggerated.
+
+---
+
+## UI redesign and fix session (November 4, 2026)
+
+### What IBM Bob did
+
+A third session implementing the full UI_AND_FIX_BRIEF.md: backend fixes, new features, complete frontend redesign, and hygiene.
+
+**Baseline recorded before starting:**
+- Backend: `pytest -v` → 20 passed, 3 warnings
+- Frontend: `tsc --noEmit` → 0 errors; `vite build` → ✓ 222 kB JS (68 kB gzip)
+
+**Phase 1 — Backend (Section 3)**
+
+| Task | Bob's role |
+|---|---|
+| 3.1: `is_read`/`read_at_utc` on `Announcement` model | Written by Bob |
+| 3.1: `_ensure_columns()` idempotent ALTER TABLE migration in `session.py` | Written by Bob |
+| 3.1: `PATCH /announcements/{id}`, `POST /announcements/mark-all-read`, `GET /announcements/unread-count` | Written by Bob |
+| 3.1: 5 new tests (`test_announcements_default_unread`, `test_mark_announcement_read_and_unread_count`, `test_mark_all_read`, `test_announcement_not_found`, `test_init_db_is_idempotent`) | Written by Bob |
+| 3.2: Rewrote `retriever.py` with term-coverage approach — fixes inverted FTS filter (B2) | Written by Bob |
+| 3.2: Fixed `assistant.py` so `partial` coverage is reachable (B3) | Written by Bob |
+| 3.2: Fixed `provider.py` `_mock_answer` to be extractive and sentence-safe (B4) | Written by Bob |
+| 3.2: Added `coverage_score` and `matched_terms` to `AssistantAskResponse` schema | Written by Bob |
+| 3.2: 10 new tests (6 parametrized coverage, term extraction, partial reachable, no mid-sentence, injection safety) | Written by Bob |
+| 3.3: `services/ops/sim.py` — deterministic 5-min bucket simulation, two scenarios | Written by Bob |
+| 3.3: `services/ops/analyzer.py` — rule-based `PulseInsight` with trend detection | Written by Bob |
+| 3.3: Updated `pulse.py` with deterministic `/demo`, new `/series`, new `/insights` | Written by Bob |
+| 3.3: `PulseInsight`, `PulseSeries`, `PulsePoint` schemas; 5 new tests | Written by Bob |
+| 3.4: `sample-data/security_assets_demo.json`, `sample-data/security_advisories_demo.json` (5 entries, including injection advisory) | Written by Bob |
+| 3.4: `services/security/` — models, matcher, posture, report | Written by Bob |
+| 3.4: `api/v1/security.py` — GET/POST watchdog, POST escalate | Written by Bob |
+| 3.4: `scripts/run_security_check.py` | Written by Bob |
+| 3.4: 11 new tests (cert hit, version hit/miss, unmatched firmware, expiry thresholds, injection advisory, stable ordering, posture CORS, escalate audit, no-network, all findings needs_human_review) | Written by Bob |
+
+**Phase 1 gate result:** `pytest -v` → 51 passed, 3 warnings (0 failures)
+
+**Phase 2 — Frontend foundation (Section 4)**
+
+| Task | Bob's role |
+|---|---|
+| Installed `@fontsource-variable/bricolage-grotesque` and `@fontsource-variable/hanken-grotesk` | Done by Bob |
+| Created `src/styles/tokens.css` — all hex values in one file; light + dark token blocks | Written by Bob |
+| Rewrote `global.css` to use tokens only; removed hard-coded hex; fixed badge dark-mode patches | Written by Bob |
+| Updated `index.html` — flash-free inline theme script + `meta theme-color` for both schemes | Written by Bob |
+| Created `src/lib/time.ts` — all time helpers in America/New_York; replaced every per-file fmtTime etc. | Written by Bob |
+| Created `src/state/badges.tsx` — BadgesProvider/useBadges; getUnreadCount + getTasks; 60s refresh + focus | Written by Bob |
+| Extended `src/api/client.ts` — 7 new functions + new interfaces for Pulse, Security, Announcement read state | Written by Bob |
+| Created `StatusChip`, `EmptyState`, `ErrorState`, `Tabs`, `Sheet` shared components | Written by Bob |
+| Restyled `Toast.css`, `Skeleton.css`, `ConfirmModal.css` to tokens only | Written by Bob |
+| Rewrote `App.tsx` + `App.css` — desktop rail, tablet icon-rail, mobile top-bar + bottom tab bar; three-way theme | Written by Bob |
+
+**Phase 3 — Screens (Section 5)**
+
+| Screen | What changed |
+|---|---|
+| S1 TodayScreen | Now/Next band; CSS-var timeline with now-marker animation; progress bar (`role="progressbar"`); `TodaySummary` replaces `BriefingCard`; `StatusChip variant="rule-based"`; removed Donut, AI wording, connector strip |
+| S2 PlannerScreen | Timeline uses `--hour-h` CSS variable (not fixed 640px); JS scroll-to-now; mobile Timeline/List segmented control; sticky accept/reject action bar; token-only block colors |
+| S3 TasksScreen | Quick-add field; grouped rows (Overdue/Today/This week/Later/No date/Completed); 44px touch targets; overflow menu; Sheet for edit; no inline styles; full CSS |
+| S4 CampusScreen | URL tab routing (`?tab=events|announcements|operations`); announcements mark-as-read; badge refresh; Operations tab with pulse poll (30s, visibility-gated), SVG sparklines, insights, security findings with simulated escalation |
+| S5 AssistantScreen | Coverage as text+icon; suggested chips verified supported; "Searching sources…" replaces typing dots; Enter sends; safe-area aware composer |
+| S6 PrivacyScreen | Five sections; data controls via Sheet; connector status chips; no inline styles |
+
+**Phase 2+3 gate result:** `tsc --noEmit` → 0 errors; `vite build` → ✓ 241 kB JS (73 kB gzip), 42 kB CSS (9.7 kB gzip)
+
+**Phase 4 — Docs and hygiene**
+
+- README.md: all absolute paths removed; commands are project-root-relative; feature table updated
+- Deleted `docs/AURORA_Campus_Intelligence_Project_Spec_for_IBM_Bob.md` (duplicate)
+- `.gitignore`: removed duplicate `*.tsbuildinfo` line; added `docs/screenshots/`
+- `ARCHITECTURE.md`: added Ops Simulation Layer and Security Watchdog components, read-only boundary description
+- `SECURITY_AND_PRIVACY.md`: added "Why no E2E encryption" and "Target privacy architecture (future, not implemented)"
+
+### Bugs fixed this session
+
+1. **Inverted FTS relevance filter (B2)** — `if score < -2.5: continue` dropped the best matches. Replaced with term-coverage approach. Regression tests added.
+2. **Unreachable `partial` branch (B3)** — Coverage derived from chunk count; `partial` was unreachable. Fixed by deriving coverage from retriever output.
+3. **Mid-sentence answer cuts (B4)** — Mock provider cut at 600 chars mid-sentence. Replaced with extractive sentence scoring.
+4. **Nav badge never decreasing (B1)** — `ann.length` always = total. Fixed with `GET /announcements/unread-count` and mark-as-read endpoints.
+5. **Hard-coded hex in dark mode (U1)** — Centralized all hex in `tokens.css`; component CSS uses `color-mix(in srgb, var(--token) 12%, var(--paper))`.
+6. **No `prefers-color-scheme` handling (U2)** — Three-way theme with OS detection and localStorage persistence.
+7. **Missing mobile navigation (U3)** — Bottom tab bar on mobile; left rail on desktop.
+8. **Fixed 640px timeline (U4)** — `calc(16 * var(--hour-h, 48px))` with scroll-to-now.
+9. **"AI Briefing" label on rule-based text (U8)** — Renamed to "Today's summary" with `StatusChip variant="rule-based"`.
+
+### What could not be verified
+
+- Playwright was not installed and screenshots were not taken. Axe violations were not automatically measured. Items needing human review: contrast ratios in both themes, touch target sizes at 390px, and horizontal scroll at all breakpoints.
+- Visual inspection of the running app was not performed; font loading, animation timing, and layout on physical devices were not checked.
+
+### Tests edited
+
+- No existing tests were deleted or have their assertions changed. The assistant parametrized tests are new tests.
+
+---

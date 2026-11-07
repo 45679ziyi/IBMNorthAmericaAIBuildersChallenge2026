@@ -60,6 +60,8 @@ export interface Announcement {
   source_type: string
   retrieved_at_utc: string
   is_demo: boolean
+  is_read: boolean
+  read_at_utc?: string
 }
 
 export interface CampusEvent {
@@ -114,6 +116,54 @@ export interface AssistantResponse {
   coverage: 'supported' | 'partial' | 'not_found'
   updated_at: string
   disclaimer: string
+  coverage_score: number
+  matched_terms: string[]
+}
+
+export interface PulseSeries {
+  sensor_label: string
+  metric_type: string
+  points: PulsePoint[]
+}
+
+export interface PulsePoint {
+  bucket_ts: string
+  value: number
+  unit: string
+  data_origin: string
+}
+
+export interface PulseInsight {
+  id: string
+  severity: 'info' | 'warn' | 'critical'
+  sensor_label: string
+  metric_type: string
+  message: string
+  evidence: Record<string, unknown>
+  recommended_human_action: string
+  automated_action: null
+  data_origin: string
+}
+
+export interface SecurityFinding {
+  id: string
+  kind: string
+  severity: string
+  title: string
+  evidence: string[]
+  affected_asset_ids: string[]
+  advisory_id?: string
+  status: string
+  recommended_human_action: string
+  detected_at_utc: string
+  data_origin: string
+}
+
+export interface SecurityReport {
+  last_run_at_utc: string
+  schedule_note: string
+  summary: { critical: number; warn: number; info: number }
+  findings: SecurityFinding[]
 }
 
 export interface ConnectorStatus {
@@ -181,6 +231,11 @@ export const deleteTask = (id: string) =>
 
 // Announcements
 export const getAnnouncements = () => request<Announcement[]>('/announcements')
+export const getUnreadCount = () => request<{ unread: number }>('/announcements/unread-count')
+export const markAnnouncementRead = (id: string, is_read: boolean) =>
+  request<Announcement>(`/announcements/${id}`, { method: 'PATCH', body: JSON.stringify({ is_read }) })
+export const markAllAnnouncementsRead = () =>
+  request<{ marked: number }>('/announcements/mark-all-read', { method: 'POST' })
 
 // Plans
 export const generatePlan = (plan_date: string, timezone = 'America/New_York') =>
@@ -207,6 +262,16 @@ export const getConnectors = () => request<ConnectorStatus[]>('/connectors/statu
 
 // Campus Pulse
 export const getCampusPulse = () => request<SensorReading[]>('/campus-pulse/demo')
+export const getPulseSeries = (params?: { points?: number; scenario?: string }) =>
+  request<PulseSeries[]>(`/campus-pulse/series${params ? '?' + new URLSearchParams(params as Record<string, string>) : ''}`)
+export const getPulseInsights = (scenario?: string) =>
+  request<PulseInsight[]>(`/campus-pulse/insights${scenario ? '?scenario=' + scenario : ''}`)
+
+// Security
+export const getSecurityReport = () => request<SecurityReport>('/security/watchdog')
+export const runSecurityCheck = () => request<SecurityReport>('/security/watchdog/run', { method: 'POST' })
+export const escalateFinding = (id: string) =>
+  request<{ status: string; message: string }>(`/security/findings/${id}/escalate`, { method: 'POST' })
 
 // Reset
 export const resetDemoData = () =>

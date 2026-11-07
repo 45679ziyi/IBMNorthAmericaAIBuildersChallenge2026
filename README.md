@@ -2,7 +2,7 @@
 
 > **⚠️ Prototype notice:** AURORA is an independent educational prototype. It is not affiliated with, endorsed by, or operated by Stony Brook University or IBM.
 
-AURORA is a privacy-first campus intelligence assistant that turns a student's fragmented academic and campus information into a reliable, source-backed daily plan.
+AURORA is a privacy-first campus intelligence assistant that turns a student's fragmented academic and campus information into a reliable, source-backed daily plan — with honest labels on everything simulated or demo.
 
 ---
 
@@ -10,18 +10,25 @@ AURORA is a privacy-first campus intelligence assistant that turns a student's f
 
 | Feature | Status |
 |---|---|
-| Student home dashboard (today view) | ✅ |
+| Student home dashboard (Today view with Now/Next band) | ✅ |
 | Calendar import (`.ics`) with timezone normalization | ✅ |
 | Task manager (create / edit / complete / delete) | ✅ |
-| Announcements inbox (demo adapter) | ✅ |
-| Deterministic daily planning engine | ✅ |
-| Campus knowledge assistant (grounded RAG) | ✅ |
+| Announcements inbox with read state | ✅ |
+| Deterministic daily planning engine with visual timeline | ✅ |
+| Campus knowledge assistant (term-coverage RAG) | ✅ |
 | Privacy & Sources center | ✅ |
-| Campus Pulse demo (synthetic sensor data) | ✅ |
+| Campus Pulse simulation (deterministic synthetic sensors) | ✅ |
+| Pulse trend analysis and insights | ✅ |
+| Operations simulation (sensor insights + security watchdog) | ✅ |
+| Security watchdog (synthetic asset + advisory matching) | ✅ |
+| System / Light / Dark theme with no flash | ✅ |
+| Responsive layout (desktop rail, mobile bottom tab bar) | ✅ |
 
 ---
 
-## Quick Start
+## Quick start
+
+> **All commands below run from the project root** — the folder that contains `backend/` and `frontend/`. Never `cd` into a subdirectory unless the command tells you to.
 
 ### Prerequisites
 
@@ -32,56 +39,47 @@ AURORA is a privacy-first campus intelligence assistant that turns a student's f
 | npm | 9+ |
 | uv (recommended) | any recent |
 
-> **Important:** Every command below must be run **after `cd`-ing into the project folder**.
-> The project is located at:
-> ```
-> /Users/zl/Desktop/Stonybrook/Program/IBM 2026 NAC/aurora-campus-intelligence
-> ```
-> All `cd backend` / `cd frontend` paths are **relative to that folder**.
-
 ---
 
 ### Option A — One-line scripts (easiest)
 
-Open **Terminal 1** and run the backend:
+Open **Terminal 1** (backend):
 
 ```bash
-cd "/Users/zl/Desktop/Stonybrook/Program/IBM 2026 NAC/aurora-campus-intelligence"
 bash start.sh
 ```
 
-Open **Terminal 2** and run the frontend:
+Open **Terminal 2** (frontend):
 
 ```bash
-cd "/Users/zl/Desktop/Stonybrook/Program/IBM 2026 NAC/aurora-campus-intelligence"
 bash start_frontend.sh
 ```
 
-Open **http://localhost:5173** in your browser.
+Then open **http://localhost:5173** in your browser.
+
+The scripts are self-locating — run them from any directory, for example:
+
+```bash
+bash /path/to/aurora-campus-intelligence/start.sh
+```
 
 ---
 
 ### Option B — Step by step
 
-#### Step 1 — Navigate to the project root first
+All commands are relative to the project root (the folder that contains `backend/` and `frontend/`).
 
-```bash
-cd "/Users/zl/Desktop/Stonybrook/Program/IBM 2026 NAC/aurora-campus-intelligence"
-```
-
-> Every subsequent command assumes you are inside this folder.
-
-#### Step 2 — Install backend dependencies
+#### 1. Install backend dependencies
 
 ```bash
 cd backend
-uv venv --python python3        # or: python3 -m venv .venv
+uv venv --python python3       # or: python3 -m venv .venv
 source .venv/bin/activate
-uv pip install -e ".[dev]"      # or: pip install -e ".[dev]"
+uv pip install -e ".[dev]"     # or: pip install -e ".[dev]"
 cd ..
 ```
 
-#### Step 3 — Install frontend dependencies
+#### 2. Install frontend dependencies
 
 ```bash
 cd frontend
@@ -89,34 +87,32 @@ npm install
 cd ..
 ```
 
-#### Step 4 — Configure environment (optional)
+#### 3. Configure environment (optional)
 
 ```bash
 cp .env.example .env
 # Edit .env only if you want a live AI or weather provider
 ```
 
-#### Step 5 — Seed demo data
+#### 4. Seed demo data
 
 ```bash
-cd backend
-source .venv/bin/activate
+cd backend && source .venv/bin/activate
 python -m scripts.seed_demo_data
 cd ..
 ```
 
-#### Step 6 — Run backend (Terminal 1)
+#### 5. Run backend (Terminal 1)
 
 ```bash
-cd "/Users/zl/Desktop/Stonybrook/Program/IBM 2026 NAC/aurora-campus-intelligence/backend"
-source .venv/bin/activate
+cd backend && source .venv/bin/activate
 uvicorn app.main:app --reload --port 8000
 ```
 
-#### Step 7 — Run frontend (Terminal 2)
+#### 6. Run frontend (Terminal 2)
 
 ```bash
-cd "/Users/zl/Desktop/Stonybrook/Program/IBM 2026 NAC/aurora-campus-intelligence/frontend"
+cd frontend
 npm run dev
 ```
 
@@ -126,26 +122,33 @@ Open **http://localhost:5173**
 
 ### Reset demo data
 
+From the project root:
+
 ```bash
-cd "/Users/zl/Desktop/Stonybrook/Program/IBM 2026 NAC/aurora-campus-intelligence/backend"
-source .venv/bin/activate
+cd backend && source .venv/bin/activate
 python -m scripts.reset_demo_data
 ```
 
 ---
 
-## Run tests
+## Tests and validation
+
+All commands run from the project root.
 
 ```bash
-# Backend — from the backend/ folder
-cd "/Users/zl/Desktop/Stonybrook/Program/IBM 2026 NAC/aurora-campus-intelligence/backend"
-source .venv/bin/activate
+# Backend — pytest
+cd backend && source .venv/bin/activate
 pytest -v
 
-# Frontend — type check and production build
-cd "/Users/zl/Desktop/Stonybrook/Program/IBM 2026 NAC/aurora-campus-intelligence/frontend"
-npm run type-check
-npm run build
+# Frontend — TypeScript type-check
+cd frontend && npm run type-check
+
+# Frontend — production build
+cd frontend && npm run build
+
+# Run the security check simulation manually
+cd backend && source .venv/bin/activate
+python -m scripts.run_security_check
 ```
 
 ---
@@ -154,21 +157,24 @@ npm run build
 
 See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for a full overview.
 
-The stack is:
+Stack:
 
-- **Frontend:** React + TypeScript + Vite
+- **Frontend:** React + TypeScript + Vite, responsive (desktop rail / mobile bottom tabs)
 - **Backend:** Python 3.11+, FastAPI, SQLAlchemy 2.x, SQLite
 - **AI:** Provider-abstracted; defaults to deterministic mock (no external calls required)
-- **Retrieval:** SQLite FTS5 full-text search over curated public knowledge chunks
+- **Retrieval:** SQLite FTS5 full-text search with term-coverage ranking over curated public knowledge chunks
+- **Ops simulation:** Deterministic time-bucketed sensor simulation with trend analysis
+- **Security watchdog:** Synthetic fixture-based advisory and certificate matching; AURORA posture self-checks
 
 ---
 
-## Safety and compliance
+## Safety and honesty
 
 - All demo academic records are synthetic fiction. No real student data.
 - No connection to SBU SOLAR, Brightspace, campus networks, or real sensors.
 - No NetID password, Stony Brook ID, SSN, grades, or private messages are collected.
 - Campus Pulse readings are labeled `SIMULATED DATA — NOT CONNECTED TO SBU SYSTEMS`.
+- Security findings are based on fictional demo fixtures; they are advisory simulations only.
 - External LLM calls are opt-in; the app works fully offline with the mock provider.
 
 See [`docs/SECURITY_AND_PRIVACY.md`](docs/SECURITY_AND_PRIVACY.md).

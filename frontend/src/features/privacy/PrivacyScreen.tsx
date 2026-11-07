@@ -1,71 +1,90 @@
 import { useEffect, useState } from 'react'
 import './PrivacyScreen.css'
-import { getConnectors, getCampusPulse, resetDemoData, deleteUserData, ConnectorStatus, SensorReading } from '../../api/client'
-
-function fmtTime(iso: string) {
-  return new Date(iso).toLocaleString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' })
-}
+import { getConnectors, resetDemoData, deleteUserData, ConnectorStatus } from '../../api/client'
+import { Sheet } from '../../components/Sheet'
+import { StatusChip } from '../../components/StatusChip'
+import { useToast } from '../../components/Toast'
 
 export default function PrivacyScreen() {
   const [connectors, setConnectors] = useState<ConnectorStatus[]>([])
-  const [pulse, setPulse] = useState<SensorReading[]>([])
   const [loading, setLoading] = useState(true)
-  const [resetMsg, setResetMsg] = useState<string | null>(null)
-  const [deleteMsg, setDeleteMsg] = useState<string | null>(null)
+  const [resetSheetOpen, setResetSheetOpen] = useState(false)
+  const [deleteSheetOpen, setDeleteSheetOpen] = useState(false)
+  const { showToast } = useToast()
 
   useEffect(() => {
-    Promise.all([getConnectors(), getCampusPulse()])
-      .then(([c, p]) => { setConnectors(c); setPulse(p); setLoading(false) })
+    getConnectors()
+      .then(c => { setConnectors(c); setLoading(false) })
       .catch(() => setLoading(false))
   }, [])
 
   async function handleReset() {
-    if (!confirm('Reset all demo data to initial state?')) return
+    setResetSheetOpen(false)
     const r = await resetDemoData().catch(e => ({ status: 'error', message: String(e) }))
-    setResetMsg(r.message)
+    showToast(r.message, r.status === 'error' ? 'error' : 'success')
   }
 
   async function handleDelete() {
-    if (!confirm('Delete all local prototype data? This cannot be undone.')) return
+    setDeleteSheetOpen(false)
     const r = await deleteUserData().catch(e => ({ status: 'error', message: String(e) }))
-    setDeleteMsg(r.message)
+    showToast(r.message, r.status === 'error' ? 'error' : 'success')
+  }
+
+  function connectorChipVariant(status: ConnectorStatus['status']): 'live' | 'demo' | 'warn' {
+    if (status === 'connected') return 'live'
+    if (status === 'demo') return 'demo'
+    return 'warn'
   }
 
   return (
-    <div>
+    <div className="privacy-screen">
       <div className="screen-title">
         <h1>Privacy &amp; Sources</h1>
         <p>See how AURORA uses data, what is stored, and what leaves this device.</p>
       </div>
 
-      {/* Data policy summary */}
-      <div className="card mb-2" style={{ borderColor: '#86efac', background: '#f0fdf4' }}>
-        <h3>AURORA Prototype Data Policy</h3>
-        <ul className="text-sm">
-          <li>All demo academic records are <strong>synthetic fiction</strong>. No real student data is used.</li>
-          <li>No NetID, Stony Brook ID, SSN, real grades, or private messages are collected.</li>
-          <li>No connection to SBU SOLAR, Brightspace, campus networks, or real sensors is made.</li>
-          <li>Calendar data you import stays in your local browser session and the local SQLite database.</li>
-          <li>If an external AI provider is enabled via <code>AI_PROVIDER</code>, your assistant questions may be sent to that provider. Check the connector table below.</li>
-          <li>This prototype does not claim FERPA compliance, end-to-end encryption, or SBU approval.</li>
-        </ul>
-      </div>
+      {/* 1 — What stays on this device */}
+      <section aria-labelledby="priv-local-heading" className="priv-section">
+        <h2 id="priv-local-heading">What stays on this device</h2>
+        <div className="card">
+          <ul className="priv-list">
+            <li>Tasks you create or import</li>
+            <li>Calendar events you import via .ics</li>
+            <li>Daily plans generated in this session</li>
+            <li>Chat history (in-memory, cleared on page reload)</li>
+          </ul>
+        </div>
+      </section>
 
-      {/* Connector status table */}
-      <section aria-labelledby="sources-heading">
-        <h2 id="sources-heading">Connected Sources</h2>
+      {/* 2 — What can leave this device */}
+      <section aria-labelledby="priv-external-heading" className="priv-section">
+        <h2 id="priv-external-heading">What can leave this device</h2>
+        <div className="card">
+          <p className="text-sm">
+            Only if a live AI provider is configured via <code>AI_PROVIDER</code>: your assistant
+            questions may be sent to that external provider. Check the connector table below.
+            By default, no data leaves this device.
+          </p>
+          <p className="text-sm text-muted">
+            The connector table below shows which sources send data externally.
+          </p>
+        </div>
+      </section>
+
+      {/* 3 — Sources */}
+      <section aria-labelledby="priv-sources-heading" className="priv-section">
+        <h2 id="priv-sources-heading">Sources</h2>
         {loading
           ? <div className="state-loading">Loading…</div>
-          : <div className="sources-table-wrap">
+          : (
+            <div className="sources-table-wrap">
               <table className="sources-table" aria-label="Data sources">
                 <thead>
                   <tr>
                     <th scope="col">Source</th>
                     <th scope="col">Status</th>
                     <th scope="col">Data categories</th>
-                    <th scope="col">Purpose</th>
-                    <th scope="col">Sends to external AI?</th>
-                    <th scope="col">Last checked</th>
+                    <th scope="col">Sends externally?</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -73,66 +92,118 @@ export default function PrivacyScreen() {
                     <tr key={c.name}>
                       <td><strong>{c.name}</strong></td>
                       <td>
-                        <span className={`badge badge-${c.status === 'connected' ? 'ok' : c.status === 'demo' ? 'demo' : 'warn'}`}>
-                          {c.status}
-                        </span>
+                        <StatusChip variant={connectorChipVariant(c.status)} label={c.status} />
                       </td>
                       <td className="text-sm text-muted">{c.data_categories.join(', ')}</td>
-                      <td className="text-sm">{c.purpose}</td>
-                      <td className="text-sm">{c.sends_to_external_model ? <span style={{ color: 'var(--warning)' }}>Yes</span> : 'No'}</td>
-                      <td className="text-sm text-muted">{fmtTime(c.last_checked)}</td>
+                      <td className="text-sm">
+                        {c.sends_to_external_model
+                          ? <span className="priv-external-yes">Yes</span>
+                          : 'No'
+                        }
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
+          )
         }
       </section>
 
-      {/* Campus Pulse */}
-      <section aria-labelledby="pulse-sec-heading" className="mt-2">
-        <h2 id="pulse-sec-heading">Campus Pulse — Synthetic Data Only</h2>
-        <div className="card" style={{ borderColor: '#c4b5fd', background: '#faf5ff' }}>
-          <p className="text-sm" style={{ fontWeight: 700, color: 'var(--synth-badge)' }}>
-            SIMULATED DATA — NOT CONNECTED TO SBU SYSTEMS
-          </p>
-          <p className="text-sm">
-            These readings are generated locally in real time and represent no real building, sensor, or infrastructure.
-            No campus network access, device scanning, or SNMP/SSH is used.
-          </p>
-          {pulse.length > 0 && (
-            <ul className="pulse-list">
-              {pulse.map(r => (
-                <li key={r.id} className="pulse-row">
-                  <span className="text-sm">{r.sensor_label}</span>
-                  <span className="badge badge-synth">{r.data_origin}</span>
-                  <span className="text-sm"><strong>{r.value} {r.unit}</strong> — {r.metric_type}</span>
-                  <span className="text-muted text-sm">{fmtTime(r.recorded_at_utc)}</span>
-                </li>
-              ))}
-            </ul>
-          )}
+      {/* 4 — What AURORA does not claim */}
+      <section aria-labelledby="priv-claims-heading" className="priv-section">
+        <h2 id="priv-claims-heading">What AURORA does not claim</h2>
+        <div className="card">
+          <ul className="priv-list">
+            <li>FERPA compliance — this is an independent prototype, not an official SBU system</li>
+            <li>End-to-end encryption of stored data</li>
+            <li>Endorsement by Stony Brook University or IBM</li>
+            <li>Readiness for production or sensitive data use</li>
+          </ul>
+        </div>
+      </section>
+
+      {/* 5 — Where this could go (future only) */}
+      <section aria-labelledby="priv-future-heading" className="priv-section">
+        <h2 id="priv-future-heading">
+          Where this could go
+          <span className="priv-future-badge">Future only, not implemented</span>
+        </h2>
+        <div className="card priv-future-card">
+          <ul className="priv-list">
+            <li>Live connection to SBU SOLAR calendar (requires authorized OAuth)</li>
+            <li>Live SBU Brightspace announcements (requires institution integration)</li>
+            <li>Real building sensor telemetry (requires campus infrastructure access)</li>
+            <li>Encrypted sync across devices (requires backend auth and storage)</li>
+          </ul>
         </div>
       </section>
 
       {/* Data controls */}
-      <section aria-labelledby="data-ctrl-heading" className="mt-2">
-        <h2 id="data-ctrl-heading">Data Controls</h2>
-        <div className="card">
-          <div className="data-controls">
+      <section aria-labelledby="priv-controls-heading" className="priv-section priv-controls-section">
+        <h2 id="priv-controls-heading">Data controls</h2>
+        <div className="priv-controls">
+          <div className="priv-control-item card">
             <div>
-              <button className="btn btn-ghost" onClick={handleReset}>🔄 Reset Demo Data</button>
+              <h3 className="priv-control-title">Reset demo data</h3>
               <p className="text-muted text-sm">Restores all synthetic demo records to their initial state.</p>
-              {resetMsg && <p className="text-sm" style={{ color: 'var(--success)' }}>{resetMsg}</p>}
             </div>
+            <button
+              className="btn btn-ghost btn-sm"
+              onClick={() => setResetSheetOpen(true)}
+            >
+              Reset demo data
+            </button>
+          </div>
+
+          <div className="priv-control-item card">
             <div>
-              <button className="btn btn-danger" onClick={handleDelete}>🗑 Delete All Local Data</button>
+              <h3 className="priv-control-title">Delete all local data</h3>
               <p className="text-muted text-sm">Removes all locally stored events, tasks, plans, and announcements. Cannot be undone.</p>
-              {deleteMsg && <p className="text-sm" style={{ color: 'var(--success)' }}>{deleteMsg}</p>}
             </div>
+            <button
+              className="btn btn-danger btn-sm"
+              onClick={() => setDeleteSheetOpen(true)}
+            >
+              Delete all data
+            </button>
           </div>
         </div>
       </section>
+
+      {/* Reset sheet */}
+      <Sheet
+        open={resetSheetOpen}
+        onClose={() => setResetSheetOpen(false)}
+        title="Reset demo data"
+      >
+        <p>This will restore all synthetic demo records — events, tasks, announcements, and sensor readings — to their initial state.</p>
+        <p>Your custom tasks and imported calendar events will be removed.</p>
+        <div className="flex gap-1 mt-2">
+          <button className="btn btn-primary btn-sm" onClick={handleReset}>Reset now</button>
+          <button className="btn btn-ghost btn-sm" onClick={() => setResetSheetOpen(false)}>Cancel</button>
+        </div>
+      </Sheet>
+
+      {/* Delete sheet */}
+      <Sheet
+        open={deleteSheetOpen}
+        onClose={() => setDeleteSheetOpen(false)}
+        title="Delete all local data"
+      >
+        <p>This will permanently delete everything stored in the local database:</p>
+        <ul>
+          <li>All calendar events (including imported ones)</li>
+          <li>All tasks</li>
+          <li>All daily plans</li>
+          <li>All announcements</li>
+        </ul>
+        <p>This cannot be undone.</p>
+        <div className="flex gap-1 mt-2">
+          <button className="btn btn-danger btn-sm" onClick={handleDelete}>Delete everything</button>
+          <button className="btn btn-ghost btn-sm" onClick={() => setDeleteSheetOpen(false)}>Cancel</button>
+        </div>
+      </Sheet>
     </div>
   )
 }

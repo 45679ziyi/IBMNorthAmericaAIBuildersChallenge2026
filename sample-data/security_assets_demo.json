@@ -1,0 +1,55 @@
+{
+  "_note": "Demo assets for AURORA security watchdog. Synthetic data only — not connected to real SBU systems.",
+  "assets": [
+    {
+      "id": "cert-001",
+      "name": "AURORA Demo TLS Certificate",
+      "type": "certificate",
+      "version": null,
+      "issuer": "DemoTrust Root CA",
+      "expires_at_utc": "2026-11-25T00:00:00Z",
+      "tags": ["web", "tls"],
+      "data_origin": "synthetic"
+    },
+    {
+      "id": "lib-auth-001",
+      "name": "aurora-auth-lib",
+      "type": "software",
+      "version": "1.9.0",
+      "issuer": null,
+      "expires_at_utc": null,
+      "tags": ["library", "auth"],
+      "data_origin": "synthetic"
+    },
+    {
+      "id": "lib-web-001",
+      "name": "aurora-web-server",
+      "type": "software",
+      "version": "2.1.4",
+      "issuer": null,
+      "expires_at_utc": null,
+      "tags": ["server", "web"],
+      "data_origin": "synthetic"
+    },
+    {
+      "id": "fw-hvac-001",
+      "name": "HVAC Controller Firmware",
+      "type": "firmware",
+      "version": "3.4.1",
+      "issuer": null,
+      "expires_at_utc": null,
+      "tags": ["iot", "hvac"],
+      "data_origin": "synthetic"
+    },
+    {
+      "id": "cert-002",
+      "name": "AURORA Demo API Certificate",
+      "type": "certificate",
+      "version": null,
+      "issuer": "InterCA Demo",
+      "expires_at_utc": "2027-06-01T00:00:00Z",
+      "tags": ["api", "tls"],
+      "data_origin": "synthetic"
+    }
+  ]
+}

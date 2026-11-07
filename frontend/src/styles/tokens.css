@@ -1,0 +1,61 @@
+/* AURORA Design Tokens — all hex values live here only */
+
+/* ── Spacing scale ──────────────────────────────────────────────────────── */
+:root {
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-6: 24px;
+  --sp-10: 40px;
+
+  --r-sm: 6px;
+  --r-md: 12px;
+  --r-pill: 999px;
+
+  --font-display: 'Bricolage Grotesque Variable', "PingFang SC", "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-body: 'Hanken Grotesk Variable', "PingFang SC", "Noto Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+}
+
+/* ── Light theme (default) ──────────────────────────────────────────────── */
+:root {
+  color-scheme: light;
+
+  --paper:    #F3F5F8;
+  --panel:    #FFFFFF;
+  --line:     #D9DFE8;
+  --ink:      #131A2B;
+  --ink-muted: #536079;
+  --dawn:     #0A7563;
+  --on-dawn:  #FFFFFF;
+  --violet:   #5646D4;
+  --amber:    #9A5B00;
+  --red:      #B3261E;
+}
+
+/* ── Dark theme ─────────────────────────────────────────────────────────── */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --paper:    #0D1220;
+  --panel:    #151C2F;
+  --line:     #27314A;
+  --ink:      #E9EDF6;
+  --ink-muted: #9AA7C0;
+  --dawn:     #43D3B5;
+  --on-dawn:  #06241E;
+  --violet:   #A394FA;
+  --amber:    #F0B04A;
+  --red:      #FF7B72;
+}
+
+/*
+ * Tinted backgrounds: color-mix(in srgb, var(--token) 12%, var(--paper))
+ * Use in component CSS, never hard-code hex.
+ *
+ * Examples:
+ *   background: color-mix(in srgb, var(--dawn)   12%, var(--paper));
+ *   background: color-mix(in srgb, var(--violet)  12%, var(--paper));
+ *   background: color-mix(in srgb, var(--amber)  20%, var(--paper));
+ *   background: color-mix(in srgb, var(--red)    12%, var(--paper));
+ */

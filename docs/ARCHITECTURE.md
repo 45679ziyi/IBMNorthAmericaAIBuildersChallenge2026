@@ -18,10 +18,27 @@ FastAPI Application  (Python 3.11+)
 │   └── Campus Sensor Connector (synthetic only)
 ├── Normalization → SQLite (SQLAlchemy 2.x)
 ├── Deterministic Planning Engine (pure Python, no LLM for time math)
-├── Campus Knowledge Retriever (SQLite FTS5 / LIKE fallback)
+├── Campus Knowledge Retriever (SQLite FTS5 term-coverage / LIKE fallback)
 ├── LLM Provider Adapter (mock default; watsonx opt-in)
+├── Ops Simulation Layer (read-only boundary)
+│   ├── Campus Pulse Simulator (deterministic 5-min bucket noise, two scenarios)
+│   ├── Pulse Analyzer (rule-based trend detection, PulseInsight output)
+│   └── Security Watchdog
+│       ├── Matcher (synthetic assets × advisories, cert expiry)
+│       ├── Posture checker (AURORA own config, read-only)
+│       └── Report (cached, stable sort, AuditEvent on run)
 └── Audit Events (local SQLite only)
 ```
+
+### Ops simulation and security watchdog — read-only boundary
+
+The Ops Simulation Layer is strictly read-only and cannot:
+- Send notifications to anyone
+- Modify any configuration or system setting
+- Connect to external networks or real campus systems
+- Automatically change the status of any finding
+
+All "escalate" actions write a local `AuditEvent` and return a message stating that no notification was sent. All findings have `status = "needs_human_review"` permanently. All sensor data carries `data_origin = "synthetic"`.
 
 ## Data boundaries (spec §6.1)
 

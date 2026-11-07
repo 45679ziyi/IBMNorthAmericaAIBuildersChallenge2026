@@ -6,22 +6,24 @@ from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 
 from app.schemas.schemas import AssistantAskResponse, AssistantSource
-from app.services.rag.retriever import search_knowledge
+from app.services.rag.retriever import search_knowledge_full
 from app.services.llm.provider import call_llm
-
-MIN_CHUNKS_FOR_ANSWER = 1
 
 
 def ask_grounded(db: Session, question: str) -> AssistantAskResponse:
     """
     Retrieval-augmented answer pipeline:
-    1. Retrieve relevant chunks from the knowledge base.
+    1. Retrieve relevant chunks from the knowledge base using term-coverage.
     2. If none found → abstain.
-    3. Otherwise → call LLM with context only, validate sources.
+    3. Otherwise → call LLM with context, validate sources.
     4. Return structured response with citations.
     """
     now = datetime.now(timezone.utc)
-    chunks = search_knowledge(db, question, limit=5)
+    retrieval = search_knowledge_full(db, question, limit=5)
+    chunks = retrieval.chunks
+    coverage = retrieval.coverage
+    coverage_score = retrieval.coverage_score
+    matched_terms = retrieval.matched_terms
 
     if not chunks:
         return AssistantAskResponse(
@@ -32,6 +34,8 @@ def ask_grounded(db: Session, question: str) -> AssistantAskResponse:
             ),
             sources=[],
             coverage="not_found",
+            coverage_score=0.0,
+            matched_terms=[],
             updated_at=now,
         )
 
@@ -41,7 +45,7 @@ def ask_grounded(db: Session, question: str) -> AssistantAskResponse:
         for c in chunks
     ]
 
-    llm_response = call_llm(question, context_texts)
+    llm_response = call_llm(question, context_texts, coverage=coverage, matched_terms=matched_terms)
 
     # Build source objects
     sources = [
@@ -55,11 +59,11 @@ def ask_grounded(db: Session, question: str) -> AssistantAskResponse:
         for c in chunks
     ]
 
-    coverage = "supported" if len(chunks) >= MIN_CHUNKS_FOR_ANSWER else "partial"
-
     return AssistantAskResponse(
         answer=llm_response.text,
         sources=sources,
         coverage=coverage,
+        coverage_score=coverage_score,
+        matched_terms=matched_terms,
         updated_at=now,
     )

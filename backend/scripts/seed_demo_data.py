@@ -130,6 +130,8 @@ def _seed_announcements(db, user_id: str) -> None:
             published_at_utc=pub,
             source_url=item.get("source_url"),
             source_type=item.get("source_type", "demo"),
+            is_read=False,
+            read_at_utc=None,
         )
         db.add(ann)
     db.flush()
