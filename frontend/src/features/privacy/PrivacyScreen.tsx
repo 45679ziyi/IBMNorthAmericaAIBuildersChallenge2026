@@ -77,7 +77,7 @@ export default function PrivacyScreen() {
         {loading
           ? <div className="state-loading">Loading…</div>
           : (
-            <div className="sources-table-wrap">
+            <div className="sources-table-wrap" tabIndex={0} role="region" aria-label="Data sources table">
               <table className="sources-table" aria-label="Data sources">
                 <thead>
                   <tr>
