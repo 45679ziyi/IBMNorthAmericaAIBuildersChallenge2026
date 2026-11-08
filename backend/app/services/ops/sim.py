@@ -85,7 +85,8 @@ class LatestReading:
 def generate_latest(now: datetime | None = None) -> list[LatestReading]:
     """Return one deterministic reading per sensor for the current bucket."""
     if now is None:
-        now = datetime.now(timezone.utc)
+        from app.core.clock import get_now
+        now = get_now()
     b = _bucket(now)
     readings: list[LatestReading] = []
     for i, spec in enumerate(_SENSORS):
@@ -109,7 +110,8 @@ def generate_series(
 ) -> list[SensorSeries]:
     """Return per-sensor time-series over the most recent `points` buckets."""
     if now is None:
-        now = datetime.now(timezone.utc)
+        from app.core.clock import get_now
+        now = get_now()
 
     # Build bucket list: oldest first → newest last (index points-1 is newest)
     current_b = _bucket(now)

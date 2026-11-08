@@ -100,3 +100,45 @@ export function greeting(): string {
   if (h < 17) return 'Good afternoon'
   return 'Good evening'
 }
+
+// ── M0 additions ──────────────────────────────────────────────────────────────
+
+const toDate = (v: string | number | Date): Date => (v instanceof Date ? v : new Date(v))
+
+/** 'YYYY-MM-DD' in campus time. */
+export const dayKey = (v: string | number | Date): string =>
+  toDate(v).toLocaleDateString('en-CA', { timeZone: CAMPUS_TZ })
+
+/** Minutes since midnight, campus time. Never use Date#getHours/getMinutes. */
+export function minutesIntoDay(v: string | number | Date): number {
+  const p = new Intl.DateTimeFormat('en-US', {
+    hour: 'numeric', minute: 'numeric', hourCycle: 'h23', timeZone: CAMPUS_TZ,
+  }).formatToParts(toDate(v))
+  return (
+    Number(p.find(x => x.type === 'hour')?.value ?? 0) * 60 +
+    Number(p.find(x => x.type === 'minute')?.value ?? 0)
+  )
+}
+
+function tzOffsetMs(ts: number): number {
+  const p = new Intl.DateTimeFormat('en-US', {
+    timeZone: CAMPUS_TZ, hourCycle: 'h23',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit',
+  }).formatToParts(ts)
+  const g = (t: string): number => Number(p.find(x => x.type === t)!.value)
+  return Date.UTC(g('year'), g('month') - 1, g('day'), g('hour'), g('minute'), g('second')) - Math.floor(ts / 1000) * 1000
+}
+
+/** 'YYYY-MM-DDTHH:mm' campus wall time → ISO UTC (for datetime-local inputs). */
+export function localInputToIso(v: string): string {
+  const naive = Date.parse(`${v}:00Z`)
+  const first = naive - tzOffsetMs(naive)
+  return new Date(naive - tzOffsetMs(first)).toISOString()
+}
+
+/** ISO UTC → 'YYYY-MM-DDTHH:mm' campus wall time (for datetime-local inputs). */
+export function isoToLocalInput(iso: string): string {
+  const ts = Date.parse(iso)
+  return new Date(ts + tzOffsetMs(ts)).toISOString().slice(0, 16)
+}

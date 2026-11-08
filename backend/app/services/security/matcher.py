@@ -63,7 +63,8 @@ def check_cert_expiry(
 ) -> list[SecurityFinding]:
     """Return findings for certificates expiring within 30 days."""
     if now is None:
-        now = datetime.now(timezone.utc)
+        from app.core.clock import get_now
+        now = get_now()
     findings: list[SecurityFinding] = []
     for asset in assets:
         if asset.get("type") != "certificate":
@@ -92,7 +93,7 @@ def check_cert_expiry(
             advisory_id=None,
             status="needs_human_review",
             recommended_human_action="Renew certificate before expiry to avoid service disruption.",
-            detected_at_utc=datetime.now(timezone.utc),
+            detected_at_utc=now,
             data_origin=asset.get("data_origin", "synthetic"),
         ))
     return findings
@@ -107,7 +108,8 @@ def match_advisories(
 ) -> list[SecurityFinding]:
     """Match each advisory against the asset list. Returns advisory_match findings."""
     if now is None:
-        now = datetime.now(timezone.utc)
+        from app.core.clock import get_now
+        now = get_now()
     findings: list[SecurityFinding] = []
 
     for adv in advisories:

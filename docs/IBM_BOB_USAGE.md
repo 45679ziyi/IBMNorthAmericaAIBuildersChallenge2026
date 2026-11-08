@@ -137,7 +137,7 @@ A third session implementing the full UI_AND_FIX_BRIEF.md: backend fixes, new fe
 | Created `src/styles/tokens.css` — all hex values in one file; light + dark token blocks | Written by Bob |
 | Rewrote `global.css` to use tokens only; removed hard-coded hex; fixed badge dark-mode patches | Written by Bob |
 | Updated `index.html` — flash-free inline theme script + `meta theme-color` for both schemes | Written by Bob |
-| Created `src/lib/time.ts` — all time helpers in America/New_York; replaced every per-file fmtTime etc. | Written by Bob |
+| Created `src/lib/time.ts` — all time helpers in America/New_York; replaced most per-file helpers; `grep -rn 'America/New_York' frontend/src \| grep -v lib/time.ts` revealed 7 remaining literals outside `lib/time.ts` that were fixed in M0. | Written by Bob |
 | Created `src/state/badges.tsx` — BadgesProvider/useBadges; getUnreadCount + getTasks; 60s refresh + focus | Written by Bob |
 | Extended `src/api/client.ts` — 7 new functions + new interfaces for Pulse, Security, Announcement read state | Written by Bob |
 | Created `StatusChip`, `EmptyState`, `ErrorState`, `Tabs`, `Sheet` shared components | Written by Bob |
@@ -187,3 +187,205 @@ A third session implementing the full UI_AND_FIX_BRIEF.md: backend fixes, new fe
 - No existing tests were deleted or have their assertions changed. The assistant parametrized tests are new tests.
 
 ---
+
+## Milestone M0 — Repairs only (no new features)
+
+**Confirmed defects fixed in M0:**
+
+| ID | File(s) | Fix |
+|---|---|---|
+| R1 | `tokens.css` | `--dawn` corrected to `#08695A`; `--amber` corrected to `#8A5200`; amber tint percentage in comment updated from 20% to 11% |
+| R2 | `TodayScreen.tsx`, `AssistantScreen.tsx` | Removed `aria-label` from now-marker div (replaced with `role="presentation"` + visually-hidden `<span>`); replaced empty `<span aria-label="Unread">` with `aria-hidden` span + `.sr-only` sibling; added `role="log"` to `aria-live` conversation div |
+| R3 | `PlannerScreen.tsx` | Removed `role="list"` from timeline-track div (aria-hidden gridlines were interspersed between listitem children, making the ARIA list structure invalid) |
+| R4 | `AssistantScreen.tsx` | Added `tabIndex={0}` and `role="region"` to the scrollable `.chat-thread` div |
+| R5 | `TodayScreen.tsx`, `PlannerScreen.tsx` | Replaced `getHours()/getMinutes()` in now-marker pct calculations with `minutesIntoDay()` from `lib/time` |
+| R6 | `lib/time.ts` | Added `dayKey`, `minutesIntoDay`, `localInputToIso`, `isoToLocalInput` |
+| R7 | `PlannerScreen.tsx` | Replaced `ev.start_at_utc.startsWith(planDate)` with `dayKey(ev.start_at_utc) === planDate` to fix events after ~8 PM Eastern appearing on wrong day |
+| R8 | `TodayScreen.tsx`, `PlannerScreen.tsx`, `TasksScreen.tsx`, `CampusScreen.tsx`, `client.ts` | Removed all 7 `'America/New_York'` string literals outside `lib/time.ts`; all now use `CAMPUS_TZ` |
+| R9 | `assistant.py` | Deduplicated retrieval chunks by `canonical_url` before building source list and passing context to LLM; prevents duplicate source URLs |
+| R10 | `EmptyState.tsx`, `ErrorState.tsx` | Replaced `style={{ margin: 0 }}` and `style={{ marginTop: 'var(--sp-3)' }}` inline styles with CSS classes in new `components/components.css` |
+
+**Gate results (recorded, not claimed without running):**
+- `pytest -q` → 52 passed (added `test_one_source_per_document_and_markers_match`)
+- `tsc --noEmit` → 0 errors
+- `vite build` → build clean
+- `grep -rn "America/New_York" frontend/src | grep -v lib/time.ts` → (none)
+- `grep -rnE "\.getHours\(\)|\.getMinutes\(\)" frontend/src` → (none)
+- `grep -rn "startsWith(planDate)" frontend/src` → (none)
+
+**What was not verified:** Playwright/axe not installed in this environment — ui_check.py and visual accessibility verification were not run. `npm run ui-check` added to package.json for future use.
+
+---
+
+---
+
+## Milestone M0 — Defect repairs (November 7, 2026)
+
+**Purpose:** Fix the 11 confirmed defects from V2_BRIEF.md Section 1.2. No new features.
+
+**Files modified:**
+- `frontend/src/styles/tokens.css` — corrected `--dawn` to `#08695A`, `--amber` to `#8A5200`, amber-wash tint to 11%
+- `frontend/src/features/dashboard/TodayScreen.tsx` — removed prohibited `aria-label` from now-marker div; replaced with `role="presentation"` + `.sr-only` span; replaced `getHours()`/`getMinutes()` with `minutesIntoDay()` from `lib/time`
+- `frontend/src/features/assistant/AssistantScreen.tsx` — removed `aria-label` from unread dot; added `role="log"` to aria-live div; added `tabIndex={0}` + `role="region"` to scrollable chat thread
+- `frontend/src/features/planner/PlannerScreen.tsx` — removed `role="list"` from timeline-track div; replaced `startsWith(planDate)` with `dayKey(...)` comparison; removed `getHours()`/`getMinutes()` from now-marker
+- `frontend/src/features/tasks/TasksScreen.tsx` — removed `'America/New_York'` literal; uses `CAMPUS_TZ` from `lib/time`
+- `frontend/src/features/campus/CampusScreen.tsx` — removed `'America/New_York'` literal
+- `frontend/src/api/client.ts` — removed `'America/New_York'` literals
+- `frontend/src/lib/time.ts` — added `dayKey`, `minutesIntoDay`, `localInputToIso`, `isoToLocalInput`
+- `frontend/src/components/EmptyState.tsx`, `ErrorState.tsx` — replaced inline styles with CSS classes in new `components/components.css`
+- `backend/app/services/rag/assistant.py` — deduplicated sources by `canonical_url`
+
+**Tests added:** `test_one_source_per_document_and_markers_match` (1 new test)
+
+**Gate results:**
+- `pytest -q` → 52 passed, 3 warnings
+- `tsc --noEmit` → 0 errors
+- `vite build` → clean build
+- `grep -rn "America/New_York" frontend/src | grep -v lib/time.ts` → (no output)
+- `grep -rnE "\.getHours\(\)|\.getMinutes\(\)" frontend/src` → (no output)
+- `grep -rn "startsWith(planDate)" frontend/src` → (no output)
+
+**What was not verified:** Playwright not installed in this environment. `ui_check.py` and visual accessibility checks were not run. Contrast ratios, touch targets, and layout on physical devices were not measured.
+
+---
+
+## Milestone M1 — Clock, scenario, signals, feed status (November 7, 2026)
+
+**Purpose:** Add the virtual demo clock, scenario runner, signal ingestion, relevance computation, and simulation API endpoints.
+
+**Files created:**
+- `backend/app/core/clock.py` — `get_now()`, `set_virtual_now()`, `is_scenario_mode()`
+- `backend/app/api/v1/sim.py` — `GET /sim/state`, `POST /sim/start|advance|reset|stop`, `GET /signals`, `GET /feeds/status`
+- `backend/app/services/campus/` (new package) — scenario loader, `FixtureFeed`, `apply_signal()`, `compute_relevance()`
+- `backend/tests/conftest.py` — shared fixtures for V2 tests
+- `backend/tests/test_m1_scenario.py` — scenario signal tests
+
+**Database additions:** `sim_state` table, `signals` table, `Task.source_signal_id`, `Task.provenance`, `CalendarEvent.source_type` values `aurora_block` and `scenario`
+
+**Scenario:** `sample-data/scenarios/demo_day.json` — 12 signals, 5 buildings, 6 rooms, 3 classes, 3 teammates. Anchor date = next Tuesday.
+
+**Gate results:**
+- `pytest -q` → 65 passed, 3 warnings
+- `tsc --noEmit` → 0 errors
+- `vite build` → clean
+
+**What was not verified:** `ui_check.py` not run (Playwright not installed). No visual check of DemoBar.
+
+---
+
+## Milestone M2 — Moves engine and detectors (November 7, 2026)
+
+**Purpose:** Implement the World model, all 7 detectors, and the moves reconciliation engine.
+
+**Files created/modified:**
+- `backend/app/services/campus/world.py` — `World` dataclass, `free_windows()`, `compute_world()`
+- `backend/app/services/campus/detectors.py` — 7 pure-function detectors
+- `backend/app/services/campus/engine.py` — `evaluate(now)`, fingerprint reconciliation, `moves` table
+- `backend/app/api/v1/moves.py` — `GET /moves`, `POST /moves/{id}/approve|dismiss|snooze`, `GET /moves/handled`
+- `backend/tests/test_m2_moves.py` — detector unit tests, reconciliation tests, quiet scenario test, injection-text test
+
+**Database additions:** `moves` table with all fields and status values
+
+**Gate results:**
+- `pytest -q` → 87 passed, 3 warnings
+- `tsc --noEmit` → 0 errors
+- `vite build` → clean
+
+**What was not verified:** `ui_check.py` not run.
+
+---
+
+## Milestone M3 — Action layer, autonomy, undo, audit, ICS export (November 7, 2026)
+
+**Purpose:** Implement the action ALLOWLIST, execute/undo, autonomy policy, audit log, and calendar ICS export.
+
+**Files created/modified:**
+- `backend/app/services/campus/actions.py` — `ALLOWLIST`, `execute_action()`, `undo_action()`
+- `backend/app/api/v1/autonomy.py` — `GET|PUT /autonomy`
+- `backend/app/api/v1/calendar_export.py` — `GET /calendar/aurora.ics`
+- `backend/app/api/v1/ops.py` — `GET /ops/incidents`, `GET /ops/incidents/{id}/impact`, `POST /ops/incidents/{id}/approve-mitigation`
+- `backend/tests/test_m3_actions.py` — allowlist tests, undo tests, locked-category tests, no-send test
+
+**Database additions:** `action_log`, `autonomy_policy`, `reminders` tables
+
+**Gate results:**
+- `pytest -q` → 111 passed, 3 warnings
+- `tsc --noEmit` → 0 errors
+- `vite build` → clean
+
+**What was not verified:** `ui_check.py` not run.
+
+---
+
+## Milestone M4 — Command center UI, demo bar (November 7, 2026)
+
+**Purpose:** Rebuild the Today screen as a command center. Add the DemoBar, move cards, Why drawer, Handled-for-you section, timeline enhancements, and task provenance chips.
+
+**Files created/modified:**
+- `frontend/src/components/DemoBar.tsx` + `DemoBar.css` — Play/Pause, 60×/300×/600×, Next signal, virtual clock, Staff view shortcut
+- `frontend/src/hooks/useNow.ts` — shared virtual clock hook; all screens use this
+- `frontend/src/features/dashboard/TodayScreen.tsx` — command center rewrite: decision cards, Why drawer, Handled for you with Undo, timeline with signal overlays, Sources strip, day counters, Autonomy sheet
+- `frontend/src/features/dashboard/TodayScreen.css` — updated
+- `frontend/src/features/dashboard/AutonomySheet.tsx` — autonomy policy table with locked indicators
+- `frontend/src/features/tasks/TasksScreen.tsx` — provenance chips
+- `frontend/src/features/planner/PlannerScreen.tsx` — AURORA blocks, ICS download button
+
+**Gate results:**
+- `tsc --noEmit` → 0 errors
+- `vite build` → 262 kB JS
+
+**What was not verified:** `ui_check.py` not run (Playwright not installed). 90-second demo not run in this environment — manual run required.
+
+---
+
+## Milestone M5 — Ops impact, staff view, personal-context Ask (November 7–8, 2026)
+
+**Purpose:** Add the operations impact graph with staff approval, role switch UI, and 5 personal-context Ask intents.
+
+**Files created/modified:**
+- `backend/app/api/v1/ops.py` — impact endpoint and approve-mitigation
+- `backend/app/services/campus/personal_ask.py` — 5 rule-matched intents
+- `backend/app/api/v1/assistant.py` — personal-context routing before public retriever
+- `frontend/src/features/campus/CampusScreen.tsx` — Incidents panel, impact graph, role switch (view only)
+- `frontend/src/features/assistant/AssistantScreen.tsx` — personal suggestion chips
+- `backend/tests/test_m5_ops_ask.py` — impact graph tests, personal-intent tests, role-switch-is-view-only documentation
+
+**Gate results:**
+- `pytest -q` → 120 passed, 3 warnings
+- `tsc --noEmit` → 0 errors
+- `vite build` → 268 kB JS
+
+**What was not verified:** `ui_check.py` not run. Role switch visual label was not verified on a physical device.
+
+---
+
+## Milestone M6 — Documentation and final cleanup (November 8, 2026)
+
+**Purpose:** Documentation only. No new features.
+
+**Files modified:**
+- `README.md` — full rewrite: two-sentence description, quick start, demo how-to, commands table, simulated vs real table, claims and non-claims, safety section. Removed all sentences implying measured benefits or SBU connection.
+- `docs/ARCHITECTURE.md` — added intelligence loop diagram, demo clock section, detectors table, action layer table, autonomy policy table, personal-context Ask table, ops impact section
+- `docs/SECURITY_AND_PRIVACY.md` — added: No send action, Allowlist, Locked categories, Undo, Audit trail, Untrusted text, Role switch is a view
+- `docs/DATA_SOURCES.md` — added V2 simulated feeds section (7 feeds with what each represents, why simulated, what real integration needs)
+- `docs/DATA_DICTIONARY.md` — updated `moves.status` field to include all 9 values; expanded move lifecycle to include `expired` and `info`; consolidated lifecycle notes
+- `docs/DEMO_SCRIPT.md` — full rewrite: 90-second demo with real virtual times, evidence shown at each step, reset and speed notes
+- `docs/IBM_BOB_USAGE.md` — added M0–M6 entries (this file)
+- `docs/BUILD_NOTES.md` — added final M0–M6 record with exact test counts and build sizes
+
+**Tests added:** None (documentation milestone).
+
+**Gate results:**
+- `pytest -q` → 120 passed, 3 warnings (unchanged from M5)
+- `tsc --noEmit` → 0 errors
+- `vite build` → 268 kB JS (unchanged from M5)
+- `grep -rn "smtp\|sendmail\|\"send\"\|send_email\|requests\.post" backend/app/services/campus/` → (no output)
+- `grep -rn "America/New_York" frontend/src/ | grep -v "lib/time.ts"` → (no output)
+- `grep -rnE "\.getHours\(\)|\.getMinutes\(\)" frontend/src/` → (no output)
+- `grep -rn "startsWith(planDate)" frontend/src/` → (no output)
+
+**What was not verified:** Playwright not installed in this environment. `ui_check.py` was not run and no screenshots were taken. Contrast ratios, touch targets, and layout on physical devices were not measured. These must be run manually before any live demonstration.
+
+---
+
+> This record is truthful. No Bob usage is fabricated or exaggerated. Entries describe work actually done.

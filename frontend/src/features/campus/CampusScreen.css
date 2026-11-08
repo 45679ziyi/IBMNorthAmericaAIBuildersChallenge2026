@@ -153,3 +153,46 @@
 }
 .sec-finding-body p { margin: 0; }
 .sec-evidence { padding-left: 1.2rem; margin: var(--sp-1) 0 0; }
+
+/* ── Incidents section (M5) ─────────────────────────────────────────────── */
+.ops-role-switch {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--sp-4);
+  padding: var(--sp-2) var(--sp-3);
+  background: color-mix(in srgb, var(--line) 15%, var(--panel));
+  border-radius: var(--r-md);
+}
+.ops-role-label { font-weight: 500; }
+.ops-role-note { font-size: .78rem; color: var(--muted); flex: 1; min-width: 160px; }
+
+.ops-incident-item { padding: var(--sp-3) var(--sp-4); display: flex; flex-direction: column; gap: var(--sp-2); }
+.ops-incident-header { display: flex; flex-direction: column; gap: var(--sp-1); }
+.ops-incident-title-row { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; }
+.ops-impact-toggle { align-self: flex-start; margin-top: var(--sp-1); }
+
+.ops-impact-panel {
+  border-top: 1px solid var(--line);
+  padding-top: var(--sp-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+.ops-impact-summary { font-size: .9rem; }
+.ops-student-effect {
+  margin: 0;
+  padding: var(--sp-2) var(--sp-3);
+  background: color-mix(in srgb, var(--dawn) 8%, var(--panel));
+  border-radius: var(--r-sm);
+  border-left: 3px solid var(--dawn);
+}
+
+.ops-affected-classes { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: var(--sp-1); }
+.ops-affected-class { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; font-size: .9rem; }
+.ops-class-status { font-size: .72rem; }
+
+.ops-mitigations { display: flex; flex-direction: column; gap: var(--sp-2); }
+.ops-mitigations ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: var(--sp-2); }
+.ops-mitigation-item { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--sp-2); }

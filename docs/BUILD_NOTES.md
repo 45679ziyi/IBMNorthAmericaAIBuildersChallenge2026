@@ -165,3 +165,67 @@ dist/assets/index-B1XS_tPa.js            241.28 kB │ gzip: 73.37 kB
 - Results as toasts.
 - No inline styles.
 
+
+---
+
+## Final State — V2 (M0–M6) — 2026-11-08
+
+### Backend test count
+```
+pytest -q tests/  →  120 passed, 3 warnings
+```
+
+The 3 warnings are known SQLAlchemy deprecation warnings (legacy `declarative_base` call); they do not affect test results.
+
+### Test files
+| File | Tests | Added in |
+|---|---|---|
+| `tests/test_api.py` | 52 | MVP → M0 |
+| `tests/test_m1_scenario.py` | 13 | M1 |
+| `tests/test_m2_moves.py` | 22 | M2 |
+| `tests/test_m3_actions.py` | 24 | M3 |
+| `tests/test_m5_ops_ask.py` | 9 | M5 |
+| **Total** | **120** | |
+
+### Cumulative test progression
+| Milestone | pytest count |
+|---|---|
+| MVP baseline | 20 |
+| UI session | 20 |
+| UI redesign session | 51 |
+| M0 | 52 |
+| M1 | 65 |
+| M2 | 87 |
+| M3 | 111 |
+| M4 | 111 (no new backend tests) |
+| M5 | 120 |
+| M6 | 120 (documentation only) |
+
+### Frontend build
+```
+npm run type-check  →  0 errors (tsc --noEmit: no output, exit 0)
+npm run build       →  ✓ built in 1.10s, 0 errors
+
+dist/index.html                                                          1.10 kB │ gzip:  0.61 kB
+dist/assets/index-BDu5eJCl.css                                         51.53 kB │ gzip: 11.06 kB
+dist/assets/index-Cefzwobm.js                                         268.35 kB │ gzip: 80.72 kB
+(font assets: bricolage-grotesque and hanken-grotesk subsets, 8.6–41.3 kB each)
+```
+
+### Golden-day test
+The end-to-end scenario test `test_demo_day_golden_phase2` in `tests/test_m3_actions.py` (or `test_m5_ops_ask.py`) covers the full demo day scenario from 07:30 to 16:20, verifying all move states, action counts, and audit events at each checkpoint.
+
+### Missing verification (must be run manually)
+
+- **Playwright not installed** in the build environment. The script `frontend/scripts/ui_check.py` was not run. Zero-overflow and axe-violation checks were not measured in this environment.
+- **Visual screenshots** were not taken. Font rendering, animation timing, and layout on physical devices were not checked.
+- **Contrast ratios** on physical devices were not measured. Token values `--dawn #08695A` and `--amber #8A5200` were verified to pass WCAG AA in the previous V2_BRIEF review, but this was not re-measured here.
+- **`npm run ui-check`** and **`npm run demo-shots`** require `pip install playwright && playwright install` and must be run manually.
+
+### Notes on warnings
+
+The 3 pytest warnings are:
+```
+DeprecationWarning: The declarative_base() function is now available as sqlalchemy.orm.declarative_base() ...
+```
+These appear in all milestone runs. They are from the SQLAlchemy 2.x migration path and do not affect functionality. They will be resolved if/when the models are migrated to `DeclarativeBase`.

@@ -1,7 +1,7 @@
 """Health check endpoint."""
-from datetime import datetime, timezone
-
 from fastapi import APIRouter
+
+from app.core.clock import get_now
 
 from app.core.config import settings
 from app.schemas.schemas import HealthResponse
@@ -25,7 +25,7 @@ async def dashboard_today():
     from app.services.connectors.weather import get_weather_sample
     from app.core.config import settings
 
-    now = datetime.now(timezone.utc)
+    now = get_now()
     return {
         "date": now.strftime("%Y-%m-%d"),
         "timezone": "America/New_York",

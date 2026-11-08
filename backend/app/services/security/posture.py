@@ -7,9 +7,10 @@ from __future__ import annotations
 
 import os
 import stat
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+from app.core.clock import get_now
 
 from app.core.config import settings
 from app.services.security.models import SecurityFinding
@@ -28,7 +29,7 @@ def _posture_finding(kind_suffix: str, severity: str, title: str, evidence: list
         advisory_id=None,
         status="needs_human_review",
         recommended_human_action=action,
-        detected_at_utc=datetime.now(timezone.utc),
+        detected_at_utc=get_now(),
         data_origin="local_config",
     )
 

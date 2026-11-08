@@ -1,9 +1,9 @@
 """Grounded campus knowledge assistant — retrieves, validates, and answers."""
 from __future__ import annotations
 
-from datetime import datetime, timezone
-
 from sqlalchemy.orm import Session
+
+from app.core.clock import get_now
 
 from app.schemas.schemas import AssistantAskResponse, AssistantSource
 from app.services.rag.retriever import search_knowledge_full
@@ -18,9 +18,18 @@ def ask_grounded(db: Session, question: str) -> AssistantAskResponse:
     3. Otherwise → call LLM with context, validate sources.
     4. Return structured response with citations.
     """
-    now = datetime.now(timezone.utc)
+    now = get_now()
     retrieval = search_knowledge_full(db, question, limit=5)
-    chunks = retrieval.chunks
+
+    # Deduplicate: one chunk per document URL, keeping the best (first) per URL.
+    seen_urls: set[str] = set()
+    deduped: list = []
+    for c in retrieval.chunks:
+        if c.canonical_url not in seen_urls:
+            seen_urls.add(c.canonical_url)
+            deduped.append(c)
+    chunks = deduped
+
     coverage = retrieval.coverage
     coverage_score = retrieval.coverage_score
     matched_terms = retrieval.matched_terms

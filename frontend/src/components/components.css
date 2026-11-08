@@ -1,0 +1,9 @@
+/* Shared component utility styles */
+
+.state-message {
+  margin: 0;
+}
+
+.state-action {
+  margin-top: var(--sp-3);
+}

@@ -9,6 +9,13 @@ const SUGGESTED_CHIPS = [
   'Where is the library?',
 ]
 
+// Scenario-specific personal chips (shown alongside general chips)
+const PERSONAL_CHIPS = [
+  'What changed today?',
+  'Where do I need to be next?',
+  'Can I finish the assignment tonight?',
+]
+
 function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-US', {
     month: 'short', day: 'numeric', year: 'numeric',
@@ -23,20 +30,36 @@ interface ChatEntry {
   isLoading?: boolean
 }
 
+// ── Detect personal answer (campus data, not official sources) ────────────────
+function isPersonalAnswer(response: AssistantResponse): boolean {
+  return (
+    response.disclaimer.startsWith('Answer built from your campus data') ||
+    (response.sources.length > 0 && response.sources.every(s => s.url === '#'))
+  )
+}
+
 // ── Coverage line (text + icon, not color-only) ───────────────────────────────
 function CoverageLine({ response }: { response: AssistantResponse }) {
   const { coverage } = response
+  const personal = isPersonalAnswer(response)
 
-  const providerNote = response.disclaimer
-    ? `Answer by: Rule-based summary`
-    : undefined
+  if (personal) {
+    const Icon = coverage === 'supported' ? CheckCircle : coverage === 'partial' ? AlertCircle : XCircle
+    const cls = `coverage-line coverage-line-${coverage === 'supported' ? 'supported' : coverage === 'partial' ? 'partial' : 'not-found'}`
+    return (
+      <div className={cls}>
+        <Icon size={14} aria-hidden="true" />
+        <span>Personal context</span>
+        {coverage === 'partial' && <span className="coverage-provider">Partial — no scenario loaded</span>}
+      </div>
+    )
+  }
 
   if (coverage === 'supported') {
     return (
       <div className="coverage-line coverage-line-supported">
         <CheckCircle size={14} aria-hidden="true" />
         <span>Verified from {response.sources.length} official source{response.sources.length !== 1 ? 's' : ''}</span>
-        {providerNote && <span className="coverage-provider">{providerNote}</span>}
       </div>
     )
   }
@@ -45,7 +68,6 @@ function CoverageLine({ response }: { response: AssistantResponse }) {
       <div className="coverage-line coverage-line-partial">
         <AlertCircle size={14} aria-hidden="true" />
         <span>Partly covered. Check the sources below.</span>
-        {providerNote && <span className="coverage-provider">{providerNote}</span>}
       </div>
     )
   }
@@ -133,7 +155,7 @@ export default function AssistantScreen() {
       </div>
 
       {/* Chat thread */}
-      <div className="chat-thread" aria-label="Conversation">
+      <div className="chat-thread" role="region" aria-label="Conversation" tabIndex={0}>
         {thread.length === 0 && (
           <div className="chat-empty">
             <p className="chat-empty-prompt">Ask anything about SBU policies, calendar, library, or campus events.</p>
@@ -144,10 +166,18 @@ export default function AssistantScreen() {
                 </button>
               ))}
             </div>
+            <p className="chat-chips-label text-muted text-sm">Today's context:</p>
+            <div className="suggested-chips suggested-chips-personal" aria-label="Personal context questions">
+              {PERSONAL_CHIPS.map(p => (
+                <button key={p} className="chip-btn chip-btn-personal" onClick={() => handleAsk(p)}>
+                  {p}
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
-        <div aria-live="polite" aria-label="Conversation messages">
+        <div role="log" aria-live="polite" aria-label="Conversation messages">
           {thread.map(entry => (
             <div
               key={entry.id}

@@ -4,10 +4,12 @@ import { getTasks, createTask, updateTask, deleteTask, Task } from '../../api/cl
 import { useToast } from '../../components/Toast'
 import { useConfirm } from '../../components/ConfirmModal'
 import { Sheet } from '../../components/Sheet'
+import { StatusChip } from '../../components/StatusChip'
 import { EmptyState } from '../../components/EmptyState'
 import { SkeletonList } from '../../components/Skeleton'
 import { useBadges } from '../../state/badges'
-import { relativeDue, isSameDayAsNow, CAMPUS_TZ } from '../../lib/time'
+import { relativeDue, CAMPUS_TZ, isoToLocalInput, localInputToIso, dayKey } from '../../lib/time'
+import { useNow } from '../../hooks/useNow'
 import { MoreVertical } from 'lucide-react'
 
 const PRIORITY_LABELS: Record<Task['priority'], string> = {
@@ -157,6 +159,12 @@ function TaskRow({
         </div>
 
         <div className="task-row-right">
+          {t.provenance === 'announcement' && (
+            <StatusChip variant="demo" label="From announcement" />
+          )}
+          {t.provenance === 'scenario' && (
+            <StatusChip variant="synthetic" label="Scenario task" />
+          )}
           {(t.priority === 'urgent' || t.priority === 'high') && (
             <span className={`badge badge-${t.priority === 'urgent' ? 'err' : 'warn'}`}>
               {PRIORITY_LABELS[t.priority]}
@@ -240,7 +248,7 @@ export default function TasksScreen() {
     e.preventDefault()
     const payload = {
       ...form,
-      due_at_utc: form.due_at_utc ? new Date(form.due_at_utc).toISOString() : undefined,
+      due_at_utc: form.due_at_utc ? localInputToIso(form.due_at_utc) : undefined,
     }
     try {
       if (editingId) {
@@ -281,7 +289,7 @@ export default function TasksScreen() {
       title: t.title,
       description: t.description ?? '',
       course_label: t.course_label ?? '',
-      due_at_utc: t.due_at_utc ? new Date(t.due_at_utc).toISOString().slice(0, 16) : '',
+      due_at_utc: t.due_at_utc ? isoToLocalInput(t.due_at_utc) : '',
       estimated_minutes: t.estimated_minutes,
       priority: t.priority,
     })
@@ -289,25 +297,28 @@ export default function TasksScreen() {
     setSheetOpen(true)
   }
 
+  const { now } = useNow()
+
   if (loading) return <SkeletonList count={4} lines={2} />
 
   // Group tasks
-  const now = Date.now()
+  const nowMs = now.getTime()
+  const todayKey = dayKey(now)
   const open = tasks.filter(t => t.status !== 'done')
   const done = tasks.filter(t => t.status === 'done')
 
-  const overdue = open.filter(t => t.due_at_utc && new Date(t.due_at_utc).getTime() < now)
-  const today = open.filter(t => t.due_at_utc && isSameDayAsNow(t.due_at_utc) && !overdue.includes(t))
+  const overdue = open.filter(t => t.due_at_utc && new Date(t.due_at_utc).getTime() < nowMs)
+  const today = open.filter(t => t.due_at_utc && dayKey(t.due_at_utc) === todayKey && !overdue.includes(t))
   const thisWeek = open.filter(t => {
     if (!t.due_at_utc) return false
     const dueMs = new Date(t.due_at_utc).getTime()
-    if (dueMs <= now) return false
-    if (isSameDayAsNow(t.due_at_utc)) return false
-    return dueMs <= now + 7 * 24 * 3600_000
+    if (dueMs <= nowMs) return false
+    if (dayKey(t.due_at_utc) === todayKey) return false
+    return dueMs <= nowMs + 7 * 24 * 3600_000
   })
   const later = open.filter(t => {
     if (!t.due_at_utc) return false
-    return new Date(t.due_at_utc).getTime() > now + 7 * 24 * 3600_000
+    return new Date(t.due_at_utc).getTime() > nowMs + 7 * 24 * 3600_000
   })
   const noDate = open.filter(t => !t.due_at_utc)
 

@@ -40,7 +40,7 @@ class CalendarEventCreate(BaseModel):
     end_at_utc: datetime
     location_text: Optional[str] = Field(None, max_length=256)
     event_type: Literal["class", "meeting", "personal", "other"] = "other"
-    source_type: Literal["ics_import", "manual", "demo"] = "manual"
+    source_type: Literal["ics_import", "manual", "demo", "scenario", "aurora_block"] = "manual"
     source_reference: Optional[str] = None
 
 
@@ -112,6 +112,8 @@ class TaskRead(BaseModel):
     status: str
     source_type: str
     source_url: Optional[str]
+    source_signal_id: Optional[str] = None
+    provenance: Optional[str] = None
     created_at: datetime
     updated_at: datetime
 
@@ -288,6 +290,47 @@ class ConnectorStatus(BaseModel):
 
 # ─── Dashboard ───────────────────────────────────────────────────────────────
 
+# ─── Sim / Scenario (V2) ─────────────────────────────────────────────────────
+
+class SimStateResponse(BaseModel):
+    mode: str
+    scenario_id: Optional[str]
+    anchor_date: Optional[str]
+    virtual_now: Optional[datetime]
+    applied_signal_ids: list[str]
+
+
+class SignalResponse(BaseModel):
+    id: str
+    feed: str
+    kind: str
+    at_utc: datetime
+    summary: str
+    payload: dict
+    relevance: str
+    relevance_reason: Optional[str]
+    data_origin: str
+
+
+class FeedStatusResponse(BaseModel):
+    feed: str
+    last_signal_at: Optional[datetime]
+    signals_seen: int
+    signals_filtered: int
+
+
+class SimStartRequest(BaseModel):
+    scenario_id: str
+
+
+class SimAdvanceRequest(BaseModel):
+    minutes: Optional[int] = None
+    to: Optional[str] = None          # "HH:MM"
+    to_next_signal: bool = False
+
+
+# ─── Dashboard ───────────────────────────────────────────────────────────────
+
 class DashboardToday(BaseModel):
     date: str
     timezone: str
@@ -299,3 +342,86 @@ class DashboardToday(BaseModel):
     weather: dict[str, Any]
     connectors: list[ConnectorStatus]
     last_updated: datetime
+
+
+# ─── Moves (M2) ──────────────────────────────────────────────────────────────
+
+class WhyItem(BaseModel):
+    feed: str
+    signal_id: Optional[str] = None
+    text: str
+
+
+class ActionSpec(BaseModel):
+    id: str
+    type: str
+    params: dict
+    external: bool = False
+    simulated: bool = False
+
+
+class MoveResponse(BaseModel):
+    id: str
+    key: str
+    kind: str
+    audience: str
+    status: str
+    policy: str
+    urgency: str
+    impact: str
+    title: str
+    summary: str
+    why: list[WhyItem]
+    actions: list[ActionSpec]
+    fingerprint: str
+    created_at: datetime
+    updated_at: datetime
+
+
+# ─── Autonomy Policy (M3) ────────────────────────────────────────────────────
+
+class AutonomyResponse(BaseModel):
+    policy: dict[str, str]
+    locked: list[str]
+    note: str = (
+        "Locked categories cannot be set to 'auto'. "
+        "See docs/V2_BRIEF.md Section 5.5."
+    )
+
+
+class AutonomyUpdateRequest(BaseModel):
+    category: str
+    value: Literal["auto", "ask"]
+
+
+# ─── Ops / Incidents (M5) ────────────────────────────────────────────────────
+
+class OpsIncident(BaseModel):
+    id: str
+    room_id: str
+    room_name: str
+    type: str
+    temperature_c: Optional[float] = None
+    trend: Optional[str] = None
+    reported_at_utc: datetime
+    status: str  # "active" | "resolved"
+
+
+class AffectedClass(BaseModel):
+    commitment_id: str
+    title: str
+    course: str
+    start: str
+    end: str
+    room_name: str
+    enrolled: int
+    status: str  # "in_session" | "not_started"
+    feasible_rooms: list[dict] = []  # for not_started only
+
+
+class ImpactGraph(BaseModel):
+    incident: OpsIncident
+    affected_classes: list[AffectedClass]
+    total_students: int
+    feasible_mitigations: list[dict]
+    student_effect: str

@@ -1,3 +1,5 @@
+import './components.css'
+
 interface EmptyStateProps {
   message: string
   action?: { label: string; onClick: () => void }
@@ -6,11 +8,10 @@ interface EmptyStateProps {
 export function EmptyState({ message, action }: EmptyStateProps): JSX.Element {
   return (
     <div className="state-empty" role="status">
-      <p style={{ margin: 0 }}>{message}</p>
+      <p className="state-message">{message}</p>
       {action && (
         <button
-          className="btn btn-ghost btn-sm"
-          style={{ marginTop: 'var(--sp-3)' }}
+          className="btn btn-ghost btn-sm state-action"
           onClick={action.onClick}
         >
           {action.label}

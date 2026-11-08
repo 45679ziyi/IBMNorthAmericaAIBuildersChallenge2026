@@ -26,10 +26,10 @@
   --line:     #D9DFE8;
   --ink:      #131A2B;
   --ink-muted: #536079;
-  --dawn:     #0A7563;
+  --dawn:     #08695A;
   --on-dawn:  #FFFFFF;
   --violet:   #5646D4;
-  --amber:    #9A5B00;
+  --amber:    #8A5200;
   --red:      #B3261E;
 }
 
@@ -56,6 +56,6 @@
  * Examples:
  *   background: color-mix(in srgb, var(--dawn)   12%, var(--paper));
  *   background: color-mix(in srgb, var(--violet)  12%, var(--paper));
- *   background: color-mix(in srgb, var(--amber)  20%, var(--paper));
+ *   background: color-mix(in srgb, var(--amber)  11%, var(--paper));
  *   background: color-mix(in srgb, var(--red)    12%, var(--paper));
  */

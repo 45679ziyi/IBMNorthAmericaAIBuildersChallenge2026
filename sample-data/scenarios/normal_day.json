@@ -1,0 +1,138 @@
+{
+  "_note": "FICTIONAL scenario for the AURORA demo. A quiet day with no disruptions — used to test that zero moves are produced.",
+  "id": "normal_day",
+  "title": "A normal Tuesday",
+  "description": "Three classes, two tasks, no signals after the opening snapshot. Used to verify zero-move baseline.",
+  "timezone": "America/New_York",
+  "day": {
+    "weekday": "Tuesday",
+    "start": "07:30",
+    "campus_open": "08:00",
+    "campus_close": "20:00"
+  },
+  "persona": {
+    "name": "Alex",
+    "start_place": "MEL",
+    "uses_shuttle": false
+  },
+  "walking_buffer_minutes": 3,
+  "buildings": [
+    { "id": "LE",  "name": "Light Engineering (demo)" },
+    { "id": "CS",  "name": "Computer Science Building (demo)" },
+    { "id": "MEL", "name": "Melville Library (demo)" },
+    { "id": "SAC", "name": "Student Activities Center (demo)" },
+    { "id": "JAV", "name": "Javits Lecture Center (demo)" }
+  ],
+  "walking_minutes": {
+    "LE-CS": 4,
+    "LE-MEL": 8,
+    "LE-SAC": 7,
+    "LE-JAV": 6,
+    "CS-MEL": 9,
+    "CS-SAC": 8,
+    "CS-JAV": 5,
+    "MEL-SAC": 5,
+    "MEL-JAV": 6,
+    "SAC-JAV": 8
+  },
+  "covered_routes": [
+    "MEL-SAC"
+  ],
+  "rooms": [
+    { "id": "LE-201",  "building": "LE",  "name": "LE 201",            "capacity": 80,  "kind": "classroom",  "available": true },
+    { "id": "JAV-101", "building": "JAV", "name": "Javits 101",         "capacity": 120, "kind": "classroom",  "available": true },
+    { "id": "JAV-102", "building": "JAV", "name": "Javits 102",         "capacity": 120, "kind": "classroom",  "available": true },
+    { "id": "CS-2311", "building": "CS",  "name": "CS 2311",            "capacity": 60,  "kind": "classroom",  "available": true },
+    { "id": "SAC-BALL","building": "SAC", "name": "SAC Ballroom",       "capacity": 400, "kind": "event_space","available": true },
+    { "id": "MEL-SR3", "building": "MEL", "name": "Melville Study Room 3", "capacity": 8, "kind": "study_room", "bookable": true, "available": true }
+  ],
+  "commitments": [
+    {
+      "id": "c-cse214",
+      "kind": "class",
+      "title": "CSE 214 Data Structures",
+      "course": "CSE 214",
+      "start": "10:00",
+      "end": "11:20",
+      "room": "LE-201",
+      "source": "solar",
+      "enrolled": 78
+    },
+    {
+      "id": "c-mat203",
+      "kind": "class",
+      "title": "MAT 203 Calculus III",
+      "course": "MAT 203",
+      "start": "12:30",
+      "end": "13:50",
+      "room": "JAV-101",
+      "source": "solar",
+      "enrolled": 90
+    },
+    {
+      "id": "c-cse316",
+      "kind": "class",
+      "title": "CSE 316 Software Development",
+      "course": "CSE 316",
+      "start": "15:00",
+      "end": "16:20",
+      "room": "CS-2311",
+      "source": "solar",
+      "enrolled": 45
+    }
+  ],
+  "saved_events": [],
+  "tasks": [
+    {
+      "id": "t-normal-report",
+      "title": "CSE 316 weekly progress report",
+      "course": "CSE 316",
+      "due": {
+        "day_offset": 5,
+        "time": "17:00"
+      },
+      "est_minutes": 60,
+      "source": "brightspace"
+    }
+  ],
+  "teammates": [],
+  "room_availability": {},
+  "ops": {},
+  "estimation_defaults_minutes": {
+    "assignment": 120,
+    "quiz": 90,
+    "report": 90,
+    "reading": 45
+  },
+  "timeline": [
+    {
+      "id": "sig-001",
+      "at": "07:30",
+      "feed": "solar",
+      "kind": "schedule_snapshot",
+      "relevant": true,
+      "summary": "Class schedule loaded (3 meetings today)",
+      "payload": {}
+    },
+    {
+      "id": "sig-002",
+      "at": "07:30",
+      "feed": "brightspace",
+      "kind": "deadlines_snapshot",
+      "relevant": true,
+      "summary": "Deadlines loaded (1 open task)",
+      "payload": {}
+    },
+    {
+      "id": "sig-003",
+      "at": "07:30",
+      "feed": "campus_events",
+      "kind": "saved_events_snapshot",
+      "relevant": true,
+      "summary": "Saved events loaded (0)",
+      "payload": {}
+    }
+  ],
+  "expected_moves": [],
+  "expected_filtered_signals": []
+}

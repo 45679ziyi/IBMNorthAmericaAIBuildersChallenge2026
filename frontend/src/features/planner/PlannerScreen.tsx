@@ -3,8 +3,11 @@ import './PlannerScreen.css'
 import { getEvents, getTasks, generatePlan, acceptPlan, rejectPlan, importICS, DailyPlan, CalendarEvent, Task } from '../../api/client'
 import { SkeletonList } from '../../components/Skeleton'
 import { useToast } from '../../components/Toast'
-import { Clock, Upload, CalendarDays } from 'lucide-react'
-import { formatTime, CAMPUS_TZ } from '../../lib/time'
+import { Clock, Upload, CalendarDays, Download } from 'lucide-react'
+import { formatTime, CAMPUS_TZ, minutesIntoDay, dayKey } from '../../lib/time'
+import { useNow } from '../../hooks/useNow'
+
+const API_BASE = '/api/v1'
 
 // Day timeline: 7am–11pm = 16 hours
 const TIMELINE_START_H = 7
@@ -33,20 +36,19 @@ function blockHeightPct(startIso: string, endIso: string): number {
   return (dur / (TIMELINE_HOURS * 60)) * 100
 }
 
-function nowTopPct(): number {
-  const now = new Date()
-  const h = now.getHours() + now.getMinutes() / 60
-  return Math.max(0, Math.min(100, ((h - TIMELINE_START_H) / TIMELINE_HOURS) * 100))
+function nowTopPct(now: Date): number {
+  const mins = minutesIntoDay(now)
+  return Math.max(0, Math.min(100, ((mins - TIMELINE_START_H * 60) / (TIMELINE_HOURS * 60)) * 100))
 }
 
 // ── Timeline component ────────────────────────────────────────────────────────
-function DayTimeline({ plan }: { plan: DailyPlan }) {
+function DayTimeline({ plan, now }: { plan: DailyPlan; now: Date }) {
   const trackRef = useRef<HTMLDivElement>(null)
   const sorted = [...plan.blocks].sort(
     (a, b) => new Date(a.start_at_utc).getTime() - new Date(b.start_at_utc).getTime()
   )
   const hourLabels = Array.from({ length: TIMELINE_HOURS + 1 }, (_, i) => TIMELINE_START_H + i)
-  const pct = nowTopPct()
+  const pct = nowTopPct(now)
 
   // Scroll to now-marker on mount (smooth)
   useEffect(() => {
@@ -74,7 +76,7 @@ function DayTimeline({ plan }: { plan: DailyPlan }) {
         ))}
       </div>
 
-      <div ref={trackRef} className="timeline-track" role="list">
+      <div ref={trackRef} className="timeline-track">
         {/* Hour grid lines */}
         {hourLabels.map(h => (
           <div
@@ -128,6 +130,7 @@ export default function PlannerScreen() {
   const [loading, setLoading] = useState(true)
   const [generating, setGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const { now } = useNow()
   const [planDate, setPlanDate] = useState(() =>
     new Date().toLocaleDateString('fr-CA', { timeZone: CAMPUS_TZ })
   )
@@ -190,7 +193,7 @@ export default function PlannerScreen() {
   if (loading) return <SkeletonList count={4} lines={3} />
 
   const dayEvents = events
-    .filter(ev => ev.start_at_utc.startsWith(planDate))
+    .filter(ev => dayKey(ev.start_at_utc) === planDate)
     .sort((a, b) => new Date(a.start_at_utc).getTime() - new Date(b.start_at_utc).getTime())
 
   const BLOCK_LABELS: Record<string, string> = {
@@ -215,6 +218,13 @@ export default function PlannerScreen() {
           </label>
           <input id="ics-input" type="file" accept=".ics" onChange={handleICSUpload} className="sr-only" />
           {icsResult && <span className="text-sm text-muted">{icsResult}</span>}
+          <a
+            href={`${API_BASE}/calendar/aurora.ics`}
+            download
+            className="btn btn-ghost btn-sm ics-download"
+          >
+            <Download size={14} aria-hidden="true" /> Download AURORA .ics
+          </a>
         </div>
         <p className="text-muted text-sm ics-note">
           Import .ics from your device. No live SBU SOLAR connection.
@@ -269,7 +279,7 @@ export default function PlannerScreen() {
             {/* Timeline */}
             <div className={`planner-timeline-col${mobileView === 'list' ? ' planner-col-hidden' : ''}`}>
               <h2>Timeline</h2>
-              <DayTimeline plan={plan} />
+              <DayTimeline plan={plan} now={now} />
             </div>
 
             {/* Block list + unscheduled */}

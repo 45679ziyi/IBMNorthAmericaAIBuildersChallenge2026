@@ -26,6 +26,7 @@ def init_db() -> None:
 def _ensure_columns() -> None:
     """Add missing columns to existing tables (safe to call multiple times)."""
     with engine.connect() as conn:
+        # ── announcements ────────────────────────────────────────────────────
         rows = conn.execute(text("PRAGMA table_info(announcements)")).fetchall()
         existing = {row[1] for row in rows}
         if "is_read" not in existing:
@@ -36,6 +37,19 @@ def _ensure_columns() -> None:
             conn.execute(
                 text("ALTER TABLE announcements ADD COLUMN read_at_utc DATETIME")
             )
+
+        # ── tasks (V2 additions) ─────────────────────────────────────────────
+        rows = conn.execute(text("PRAGMA table_info(tasks)")).fetchall()
+        existing = {row[1] for row in rows}
+        if "source_signal_id" not in existing:
+            conn.execute(
+                text("ALTER TABLE tasks ADD COLUMN source_signal_id TEXT")
+            )
+        if "provenance" not in existing:
+            conn.execute(
+                text("ALTER TABLE tasks ADD COLUMN provenance TEXT NOT NULL DEFAULT 'manual'")
+            )
+
         conn.commit()
 
 

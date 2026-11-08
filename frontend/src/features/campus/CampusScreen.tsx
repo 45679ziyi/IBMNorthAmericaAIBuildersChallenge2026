@@ -5,7 +5,9 @@ import {
   getAnnouncements, getCampusPulse, getPulseSeries, getPulseInsights,
   getSecurityReport, runSecurityCheck, escalateFinding,
   markAnnouncementRead, markAllAnnouncementsRead,
+  getOpsIncidents, getIncidentImpact, approveMitigation,
   Announcement, SensorReading, PulseSeries, PulseInsight, SecurityReport,
+  OpsIncident, ImpactGraph,
 } from '../../api/client'
 import { SkeletonList } from '../../components/Skeleton'
 import { StatusChip } from '../../components/StatusChip'
@@ -14,13 +16,13 @@ import { Tabs, TabPanel } from '../../components/Tabs'
 import { useToast } from '../../components/Toast'
 import { useConfirm } from '../../components/ConfirmModal'
 import { useBadges } from '../../state/badges'
-import { formatTime, formatDay } from '../../lib/time'
-import { RefreshCw, MapPin, Activity, CheckCircle, AlertCircle, XCircle, ExternalLink, ChevronDown } from 'lucide-react'
+import { formatTime, formatDay, CAMPUS_TZ } from '../../lib/time'
+import { RefreshCw, MapPin, Activity, CheckCircle, AlertCircle, XCircle, ExternalLink, ChevronDown, Thermometer } from 'lucide-react'
 
 function fmtDate(iso: string | undefined) {
   if (!iso) return null
   return new Date(iso).toLocaleDateString('en-US', {
-    month: 'short', day: 'numeric', year: 'numeric', timeZone: 'America/New_York',
+    month: 'short', day: 'numeric', year: 'numeric', timeZone: CAMPUS_TZ,
   })
 }
 
@@ -199,8 +201,163 @@ function Sparkline({ values, metricType, latestValue, unit }: SparklineProps) {
   )
 }
 
+// ── Incidents section ─────────────────────────────────────────────────────────
+function IncidentsSection({ role }: { role: 'student' | 'staff' }) {
+  const [incidents, setIncidents] = useState<OpsIncident[]>([])
+  const [loading, setLoading] = useState(true)
+  const [expandedImpacts, setExpandedImpacts] = useState<Set<string>>(new Set())
+  const [impactMap, setImpactMap] = useState<Record<string, ImpactGraph>>({})
+  const [loadingImpact, setLoadingImpact] = useState<Set<string>>(new Set())
+  const { showToast } = useToast()
+  const { confirm } = useConfirm()
+
+  useEffect(() => {
+    getOpsIncidents()
+      .then(data => { setIncidents(data); setLoading(false) })
+      .catch(() => setLoading(false))
+  }, [])
+
+  async function handleToggleImpact(id: string) {
+    setExpandedImpacts(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) { next.delete(id); return next }
+      next.add(id)
+      return next
+    })
+    if (!impactMap[id]) {
+      setLoadingImpact(prev => new Set(prev).add(id))
+      try {
+        const graph = await getIncidentImpact(id)
+        setImpactMap(prev => ({ ...prev, [id]: graph }))
+      } catch { /* silent */ }
+      setLoadingImpact(prev => { const s = new Set(prev); s.delete(id); return s })
+    }
+  }
+
+  async function handleApprove(incidentId: string) {
+    const ok = await confirm(
+      'Request a room change for the affected class?\n\nSimulation only. No real room change request will be sent.',
+      'Request room change (simulated)',
+      'primary'
+    )
+    if (!ok) return
+    try {
+      const result = await approveMitigation(incidentId)
+      showToast('Simulated: no real room change request was sent.', 'info')
+      // Refresh impact graph
+      const graph = await getIncidentImpact(incidentId)
+      setImpactMap(prev => ({ ...prev, [incidentId]: graph }))
+      // Refresh incidents to update status
+      const updated = await getOpsIncidents()
+      setIncidents(updated)
+    } catch (e) { showToast(String(e), 'error') }
+  }
+
+  if (loading) return <SkeletonList count={2} lines={2} />
+
+  if (incidents.length === 0) {
+    return <p className="text-muted text-sm">No active incidents.</p>
+  }
+
+  return (
+    <ul className="campus-list">
+      {incidents.map(inc => {
+        const isExpanded = expandedImpacts.has(inc.id)
+        const impact = impactMap[inc.id]
+        const isLoadingImpact = loadingImpact.has(inc.id)
+
+        return (
+          <li key={inc.id} className="card ops-incident-item">
+            <div className="ops-incident-header">
+              <div className="ops-incident-title-row">
+                <Thermometer size={14} aria-hidden="true" />
+                <strong>{inc.room_name}</strong>
+                <span className={`badge badge-${inc.status === 'active' ? 'err' : 'ok'}`}>
+                  {inc.status}
+                </span>
+              </div>
+              <div className="text-muted text-sm">
+                Type: {inc.type.replace(/_/g, ' ')}
+                {inc.temperature_c != null && ` · ${inc.temperature_c}°C`}
+                {inc.trend && ` (${inc.trend})`}
+              </div>
+              <button
+                className="btn btn-ghost btn-sm ops-impact-toggle"
+                onClick={() => handleToggleImpact(inc.id)}
+                aria-expanded={isExpanded}
+              >
+                <ChevronDown size={13} className={`ann-chevron${isExpanded ? ' ann-chevron-open' : ''}`} aria-hidden="true" />
+                {isExpanded ? 'Hide impact' : 'Show impact'}
+              </button>
+            </div>
+
+            {isExpanded && (
+              <div className="ops-impact-panel">
+                {isLoadingImpact
+                  ? <SkeletonList count={2} lines={2} />
+                  : impact
+                    ? (
+                      <>
+                        <div className="ops-impact-summary">
+                          <strong>{impact.total_students}</strong> students affected across{' '}
+                          <strong>{impact.affected_classes.length}</strong> class{impact.affected_classes.length !== 1 ? 'es' : ''}
+                        </div>
+
+                        {role === 'student' && (
+                          <p className="text-sm ops-student-effect">{impact.student_effect}</p>
+                        )}
+
+                        <ul className="ops-affected-classes">
+                          {impact.affected_classes.map(ac => (
+                            <li key={ac.commitment_id} className="ops-affected-class">
+                              <span className="text-sm font-medium">{ac.title}</span>
+                              <span className="text-muted text-sm"> · {ac.start}–{ac.end}</span>
+                              <span className={`badge badge-${ac.status === 'in_session' ? 'warn' : 'ok'} ops-class-status`}>
+                                {ac.status === 'in_session' ? 'In session' : 'Not started'}
+                              </span>
+                              <span className="text-muted text-sm"> {ac.enrolled} enrolled</span>
+                            </li>
+                          ))}
+                        </ul>
+
+                        {role === 'staff' && impact.feasible_mitigations.length > 0 && (
+                          <div className="ops-mitigations">
+                            <strong className="text-sm">Feasible mitigations:</strong>
+                            <ul>
+                              {impact.feasible_mitigations.map((m, i) => (
+                                <li key={i} className="ops-mitigation-item">
+                                  <span className="text-sm">{m.course} → {m.room_name}</span>
+                                  <button
+                                    className="btn btn-ghost btn-sm"
+                                    onClick={() => handleApprove(inc.id)}
+                                  >
+                                    Request room change (simulated)
+                                  </button>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {role === 'staff' && impact.feasible_mitigations.length === 0 && (
+                          <p className="text-muted text-sm">No feasible rooms available for relocation.</p>
+                        )}
+                      </>
+                    )
+                    : <p className="text-muted text-sm">Could not load impact data.</p>
+                }
+              </div>
+            )}
+          </li>
+        )
+      })}
+    </ul>
+  )
+}
+
 // ── Operations tab ────────────────────────────────────────────────────────────
 function OperationsTab({ visible }: { visible: boolean }) {
+  const [role, setRole] = useState<'student' | 'staff'>('student')
   const [readings, setReadings] = useState<SensorReading[]>([])
   const [series, setSeries] = useState<PulseSeries[]>([])
   const [insights, setInsights] = useState<PulseInsight[]>([])
@@ -283,6 +440,36 @@ function OperationsTab({ visible }: { visible: boolean }) {
       <div className="ops-banner" role="note">
         Simulation. Not connected to any SBU system. Nothing here sends messages or controls equipment.
       </div>
+
+      {/* Role switch */}
+      <div className="ops-role-switch">
+        <span className="text-sm text-muted ops-role-label">View as:</span>
+        <button
+          className={`btn btn-sm${role === 'student' ? ' btn-primary' : ' btn-ghost'}`}
+          onClick={() => setRole('student')}
+          aria-pressed={role === 'student'}
+        >
+          Student
+        </button>
+        <button
+          className={`btn btn-sm${role === 'staff' ? ' btn-primary' : ' btn-ghost'}`}
+          onClick={() => setRole('staff')}
+          aria-pressed={role === 'staff'}
+        >
+          Facilities staff (simulated)
+        </button>
+        <span className="text-muted text-sm ops-role-note">
+          Role switch is view only. No authentication. Nothing here controls real systems.
+        </span>
+      </div>
+
+      {/* Incidents section */}
+      <section aria-labelledby="ops-incidents-heading" className="ops-section">
+        <h2 id="ops-incidents-heading">
+          Incidents <StatusChip variant="synthetic" label="Synthetic" />
+        </h2>
+        <IncidentsSection role={role} />
+      </section>
 
       {/* Building conditions */}
       <section aria-labelledby="ops-pulse-heading" className="ops-section">

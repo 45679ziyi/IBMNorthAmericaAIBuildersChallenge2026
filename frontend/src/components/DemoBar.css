@@ -1,0 +1,92 @@
+/* DemoBar — fixed simulation bar at top of viewport. Token-only colors. */
+
+.demo-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 44px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: 0 var(--sp-4);
+  background: color-mix(in srgb, var(--violet) 14%, var(--panel));
+  border-bottom: 1px solid color-mix(in srgb, var(--violet) 30%, var(--line));
+  overflow: hidden;
+}
+
+.demo-bar-label {
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--violet);
+  flex-shrink: 0;
+}
+
+.demo-bar-time {
+  font-size: .82rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  flex-shrink: 0;
+  margin-right: var(--sp-2);
+}
+
+.demo-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  flex: 1;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.demo-bar-actions::-webkit-scrollbar { display: none; }
+
+.demo-bar-btn {
+  font-size: .75rem;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 28px;
+  padding: 0 var(--sp-2);
+}
+
+.demo-bar-play[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--violet) 12%, var(--panel));
+  color: var(--violet);
+}
+
+/* Speed dropdown */
+.demo-bar-speed-wrap {
+  position: relative;
+}
+.demo-bar-speed-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: var(--sp-1) 0;
+  list-style: none;
+  margin: 0;
+  min-width: 72px;
+  z-index: 10;
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--ink) 10%, transparent);
+}
+.demo-bar-speed-item {
+  padding: var(--sp-1) var(--sp-3);
+  font-size: .82rem;
+  cursor: pointer;
+  color: var(--ink);
+}
+.demo-bar-speed-item:hover {
+  background: color-mix(in srgb, var(--dawn) 8%, var(--panel));
+}
+.demo-bar-speed-item-active {
+  color: var(--violet);
+  font-weight: 600;
+}

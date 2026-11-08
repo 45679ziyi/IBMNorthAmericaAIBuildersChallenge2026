@@ -1,10 +1,9 @@
 """Connector status endpoint."""
 from __future__ import annotations
 
-from datetime import datetime, timezone
-
 from fastapi import APIRouter
 
+from app.core.clock import get_now
 from app.schemas.schemas import ConnectorStatus
 from app.core.config import settings
 
@@ -13,7 +12,7 @@ router = APIRouter()
 
 @router.get("/status", response_model=list[ConnectorStatus])
 def connector_status():
-    now = datetime.now(timezone.utc)
+    now = get_now()
     return [
         ConnectorStatus(
             name="Calendar (ICS Import)",

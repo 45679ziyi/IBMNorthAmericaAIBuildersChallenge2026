@@ -558,8 +558,7 @@ def test_pulse_normal_no_critical_insights(client):
     from unittest.mock import patch
 
     fixed_now = datetime(2026, 11, 7, 10, 0, 0, tzinfo=timezone.utc)
-    with patch("app.api.v1.pulse.datetime") as mock_dt:
-        mock_dt.now.return_value = fixed_now
+    with patch("app.core.clock.get_now", return_value=fixed_now):
         r = client.get("/api/v1/campus-pulse/insights?scenario=normal")
     assert r.status_code == 200
     critical = [i for i in r.json() if i["severity"] == "critical"]
@@ -762,3 +761,16 @@ def test_security_automated_action_null(client):
         assert f["automated_action"] is None, (
             f"Finding {f['id']} has automated_action={f['automated_action']!r}"
         )
+
+
+def test_one_source_per_document_and_markers_match(client):
+    """Sources must be unique by URL; every [n] in the answer must be <= len(sources)."""
+    r = client.post("/api/v1/assistant/ask", json={"question": "How do I access my education records?"})
+    assert r.status_code == 200
+    data = r.json()
+    urls = [s["url"] for s in data["sources"]]
+    assert len(urls) == len(set(urls)), "Duplicate source URLs"
+    import re
+    markers = re.findall(r'\[(\d+)\]', data["answer"])
+    for m in markers:
+        assert int(m) <= len(data["sources"]), f"Marker [{m}] exceeds source count {len(data['sources'])}"

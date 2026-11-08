@@ -1,7 +1,23 @@
 """API v1 router — aggregates all endpoint sub-routers."""
 from fastapi import APIRouter
 
-from app.api.v1 import health, events, tasks, announcements, plans, assistant, connectors, pulse, demo, security
+from app.api.v1 import (
+    health,
+    events,
+    tasks,
+    announcements,
+    plans,
+    assistant,
+    connectors,
+    pulse,
+    demo,
+    security,
+    sim,
+    moves as moves_router,
+    autonomy,
+    calendar_export,
+    ops,
+)
 
 api_router = APIRouter()
 
@@ -15,3 +31,9 @@ api_router.include_router(connectors.router, prefix="/connectors", tags=["connec
 api_router.include_router(pulse.router, prefix="/campus-pulse", tags=["campus-pulse"])
 api_router.include_router(demo.router, tags=["demo"])
 api_router.include_router(security.router, prefix="/security", tags=["security"])
+api_router.include_router(sim.router, prefix="/sim", tags=["sim"])
+api_router.include_router(sim.feeds_router, tags=["sim"])
+api_router.include_router(moves_router.router, prefix="/moves", tags=["moves"])
+api_router.include_router(autonomy.router, prefix="/autonomy", tags=["autonomy"])
+api_router.include_router(calendar_export.router, prefix="/calendar", tags=["calendar"])
+api_router.include_router(ops.router, prefix="/ops", tags=["ops"])

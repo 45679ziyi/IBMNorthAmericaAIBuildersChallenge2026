@@ -1,9 +1,9 @@
 """Weather adapter — sample fixture by default, optional live provider."""
 from __future__ import annotations
 
-from datetime import datetime, timezone
 from typing import Any
 
+from app.core.clock import get_now
 from app.core.config import settings
 
 
@@ -23,5 +23,5 @@ _SAMPLE_WEATHER = {
 
 def get_weather_sample() -> dict[str, Any]:
     d = dict(_SAMPLE_WEATHER)
-    d["retrieved_at"] = datetime.now(timezone.utc).isoformat()
+    d["retrieved_at"] = get_now().isoformat()
     return d

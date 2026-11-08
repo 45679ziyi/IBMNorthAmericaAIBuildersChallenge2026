@@ -1,4 +1,4 @@
-import { Routes, Route, NavLink, useLocation } from 'react-router-dom'
+import { Routes, Route, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { Home, CalendarDays, CheckSquare, MapPin, MessageSquare, Shield, Monitor, Sun, Moon } from 'lucide-react'
 import TodayScreen from '../features/dashboard/TodayScreen'
@@ -10,6 +10,8 @@ import PrivacyScreen from '../features/privacy/PrivacyScreen'
 import { Toast, ToastProvider } from '../components/Toast'
 import { ConfirmProvider } from '../components/ConfirmModal'
 import { BadgesProvider, useBadges } from '../state/badges'
+import { DemoBar } from '../components/DemoBar'
+import { useNow } from '../hooks/useNow'
 import './App.css'
 
 // ── Theme management ─────────────────────────────────────────────────────────
@@ -76,10 +78,15 @@ function ThemeControl({ choice, onChange }: { choice: ThemeChoice; onChange: (c:
 
 // ── App shell ─────────────────────────────────────────────────────────────────
 
+const DEMO_BAR_HEIGHT = 44
+
 function AppShell() {
   const [themeChoice, setThemeChoice] = useState<ThemeChoice>(loadStoredTheme)
   const location = useLocation()
+  const navigate = useNavigate()
   const { badges } = useBadges()
+  const { simState, now: _now } = useNow()
+  const demoBarActive = simState?.mode === 'scenario'
 
   // Apply resolved theme to <html>
   useEffect(() => {
@@ -87,6 +94,14 @@ function AppShell() {
     document.documentElement.setAttribute('data-theme', resolved)
     saveTheme(themeChoice)
   }, [themeChoice])
+
+  // Set --demo-bar-height CSS custom property on :root
+  useEffect(() => {
+    document.documentElement.style.setProperty(
+      '--demo-bar-height',
+      demoBarActive ? `${DEMO_BAR_HEIGHT}px` : '0px'
+    )
+  }, [demoBarActive])
 
   // React to OS theme changes when choice = 'system'
   useEffect(() => {
@@ -112,6 +127,17 @@ function AppShell() {
   return (
     <div className="app-layout">
       <a href="#main-content" className="skip-link">Skip to main content</a>
+
+      {/* ── Demo / Simulation bar ──────────────────────────────────────── */}
+      {demoBarActive && simState && (
+        <DemoBar
+          simState={simState}
+          onAdvance={() => { /* TodayScreen polls via useNow */ }}
+          onReset={() => { /* TodayScreen polls via useNow */ }}
+          onStop={() => { /* reserved */ }}
+          onStaffView={() => navigate('/campus?tab=operations')}
+        />
+      )}
 
       {/* ── Desktop / tablet left rail ─────────────────────────────────── */}
       <nav className="app-rail" aria-label="Main navigation">
@@ -167,7 +193,12 @@ function AppShell() {
       </header>
 
       {/* ── Main content ───────────────────────────────────────────────── */}
-      <main id="main-content" className="app-main" tabIndex={-1}>
+      <main
+        id="main-content"
+        className="app-main"
+        tabIndex={-1}
+        style={demoBarActive ? { paddingTop: `${DEMO_BAR_HEIGHT}px` } as React.CSSProperties : undefined}
+      >
         <div className="app-main-inner container">
           <Routes>
             <Route path="/" element={<TodayScreen />} />

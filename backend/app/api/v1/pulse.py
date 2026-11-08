@@ -1,10 +1,9 @@
 """Campus Pulse — synthetic sensor data only."""
 from __future__ import annotations
 
-from datetime import datetime, timezone
-
 from fastapi import APIRouter, Query
 
+from app.core.clock import get_now
 from app.schemas.schemas import SensorReadingRead, PulseSeries, PulseSeriesPoint, PulseInsight
 from app.services.ops import sim as sim_mod
 from app.services.ops.analyzer import analyze
@@ -15,7 +14,7 @@ router = APIRouter()
 @router.get("/demo", response_model=list[SensorReadingRead])
 def campus_pulse_demo():
     """Return synthetic sensor readings (deterministic per 5-min bucket). data_origin='synthetic'."""
-    now = datetime.now(timezone.utc)
+    now = get_now()
     latest = sim_mod.generate_latest(now)
     return [
         SensorReadingRead(
@@ -37,7 +36,7 @@ def campus_pulse_series(
     scenario: str = Query(default="demo_incident"),
 ):
     """Return per-sensor time-series for the last `points` 5-minute buckets."""
-    now = datetime.now(timezone.utc)
+    now = get_now()
     series_list = sim_mod.generate_series(now=now, points=points, scenario=scenario)
     result: list[PulseSeries] = []
     for s in series_list:
@@ -64,7 +63,7 @@ def campus_pulse_insights(
     scenario: str = Query(default="demo_incident"),
 ):
     """Return rule-based insights from the current sensor series."""
-    now = datetime.now(timezone.utc)
+    now = get_now()
     series_list = sim_mod.generate_series(now=now, points=24, scenario=scenario)
     raw_insights = analyze(series_list)
     return [

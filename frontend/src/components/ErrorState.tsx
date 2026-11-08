@@ -1,3 +1,5 @@
+import './components.css'
+
 interface ErrorStateProps {
   message: string
   onRetry?: () => void
@@ -6,11 +8,10 @@ interface ErrorStateProps {
 export function ErrorState({ message, onRetry }: ErrorStateProps): JSX.Element {
   return (
     <div className="state-error" role="alert">
-      <p style={{ margin: 0 }}>{message}</p>
+      <p className="state-message">{message}</p>
       {onRetry && (
         <button
-          className="btn btn-ghost btn-sm"
-          style={{ marginTop: 'var(--sp-3)' }}
+          className="btn btn-ghost btn-sm state-action"
           onClick={onRetry}
         >
           Try again

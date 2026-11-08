@@ -2,33 +2,52 @@
 
 > **⚠️ Prototype notice:** AURORA is an independent educational prototype. It is not affiliated with, endorsed by, or operated by Stony Brook University or IBM.
 
-AURORA is a privacy-first campus intelligence assistant that turns a student's fragmented academic and campus information into a reliable, source-backed daily plan — with honest labels on everything simulated or demo.
+AURORA is a read-only intelligence layer above the systems a student already uses. It watches simulated feeds, connects the signals, and turns them into a few decisions the student can approve with one tap.
 
 ---
 
-## Features
+## What is simulated vs what is real
 
-| Feature | Status |
+| Real | Simulated |
 |---|---|
-| Student home dashboard (Today view with Now/Next band) | ✅ |
-| Calendar import (`.ics`) with timezone normalization | ✅ |
-| Task manager (create / edit / complete / delete) | ✅ |
-| Announcements inbox with read state | ✅ |
-| Deterministic daily planning engine with visual timeline | ✅ |
-| Campus knowledge assistant (term-coverage RAG) | ✅ |
-| Privacy & Sources center | ✅ |
-| Campus Pulse simulation (deterministic synthetic sensors) | ✅ |
-| Pulse trend analysis and insights | ✅ |
-| Operations simulation (sensor insights + security watchdog) | ✅ |
-| Security watchdog (synthetic asset + advisory matching) | ✅ |
-| System / Light / Dark theme with no flash | ✅ |
-| Responsive layout (desktop rail, mobile bottom tab bar) | ✅ |
+| ICS calendar file import | Every other feed (SOLAR, Brightspace, weather, shuttle, sensors) |
+| Local tasks, events, plans | Room bookings, staff requests, sensor readings |
+| Rule-based planning engine | Every counter in the UI (scenario outputs, not measured benefits) |
+| Knowledge retriever (SQLite FTS5) | LLM answer generation (extractive mock) |
+
+---
+
+## What AURORA claims — and does not claim
+
+**Claims:**
+- A read-only intelligence layer that sits above existing systems
+- Advisory only; no action is taken without human approval (or is automatically reversible)
+- All feeds are simulated fixtures; the adapter interface is designed for real connectors
+- Automatic actions are reversible (Undo available for every auto-applied move)
+
+**Does NOT claim:**
+- Connection to any real SBU system (SOLAR, Brightspace, campus networks, sensors)
+- FERPA compliance
+- End-to-end encryption
+- SBU or IBM endorsement or affiliation
+- Measured time savings (every counter is a count of simulated scenario events)
+- Production readiness
+
+---
+
+## Safety
+
+- No send action exists anywhere in this codebase. There is no `send_email`, `sendmail`, or equivalent.
+- Automatic actions touch only AURORA's own plan and are reversible via the Undo button.
+- Every external action (`book_room`, `request_room_change`) is simulated and labeled so in the UI, the API response, and the audit log.
+- Message drafts are created as drafts only and are never sent.
+- Escalation writes a local audit record and nothing else.
 
 ---
 
 ## Quick start
 
-> **All commands below run from the project root** — the folder that contains `backend/` and `frontend/`. Never `cd` into a subdirectory unless the command tells you to.
+All commands run from the project root (the folder containing `backend/` and `frontend/`).
 
 ### Prerequisites
 
@@ -39,47 +58,17 @@ AURORA is a privacy-first campus intelligence assistant that turns a student's f
 | npm | 9+ |
 | uv (recommended) | any recent |
 
----
-
-### Option A — One-line scripts (easiest)
-
-Open **Terminal 1** (backend):
-
-```bash
-bash start.sh
-```
-
-Open **Terminal 2** (frontend):
-
-```bash
-bash start_frontend.sh
-```
-
-Then open **http://localhost:5173** in your browser.
-
-The scripts are self-locating — run them from any directory, for example:
-
-```bash
-bash /path/to/aurora-campus-intelligence/start.sh
-```
-
----
-
-### Option B — Step by step
-
-All commands are relative to the project root (the folder that contains `backend/` and `frontend/`).
-
-#### 1. Install backend dependencies
+### Step 1 — Backend dependencies
 
 ```bash
 cd backend
-uv venv --python python3       # or: python3 -m venv .venv
+uv venv --python python3        # or: python3 -m venv .venv
 source .venv/bin/activate
-uv pip install -e ".[dev]"     # or: pip install -e ".[dev]"
+uv pip install -e ".[dev]"      # or: pip install -e ".[dev]"
 cd ..
 ```
 
-#### 2. Install frontend dependencies
+### Step 2 — Frontend dependencies
 
 ```bash
 cd frontend
@@ -87,14 +76,7 @@ npm install
 cd ..
 ```
 
-#### 3. Configure environment (optional)
-
-```bash
-cp .env.example .env
-# Edit .env only if you want a live AI or weather provider
-```
-
-#### 4. Seed demo data
+### Step 3 — Seed demo data
 
 ```bash
 cd backend && source .venv/bin/activate
@@ -102,14 +84,14 @@ python -m scripts.seed_demo_data
 cd ..
 ```
 
-#### 5. Run backend (Terminal 1)
+### Step 4 — Run the backend (Terminal 1)
 
 ```bash
 cd backend && source .venv/bin/activate
 uvicorn app.main:app --reload --port 8000
 ```
 
-#### 6. Run frontend (Terminal 2)
+### Step 5 — Run the frontend (Terminal 2)
 
 ```bash
 cd frontend
@@ -118,38 +100,38 @@ npm run dev
 
 Open **http://localhost:5173**
 
----
-
-### Reset demo data
-
-From the project root:
+### One-line scripts (alternative)
 
 ```bash
-cd backend && source .venv/bin/activate
-python -m scripts.reset_demo_data
+bash start.sh           # Terminal 1 — backend
+bash start_frontend.sh  # Terminal 2 — frontend
 ```
 
 ---
 
-## Tests and validation
+## How to run the demo
 
-All commands run from the project root.
+The demo uses a scripted "disrupted Tuesday" scenario — a day where a room changes, a cooling fault occurs, a career fair moves, and a group meeting needs booking. AURORA watches the feeds, proposes moves, and applies reversible automatic actions.
 
-```bash
-# Backend — pytest
-cd backend && source .venv/bin/activate
-pytest -v
+1. Start the backend and frontend (see Quick start above).
+2. Open **http://localhost:5173** and navigate to **Today**.
+3. In the **Demo Bar** at the top, press **"disrupted_tuesday"** to start the scenario, then press **Play** (60×, 300×, or 600× speed).
+4. Watch the command center: decision cards appear, the timeline updates, and "Handled for you" fills with auto-applied moves.
+5. Press **Next signal** to step through each event one at a time.
+6. Switch to the **Operations** tab and toggle to **Staff view** to see the facilities side of the same incident.
+7. See [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md) for the full 90-second walkthrough with exact virtual times.
 
-# Frontend — TypeScript type-check
-cd frontend && npm run type-check
+---
 
-# Frontend — production build
-cd frontend && npm run build
+## Commands
 
-# Run the security check simulation manually
-cd backend && source .venv/bin/activate
-python -m scripts.run_security_check
-```
+| Command | What it does | Caveat |
+|---|---|---|
+| `cd backend && source .venv/bin/activate && pytest -v` | Run all backend tests | — |
+| `cd frontend && npm run type-check` | TypeScript type-check (0 errors expected) | — |
+| `cd frontend && npm run build` | Production build | — |
+| `cd frontend && npm run ui-check` | Playwright accessibility and overflow check | Playwright must be installed separately (`pip install playwright && playwright install`) |
+| `cd frontend && npm run demo-shots` | Take demo screenshots | Playwright must be installed |
 
 ---
 
@@ -159,34 +141,29 @@ See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for a full overview.
 
 Stack:
 
-- **Frontend:** React + TypeScript + Vite, responsive (desktop rail / mobile bottom tabs)
+- **Frontend:** React 18 + TypeScript + Vite, responsive (desktop rail / mobile bottom tabs)
 - **Backend:** Python 3.11+, FastAPI, SQLAlchemy 2.x, SQLite
-- **AI:** Provider-abstracted; defaults to deterministic mock (no external calls required)
+- **Intelligence:** 7 pure-function detectors, moves engine with fingerprint reconciliation, demo clock, scenario runner
 - **Retrieval:** SQLite FTS5 full-text search with term-coverage ranking over curated public knowledge chunks
-- **Ops simulation:** Deterministic time-bucketed sensor simulation with trend analysis
-- **Security watchdog:** Synthetic fixture-based advisory and certificate matching; AURORA posture self-checks
+- **Feeds:** All simulated via `FixtureFeed`; ICS calendar file import is the only real data path
+- **Action layer:** 7 allowlisted action types; no others can execute; simulated actions are labeled
 
 ---
 
-## Safety and honesty
+## Docs
 
-- All demo academic records are synthetic fiction. No real student data.
-- No connection to SBU SOLAR, Brightspace, campus networks, or real sensors.
-- No NetID password, Stony Brook ID, SSN, grades, or private messages are collected.
-- Campus Pulse readings are labeled `SIMULATED DATA — NOT CONNECTED TO SBU SYSTEMS`.
-- Security findings are based on fictional demo fixtures; they are advisory simulations only.
-- External LLM calls are opt-in; the app works fully offline with the mock provider.
-
-See [`docs/SECURITY_AND_PRIVACY.md`](docs/SECURITY_AND_PRIVACY.md).
+| File | Contents |
+|---|---|
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Intelligence loop, clock, detectors, action layer |
+| [`docs/SECURITY_AND_PRIVACY.md`](docs/SECURITY_AND_PRIVACY.md) | No-send guarantee, allowlist, undo, audit trail |
+| [`docs/DATA_SOURCES.md`](docs/DATA_SOURCES.md) | Every feed and why it is simulated |
+| [`docs/DATA_DICTIONARY.md`](docs/DATA_DICTIONARY.md) | All tables and columns |
+| [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md) | 90-second demo walkthrough |
+| [`docs/BUILD_NOTES.md`](docs/BUILD_NOTES.md) | Final test counts and what was not verified |
+| [`docs/IBM_BOB_USAGE.md`](docs/IBM_BOB_USAGE.md) | Truthful M0–M6 build log |
 
 ---
 
 ## License
 
 MIT — see `LICENSE`.
-
----
-
-## IBM Bob usage
-
-See [`docs/IBM_BOB_USAGE.md`](docs/IBM_BOB_USAGE.md).

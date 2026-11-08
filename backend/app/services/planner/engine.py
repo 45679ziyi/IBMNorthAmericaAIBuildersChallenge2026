@@ -18,6 +18,7 @@ from typing import Any
 import pytz
 from sqlalchemy.orm import Session
 
+from app.core.clock import get_now
 from app.models.models import (
     CalendarEvent,
     Task,
@@ -75,7 +76,7 @@ def generate_plan(db: Session, user_id: str, plan_date: str, tz_name: str) -> Da
             )
 
     # Collect open, non-done tasks
-    now_utc = datetime.now(timezone.utc)
+    now_utc = get_now()
     tasks = (
         db.query(Task)
         .filter(

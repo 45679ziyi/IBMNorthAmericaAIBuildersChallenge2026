@@ -1,11 +1,10 @@
 """Announcements endpoint — demo adapter only."""
 from __future__ import annotations
 
-from datetime import datetime, timezone
-
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from app.core.clock import get_now
 from app.db.session import get_db
 from app.models.models import Announcement
 from app.schemas.schemas import AnnouncementRead, AnnouncementUpdate
@@ -37,7 +36,7 @@ def update_announcement(
     if ann is None:
         raise HTTPException(status_code=404, detail="Announcement not found")
     ann.is_read = body.is_read
-    ann.read_at_utc = datetime.now(timezone.utc) if body.is_read else None
+    ann.read_at_utc = get_now() if body.is_read else None
     db.commit()
     db.refresh(ann)
     return _to_read(ann)
@@ -46,7 +45,7 @@ def update_announcement(
 @router.post("/mark-all-read", response_model=list[AnnouncementRead])
 def mark_all_read(db: Session = Depends(get_db)):
     user_id = settings.demo_user_id
-    now = datetime.now(timezone.utc)
+    now = get_now()
     rows = db.query(Announcement).filter(Announcement.user_id == user_id).all()
     for ann in rows:
         ann.is_read = True

@@ -1,0 +1,483 @@
+{
+  "_note": "FICTIONAL scenario for the AURORA demo. Every building, room, person, route, event and number here is invented. Nothing is connected to a real SBU system.",
+  "id": "disrupted_tuesday",
+  "title": "A disrupted Tuesday",
+  "description": "One student, one ordinary-looking day, eight things that change. AURORA has to notice, connect them across systems, and turn them into a few decisions.",
+  "timezone": "America/New_York",
+  "day": {
+    "weekday": "Tuesday",
+    "start": "07:30",
+    "campus_open": "08:00",
+    "campus_close": "20:00"
+  },
+  "persona": {
+    "name": "Alex",
+    "start_place": "MEL",
+    "uses_shuttle": false
+  },
+  "walking_buffer_minutes": 3,
+  "buildings": [
+    {
+      "id": "LE",
+      "name": "Light Engineering (demo)"
+    },
+    {
+      "id": "CS",
+      "name": "Computer Science Building (demo)"
+    },
+    {
+      "id": "MEL",
+      "name": "Melville Library (demo)"
+    },
+    {
+      "id": "SAC",
+      "name": "Student Activities Center (demo)"
+    },
+    {
+      "id": "JAV",
+      "name": "Javits Lecture Center (demo)"
+    }
+  ],
+  "walking_minutes": {
+    "LE-CS": 4,
+    "LE-MEL": 8,
+    "LE-SAC": 7,
+    "LE-JAV": 6,
+    "CS-MEL": 9,
+    "CS-SAC": 8,
+    "CS-JAV": 5,
+    "MEL-SAC": 5,
+    "MEL-JAV": 6,
+    "SAC-JAV": 8
+  },
+  "covered_routes": [
+    "MEL-SAC"
+  ],
+  "rooms": [
+    {
+      "id": "LE-201",
+      "building": "LE",
+      "name": "LE 201",
+      "capacity": 80,
+      "kind": "classroom",
+      "available": false,
+      "unavailable_reason": "Projector replacement"
+    },
+    {
+      "id": "JAV-101",
+      "building": "JAV",
+      "name": "Javits 101",
+      "capacity": 120,
+      "kind": "classroom",
+      "available": true
+    },
+    {
+      "id": "JAV-102",
+      "building": "JAV",
+      "name": "Javits 102",
+      "capacity": 120,
+      "kind": "classroom",
+      "available": true
+    },
+    {
+      "id": "CS-2311",
+      "building": "CS",
+      "name": "CS 2311",
+      "capacity": 60,
+      "kind": "classroom",
+      "available": true
+    },
+    {
+      "id": "SAC-BALL",
+      "building": "SAC",
+      "name": "SAC Ballroom",
+      "capacity": 400,
+      "kind": "event_space",
+      "available": true
+    },
+    {
+      "id": "MEL-SR3",
+      "building": "MEL",
+      "name": "Melville Study Room 3",
+      "capacity": 8,
+      "kind": "study_room",
+      "bookable": true,
+      "available": true
+    }
+  ],
+  "commitments": [
+    {
+      "id": "c-cse214",
+      "kind": "class",
+      "title": "CSE 214 Data Structures",
+      "course": "CSE 214",
+      "start": "10:00",
+      "end": "11:20",
+      "room": "LE-201",
+      "source": "solar",
+      "enrolled": 78
+    },
+    {
+      "id": "c-mat203",
+      "kind": "class",
+      "title": "MAT 203 Calculus III",
+      "course": "MAT 203",
+      "start": "12:30",
+      "end": "13:50",
+      "room": "JAV-101",
+      "source": "solar",
+      "enrolled": 90
+    },
+    {
+      "id": "c-cse316",
+      "kind": "class",
+      "title": "CSE 316 Software Development",
+      "course": "CSE 316",
+      "start": "15:00",
+      "end": "16:20",
+      "room": "CS-2311",
+      "source": "solar",
+      "enrolled": 45
+    }
+  ],
+  "saved_events": [
+    {
+      "id": "ev-fair",
+      "title": "Fall Career Fair",
+      "room": "SAC-BALL",
+      "source": "campus_events",
+      "saved_by_student": true,
+      "when": {
+        "day_offset": 2,
+        "start": "14:00",
+        "end": "17:00"
+      }
+    }
+  ],
+  "tasks": [
+    {
+      "id": "t-cse213-a3",
+      "title": "CSE 213 Programming Assignment 3",
+      "course": "CSE 213",
+      "due": {
+        "day_offset": 0,
+        "time": "23:59"
+      },
+      "est_minutes": 120,
+      "source": "brightspace"
+    },
+    {
+      "id": "t-cse316-report",
+      "title": "CSE 316 group report",
+      "course": "CSE 316",
+      "due": {
+        "day_offset": 3,
+        "time": "17:00"
+      },
+      "est_minutes": 90,
+      "source": "brightspace",
+      "group": {
+        "name": "CSE 316 Team",
+        "meeting_minutes": 60
+      }
+    }
+  ],
+  "teammates": [
+    {
+      "id": "tm-priya",
+      "name": "Priya (demo)",
+      "busy": [
+        [
+          "09:00",
+          "12:00"
+        ],
+        [
+          "16:00",
+          "16:45"
+        ]
+      ]
+    },
+    {
+      "id": "tm-marcus",
+      "name": "Marcus (demo)",
+      "busy": [
+        [
+          "13:00",
+          "15:30"
+        ]
+      ]
+    },
+    {
+      "id": "tm-dana",
+      "name": "Dana (demo)",
+      "busy": [
+        [
+          "16:30",
+          "17:15"
+        ]
+      ]
+    }
+  ],
+  "room_availability": {
+    "MEL-SR3": [
+      [
+        "16:30",
+        "18:30"
+      ],
+      [
+        "19:00",
+        "20:00"
+      ]
+    ]
+  },
+  "ops": {
+    "hvac_fault": {
+      "room": "JAV-101",
+      "starts": "09:55",
+      "base_c": 22.0,
+      "ramp_c_per_5min": 0.6,
+      "max_c": 29.0
+    }
+  },
+  "estimation_defaults_minutes": {
+    "assignment": 120,
+    "quiz": 90,
+    "report": 90,
+    "reading": 45
+  },
+  "timeline": [
+    {
+      "id": "sig-001",
+      "at": "07:30",
+      "feed": "solar",
+      "kind": "schedule_snapshot",
+      "relevant": true,
+      "summary": "Class schedule loaded (3 meetings today)",
+      "payload": {}
+    },
+    {
+      "id": "sig-002",
+      "at": "07:30",
+      "feed": "brightspace",
+      "kind": "deadlines_snapshot",
+      "relevant": true,
+      "summary": "Deadlines loaded (2 open tasks)",
+      "payload": {}
+    },
+    {
+      "id": "sig-003",
+      "at": "07:30",
+      "feed": "campus_events",
+      "kind": "saved_events_snapshot",
+      "relevant": true,
+      "summary": "Saved events loaded (1)",
+      "payload": {}
+    },
+    {
+      "id": "sig-004",
+      "at": "08:05",
+      "feed": "brightspace",
+      "kind": "announcement",
+      "relevant": true,
+      "summary": "MAT 203: Quiz 4 on Thursday",
+      "payload": {
+        "course": "MAT 203",
+        "title": "Quiz 4 on Thursday",
+        "body": "Quiz 4 will be held Thursday during lecture (12:30 PM). Topics: Chapter 14, Sections 1 to 3. Plan about 90 minutes of preparation."
+      }
+    },
+    {
+      "id": "sig-005",
+      "at": "09:10",
+      "feed": "solar",
+      "kind": "room_change",
+      "relevant": true,
+      "summary": "CSE 214 moved from LE 201 to Javits 101",
+      "payload": {
+        "commitment": "c-cse214",
+        "from": "LE-201",
+        "to": "JAV-101",
+        "reason": "Projector replacement in LE 201",
+        "effective": "today"
+      }
+    },
+    {
+      "id": "sig-006",
+      "at": "09:40",
+      "feed": "shuttle",
+      "kind": "delay",
+      "relevant": false,
+      "summary": "Shuttle Route 3 delayed 12 minutes",
+      "payload": {
+        "route": "Route 3",
+        "delay_minutes": 12
+      }
+    },
+    {
+      "id": "sig-007",
+      "at": "10:05",
+      "feed": "building_ops",
+      "kind": "incident",
+      "relevant": true,
+      "summary": "Cooling fault in Javits 101 (27.8 C and rising)",
+      "payload": {
+        "incident_id": "inc-hvac-jav101",
+        "type": "hvac_fault",
+        "room": "JAV-101",
+        "temperature_c": 27.8,
+        "trend": "rising"
+      }
+    },
+    {
+      "id": "sig-008",
+      "at": "10:35",
+      "feed": "solar",
+      "kind": "room_change",
+      "relevant": true,
+      "summary": "MAT 203 moved from Javits 101 to Javits 102",
+      "payload": {
+        "commitment": "c-mat203",
+        "from": "JAV-101",
+        "to": "JAV-102",
+        "reason": "Relocated after the cooling fault in Javits 101",
+        "effective": "today",
+        "caused_by": "inc-hvac-jav101",
+        "scripted_staff_approval": true
+      }
+    },
+    {
+      "id": "sig-009",
+      "at": "11:40",
+      "feed": "weather",
+      "kind": "forecast_change",
+      "relevant": true,
+      "summary": "Rain expected 2:00 to 5:00 PM (85%)",
+      "payload": {
+        "condition": "rain",
+        "from": "14:00",
+        "to": "17:00",
+        "probability": 0.85
+      }
+    },
+    {
+      "id": "sig-010",
+      "at": "12:15",
+      "feed": "campus_events",
+      "kind": "event_rescheduled",
+      "relevant": true,
+      "summary": "Fall Career Fair moved up to today, 2:00 to 5:00 PM",
+      "payload": {
+        "event": "ev-fair",
+        "to": {
+          "day_offset": 0,
+          "start": "14:00",
+          "end": "17:00"
+        },
+        "reason": "Moved up from Thursday"
+      }
+    },
+    {
+      "id": "sig-011",
+      "at": "13:20",
+      "feed": "campus_events",
+      "kind": "event_announced",
+      "relevant": false,
+      "summary": "Chess Club open night (7:00 PM)",
+      "payload": {
+        "title": "Chess Club open night",
+        "start": "19:00",
+        "end": "21:00"
+      }
+    },
+    {
+      "id": "sig-012",
+      "at": "16:10",
+      "feed": "library_rooms",
+      "kind": "availability",
+      "relevant": true,
+      "summary": "Melville Study Room 3 is free 4:30 to 6:30 PM",
+      "payload": {
+        "room": "MEL-SR3",
+        "slots": [
+          [
+            "16:30",
+            "18:30"
+          ],
+          [
+            "19:00",
+            "20:00"
+          ]
+        ]
+      }
+    }
+  ],
+  "expected_moves": [
+    {
+      "key": "deadline:t-cse213-a3",
+      "appears_by": "07:30",
+      "audience": "student",
+      "default_policy": "auto",
+      "expect": "Two study blocks for CSE 213 Assignment 3: 08:00-09:30 and 11:25-11:55"
+    },
+    {
+      "key": "ingest:sig-004",
+      "appears_by": "08:10",
+      "audience": "student",
+      "default_policy": "auto",
+      "expect": "Task 'Prepare for Quiz 4 (MAT 203)' created, due Thursday 12:30, 90 min, source = the announcement"
+    },
+    {
+      "key": "change:c-cse214:sig-005",
+      "appears_by": "09:15",
+      "audience": "student",
+      "default_policy": "auto",
+      "expect": "Calendar shows JAV 101. Leave by 9:51 AM (6 min walk from Melville Library plus 3 min buffer). The 08:00-09:30 block still fits."
+    },
+    {
+      "key": "disruption:inc-hvac-jav101:student",
+      "appears_by": "10:10",
+      "audience": "student",
+      "default_policy": "info",
+      "expect": "Informational: JAV 101 is hot during CSE 214; MAT 203 uses the same room; facilities alerted (simulated)."
+    },
+    {
+      "key": "ops:inc-hvac-jav101",
+      "appears_by": "10:10",
+      "audience": "staff",
+      "default_policy": "ask",
+      "expect": "Impact: 2 classes, 168 students (78 now, 90 at 12:30). Only feasible option: move MAT 203 to JAV 102 (capacity 120, free). LE 201 is unavailable, CS 2311 is too small."
+    },
+    {
+      "key": "change:c-mat203:sig-008",
+      "appears_by": "10:40",
+      "audience": "student",
+      "default_policy": "auto",
+      "expect": "Calendar shows JAV 102. Same building, no extra walking."
+    },
+    {
+      "key": "disruption:weather:rain-1400",
+      "appears_by": "11:45",
+      "audience": "student",
+      "default_policy": "auto",
+      "expect": "Rain 2:00-5:00 PM. The walk to CSE 316 (JAV to CS, 5 min, outdoors) is in the rain. Umbrella reminder set for 1:50 PM."
+    },
+    {
+      "key": "conflict:ev-fair:c-cse316",
+      "appears_by": "12:20",
+      "audience": "student",
+      "default_policy": "ask",
+      "expect": "Career Fair overlaps CSE 316. Attend 2:00-2:45 PM (earliest arrival 1:58 PM after MAT 203, must leave by 2:49 PM for the 3:00 PM class). On approval: a visit block and a leave-by reminder are created."
+    },
+    {
+      "key": "group:t-cse316-report:slot",
+      "appears_by": "16:15",
+      "audience": "student",
+      "default_policy": "ask",
+      "expect": "Team meeting 5:15-6:15 PM: all four people free; Study Room 3 available. On approval: room booking (SIMULATED), invite DRAFT (not sent), calendar block."
+    }
+  ],
+  "expected_filtered_signals": [
+    "sig-006",
+    "sig-011"
+  ]
+}

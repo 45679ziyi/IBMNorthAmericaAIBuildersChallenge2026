@@ -283,3 +283,310 @@
   border-top: 1px solid var(--line);
   margin-top: var(--sp-4);
 }
+
+/* ── Autonomy button ─────────────────────────────────────────────────────── */
+.autonomy-btn {
+  display: flex; align-items: center; gap: 4px;
+}
+.autonomy-btn-label {
+  font-size: .78rem;
+}
+
+/* ── Move cards ─────────────────────────────────────────────────────────── */
+.move-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+.move-card {
+  padding: var(--sp-4);
+  border-left: 3px solid var(--dawn);
+}
+.move-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-2);
+}
+.move-card-title {
+  font-size: .95rem;
+  font-weight: 700;
+  flex: 1;
+}
+.move-card-summary {
+  margin: 0 0 var(--sp-3);
+  font-size: .88rem;
+  color: var(--ink-muted);
+  line-height: 1.5;
+}
+.move-card-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+.move-approve-btn {
+  flex-shrink: 0;
+  max-width: 100%;
+  white-space: normal;
+  text-align: left;
+  height: auto;
+  line-height: 1.4;
+  padding: var(--sp-2) var(--sp-3);
+}
+.move-why-btn {
+  display: flex; align-items: center; gap: 4px;
+  color: var(--ink-muted);
+}
+
+/* Move card entrance animation */
+.move-card-enter {
+  animation: move-enter 300ms ease forwards;
+  opacity: 0;
+  transform: translateY(16px);
+}
+@keyframes move-enter {
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .move-card-enter { animation: none; opacity: 1; transform: none; }
+}
+
+/* ── Handled for you ─────────────────────────────────────────────────────── */
+.handled-list {
+  list-style: none; padding: 0; margin: 0 0 var(--sp-2);
+  display: flex; flex-direction: column; gap: var(--sp-2);
+}
+.handled-item {
+  padding: var(--sp-3) var(--sp-4);
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--sp-2);
+}
+.handled-title {
+  font-size: .88rem; flex: 1;
+}
+.handled-filtered-note {
+  margin: 0;
+}
+
+/* ── Why drawer ─────────────────────────────────────────────────────────── */
+.why-drawer { display: flex; flex-direction: column; gap: var(--sp-4); }
+.why-section-title {
+  font-size: .82rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .05em; color: var(--ink-muted); margin: 0 0 var(--sp-2);
+}
+.why-evidence-list,
+.why-actions-list {
+  list-style: none; padding: 0; margin: 0;
+  display: flex; flex-direction: column; gap: var(--sp-2);
+}
+.why-evidence-item {
+  display: flex; align-items: flex-start; gap: var(--sp-2);
+  font-size: .88rem;
+}
+.why-feed-chip {
+  font-size: .72rem; font-weight: 600;
+  padding: 2px var(--sp-2);
+  border-radius: var(--r-pill);
+  background: color-mix(in srgb, var(--dawn) 12%, var(--paper));
+  color: var(--dawn);
+  white-space: nowrap; flex-shrink: 0;
+}
+.why-evidence-text { color: var(--ink-muted); line-height: 1.5; }
+.why-action-item {
+  display: flex; align-items: center; gap: var(--sp-2);
+  font-size: .88rem;
+}
+.why-action-text { flex: 1; }
+.why-rule-text { margin: 0; font-size: .88rem; color: var(--ink-muted); line-height: 1.5; }
+
+/* ── Sources strip ───────────────────────────────────────────────────────── */
+.sources-strip {
+  display: flex;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+  padding: var(--sp-1) 0;
+}
+.source-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: var(--sp-2) var(--sp-3);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  text-align: left;
+  min-width: 100px;
+}
+.source-chip:hover {
+  border-color: color-mix(in srgb, var(--dawn) 40%, var(--line));
+  background: color-mix(in srgb, var(--dawn) 4%, var(--panel));
+}
+.source-name {
+  font-size: .82rem; font-weight: 600; color: var(--ink);
+  text-transform: capitalize;
+}
+.source-time { }
+
+/* Feed signals sheet */
+.feed-signals-list {
+  list-style: none; padding: 0; margin: 0;
+  display: flex; flex-direction: column; gap: var(--sp-2);
+}
+.feed-signal-item { padding: var(--sp-3); }
+.feed-signal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--sp-2); margin-bottom: var(--sp-1);
+}
+.feed-signal-summary { margin: 0; }
+
+/* ── Day counters ────────────────────────────────────────────────────────── */
+.day-counters-mode { font-weight: 400; }
+.day-counters {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: var(--sp-3);
+  padding: var(--sp-3) 0;
+}
+.day-counter-item {
+  display: flex; flex-direction: column; gap: 2px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: var(--sp-3);
+}
+.day-counter-value {
+  font-size: 1.4rem; font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  font-family: var(--font-display);
+  color: var(--ink);
+}
+.day-counter-label { }
+
+/* ── Timeline enhancements ───────────────────────────────────────────────── */
+/* Rain band */
+.tl-rain-band {
+  position: absolute;
+  left: 0; right: 0;
+  top: var(--top);
+  height: var(--height);
+  background: color-mix(in srgb, var(--violet) 12%, var(--paper));
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* AURORA blocks */
+.tl-block-aurora {
+  background: color-mix(in srgb, var(--violet) 14%, var(--paper));
+  border-left-color: var(--violet);
+}
+
+/* Signal flags */
+.tl-signal-flag {
+  position: absolute;
+  right: 4px;
+  top: var(--pos);
+  transform: translateY(-50%);
+  z-index: 3;
+  cursor: pointer;
+}
+.tl-signal-dot {
+  display: block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--amber);
+  border: 1.5px solid var(--panel);
+}
+
+/* Signal tooltip */
+.tl-signal-tooltip {
+  position: absolute;
+  right: 20px;
+  top: var(--pos);
+  transform: translateY(-50%);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: var(--sp-3);
+  z-index: 5;
+  max-width: 220px;
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--ink) 10%, transparent);
+}
+.tl-tooltip-close {
+  float: right;
+  background: none; border: none;
+  cursor: pointer;
+  font-size: 1rem; color: var(--ink-muted);
+  line-height: 1; padding: 0; margin: 0 0 var(--sp-1) var(--sp-1);
+}
+
+/* Leave-by marker */
+.tl-leave-by {
+  position: absolute;
+  left: 0; right: 0;
+  top: var(--pos);
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+  z-index: 2;
+}
+.tl-leave-by-line {
+  flex: 1;
+  height: 2px;
+  background: var(--amber);
+  border-radius: var(--r-pill);
+}
+.tl-leave-by-label {
+  font-size: .65rem;
+  color: var(--amber);
+  font-weight: 600;
+  padding: 0 var(--sp-1);
+  white-space: nowrap;
+}
+
+/* ── Autonomy sheet ──────────────────────────────────────────────────────── */
+.autonomy-intro { margin-bottom: var(--sp-4); }
+.autonomy-table {
+  width: 100%; border-collapse: collapse;
+  font-size: .88rem;
+}
+.autonomy-table th {
+  text-align: left; padding: var(--sp-2) var(--sp-3);
+  font-weight: 600; font-size: .78rem;
+  color: var(--ink-muted);
+  border-bottom: 1px solid var(--line);
+}
+.autonomy-row td {
+  padding: var(--sp-3);
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+.autonomy-cat-label { font-weight: 500; }
+.autonomy-toggle {
+  padding: var(--sp-1) var(--sp-3);
+  border-radius: var(--r-pill);
+  font-size: .82rem; font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition);
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--ink);
+}
+.autonomy-toggle-auto {
+  background: color-mix(in srgb, var(--dawn) 12%, var(--panel));
+  color: var(--dawn);
+  border-color: color-mix(in srgb, var(--dawn) 25%, var(--line));
+}
+.autonomy-toggle-ask {
+  background: color-mix(in srgb, var(--amber) 11%, var(--panel));
+  color: var(--amber);
+  border-color: color-mix(in srgb, var(--amber) 25%, var(--line));
+}
+.autonomy-toggle:disabled { opacity: .6; cursor: wait; }
+.autonomy-locked-note { max-width: 200px; display: block; line-height: 1.4; }
+.autonomy-note { margin-top: var(--sp-4); padding-top: var(--sp-4); border-top: 1px solid var(--line); }

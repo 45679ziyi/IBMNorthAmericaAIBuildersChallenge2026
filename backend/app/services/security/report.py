@@ -2,9 +2,11 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Optional
+
+from app.core.clock import get_now
 
 from app.services.security.models import SecurityFinding
 from app.services.security.matcher import match_advisories, check_cert_expiry
@@ -36,7 +38,7 @@ _cached_report: Optional[dict[str, Any]] = None
 
 def _build_report(now: datetime | None = None) -> dict[str, Any]:
     if now is None:
-        now = datetime.now(timezone.utc)
+        now = get_now()
 
     assets = _load_assets()
     advisories = _load_advisories()

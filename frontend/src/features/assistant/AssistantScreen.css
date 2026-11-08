@@ -176,3 +176,16 @@
   overflow-y: auto;
   font-family: inherit;
 }
+
+/* ── Personal chips (M5) ─────────────────────────────────────────────────── */
+.suggested-chips-personal { gap: var(--sp-2); }
+.chip-btn-personal {
+  border-color: color-mix(in srgb, var(--violet) 40%, var(--line));
+  color: color-mix(in srgb, var(--violet) 80%, var(--ink));
+}
+.chip-btn-personal:hover {
+  background: color-mix(in srgb, var(--violet) 10%, var(--panel));
+  border-color: var(--violet);
+  color: var(--violet);
+}
+.chat-chips-label { margin: 0; }
