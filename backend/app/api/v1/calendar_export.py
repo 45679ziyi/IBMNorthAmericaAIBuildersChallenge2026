@@ -14,6 +14,7 @@ from fastapi.responses import PlainTextResponse
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
+from app.core.tenancy import ActorContext, resolve_actor, current_user_id
 from app.db.session import get_db
 from app.models.models import CalendarEvent
 
@@ -47,12 +48,15 @@ def _escape_ics(text: str) -> str:
 
 
 @router.get("/aurora.ics", response_class=PlainTextResponse)
-def export_aurora_ics(db: Session = Depends(get_db)):
+def export_aurora_ics(
+    db: Session = Depends(get_db),
+    actor: ActorContext = Depends(resolve_actor),
+):
     """
     Export all aurora_block CalendarEvents as a standards-compliant ICS feed.
     Content-Type: text/calendar
     """
-    user_id = settings.demo_user_id
+    user_id = current_user_id(actor)
     events = (
         db.query(CalendarEvent)
         .filter(

@@ -1,0 +1,40 @@
+.faculty-screen { max-width: 900px; }
+.faculty-class-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: var(--sp-3); }
+.faculty-class-card { padding: var(--sp-3) var(--sp-4); }
+.faculty-class-row { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--sp-3); }
+.faculty-class-title { display: block; font-size: 1rem; }
+.faculty-class-room { display: block; font-size: .82rem; color: var(--ink-muted); margin-top: 2px; }
+.faculty-class-time { display: block; margin-top: 2px; }
+
+/* Course Update Composer */
+.cu-composer {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: var(--sp-5) var(--sp-6);
+  margin-bottom: var(--sp-6);
+}
+.cu-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sp-4); }
+.cu-header h3 { margin: 0; font-size: 1rem; }
+.cu-textarea { width: 100%; resize: vertical; font-size: .9rem; }
+.cu-actions { display: flex; gap: var(--sp-2); margin-top: var(--sp-3); justify-content: flex-end; }
+
+.cu-extracted { background: var(--paper); border: 1px solid var(--line); border-radius: var(--r-md); padding: var(--sp-3); margin-bottom: var(--sp-3); }
+.cu-text-preview { font-size: .88rem; color: var(--ink-muted); margin: 0 0 var(--sp-3); border-bottom: 1px solid var(--line); padding-bottom: var(--sp-2); }
+.cu-dl { display: grid; grid-template-columns: 100px 1fr; gap: 2px var(--sp-3); font-size: .88rem; }
+.cu-dl dt { color: var(--ink-muted); }
+.cu-dl dd { margin: 0; }
+.cu-quote { font-style: italic; color: var(--ink-muted); }
+.cu-no-deadline { font-size: .85rem; color: var(--ink-muted); margin: 0; }
+
+.cu-preview-box { background: var(--paper); border: 1px solid var(--line); border-radius: var(--r-md); padding: var(--sp-3); margin-bottom: var(--sp-3); }
+.cu-preview-label { font-size: .78rem; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-muted); margin: 0 0 var(--sp-2); }
+.cu-preview-text { border-left: 3px solid var(--dawn); padding-left: var(--sp-3); margin: 0 0 var(--sp-2); font-size: .9rem; }
+.cu-recipients { font-size: .78rem; color: var(--ink-muted); margin: 0; }
+
+.cu-done { text-align: center; padding: var(--sp-4); color: darkgreen; }
+
+/* AI badge */
+.ai-badge { display: inline-flex; align-items: center; gap: 4px; font-size: .7rem; padding: 2px 8px; border-radius: var(--r-pill); margin-top: var(--sp-2); }
+.ai-badge-validated { background: color-mix(in srgb, green 12%, var(--paper)); color: darkgreen; }
+.ai-badge-fallback  { background: color-mix(in srgb, var(--line) 50%, var(--paper)); color: var(--ink-muted); }

@@ -263,9 +263,18 @@ def build_world(db: Session) -> Optional[World]:
     commitments.sort(key=lambda c: c.start)
 
     # ── Tasks ─────────────────────────────────────────────────────────────
+    # D1 fix: during a scenario, only use tasks seeded by the scenario
+    # (provenance='scenario') or explicitly approved from connectors.
+    # Exclude source_type='demo' tasks (legacy seed data) which have
+    # absolute due dates that pre-date the scenario and generate spurious
+    # deadline_risk moves such as "deadline:task-demo-*".
     tasks = (
         db.query(Task)
-        .filter(Task.user_id == user_id, Task.status != "done")
+        .filter(
+            Task.user_id == user_id,
+            Task.status != "done",
+            Task.source_type.notin_(["demo"]),
+        )
         .all()
     )
 

@@ -1,0 +1,26 @@
+.facilities-screen { max-width: 1200px; }
+.facilities-layout { display: grid; grid-template-columns: 1fr 400px; gap: var(--sp-6); align-items: start; }
+@media (max-width: 900px) { .facilities-layout { grid-template-columns: 1fr; } }
+
+.facilities-queue { min-width: 0; }
+.facilities-map-col { position: sticky; top: calc(var(--demo-bar-height, 0px) + var(--sp-4)); }
+
+.fac-item-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: var(--sp-2); }
+.fac-item { padding: var(--sp-3) var(--sp-4); cursor: pointer; transition: border-color .15s; }
+.fac-item:hover, .fac-item-selected { border-color: var(--dawn); }
+.fac-item-row { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); }
+.fac-item-meta { display: flex; flex-direction: column; gap: 2px; }
+.fac-item-type { font-weight: 600; font-size: .9rem; text-transform: capitalize; }
+.fac-item-building { font-size: .8rem; color: var(--ink-muted); }
+.fac-item-detail { margin: var(--sp-1) 0 0; }
+.fac-event-link { display: inline-block; margin-top: var(--sp-1); color: var(--dawn); text-decoration: none; }
+.fac-event-link:hover { text-decoration: underline; }
+
+.fac-status { font-size: .72rem; font-weight: 600; padding: 2px 8px; border-radius: var(--r-pill); white-space: nowrap; }
+.status-green  { background: color-mix(in srgb, green 12%, var(--paper)); color: darkgreen; }
+.status-yellow { background: color-mix(in srgb, #f5c518 15%, var(--paper)); color: #8a6800; }
+.status-blue   { background: color-mix(in srgb, var(--dawn) 12%, var(--paper)); color: var(--dawn); }
+
+.fac-triage-panel { margin-top: var(--sp-3); padding-top: var(--sp-3); border-top: 1px solid var(--line); }
+.fac-triage-panel h4 { font-size: .88rem; margin: 0 0 var(--sp-2); }
+.fac-triage-actions { display: flex; gap: var(--sp-2); margin-top: var(--sp-2); }

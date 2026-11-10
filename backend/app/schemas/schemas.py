@@ -219,6 +219,7 @@ class AssistantSource(BaseModel):
 
 class AssistantAskRequest(BaseModel):
     question: str = Field(..., min_length=3, max_length=1000)
+    mode: Optional[str] = "campus"   # personal | course | campus | operations | service_desk
 
 
 class AssistantAskResponse(BaseModel):
@@ -298,6 +299,9 @@ class SimStateResponse(BaseModel):
     anchor_date: Optional[str]
     virtual_now: Optional[datetime]
     applied_signal_ids: list[str]
+    director_mode: str = "off"      # "off" | "autopilot"
+    active_persona: Optional[str] = None
+    pending_step_ids: list[str] = []
 
 
 class SignalResponse(BaseModel):

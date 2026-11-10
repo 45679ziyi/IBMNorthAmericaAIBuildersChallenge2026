@@ -1,0 +1,29 @@
+.tq-screen { max-width: 900px; }
+
+.tq-provider-row { display: flex; align-items: center; gap: var(--sp-3); margin-bottom: var(--sp-4); font-size: .9rem; }
+.tq-provider-label { color: var(--ink-muted); }
+.tq-provider-value { font-weight: 600; }
+
+.tq-overall { display: flex; align-items: center; gap: var(--sp-4); margin-bottom: var(--sp-5); padding: var(--sp-3) var(--sp-4); background: var(--surface); border-radius: var(--r-md); border: 1px solid var(--line); }
+.tq-overall-badge { font-weight: 700; font-size: .95rem; }
+.tq-run-hint { font-size: .8rem; color: var(--ink-muted); margin-left: auto; }
+.tq-run-hint code { background: var(--paper); padding: 1px 5px; border-radius: var(--r-sm); font-size: .78rem; }
+
+.tq-badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: var(--r-pill); font-size: .75rem; font-weight: 600; }
+.tq-badge-pass    { background: color-mix(in srgb, green 12%, var(--paper)); color: darkgreen; }
+.tq-badge-warn    { background: color-mix(in srgb, #f5c518 15%, var(--paper)); color: #8a6800; }
+.tq-badge-fail    { background: color-mix(in srgb, var(--red) 15%, var(--paper)); color: var(--red); }
+.tq-badge-notrun  { background: var(--surface); color: var(--ink-muted); border: 1px solid var(--line); }
+
+.tq-table { width: 100%; border-collapse: collapse; font-size: .9rem; margin-bottom: var(--sp-6); }
+.tq-table th { text-align: left; padding: var(--sp-2) var(--sp-3); border-bottom: 2px solid var(--line); font-size: .8rem; color: var(--ink-muted); text-transform: uppercase; letter-spacing: .04em; }
+.tq-row td { padding: var(--sp-3); border-bottom: 1px solid var(--line); vertical-align: middle; }
+.tq-row:last-child td { border-bottom: none; }
+.tq-row-fail { background: color-mix(in srgb, var(--red) 4%, var(--paper)); }
+.tq-name { font-weight: 600; }
+.tq-metric { color: var(--ink-muted); font-size: .85rem; }
+.tq-value { font-family: var(--font-mono, monospace); font-size: .85rem; }
+
+.tq-note { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); padding: var(--sp-4) var(--sp-5); font-size: .88rem; }
+.tq-note p { margin: 0; line-height: 1.6; }
+.tq-note code { background: var(--paper); padding: 1px 4px; border-radius: var(--r-sm); font-size: .82rem; }

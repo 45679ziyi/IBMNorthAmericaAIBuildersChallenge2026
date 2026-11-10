@@ -1,0 +1,3209 @@
+{
+ "assets": [
+  {
+   "building_id": "LE",
+   "id": "hvac-LE-1",
+   "kind": "hvac_unit",
+   "service_id": "svc-hvac"
+  },
+  {
+   "building_id": "LE",
+   "floor": 1,
+   "id": "ap-LE-1",
+   "kind": "wifi_ap",
+   "service_id": "svc-wifi"
+  },
+  {
+   "building_id": "LE",
+   "floor": 2,
+   "id": "ap-LE-2",
+   "kind": "wifi_ap",
+   "service_id": "svc-wifi"
+  },
+  {
+   "building_id": "CS",
+   "id": "hvac-CS-1",
+   "kind": "hvac_unit",
+   "service_id": "svc-hvac"
+  },
+  {
+   "building_id": "CS",
+   "floor": 1,
+   "id": "ap-CS-1",
+   "kind": "wifi_ap",
+   "service_id": "svc-wifi"
+  },
+  {
+   "building_id": "CS",
+   "floor": 2,
+   "id": "ap-CS-2",
+   "kind": "wifi_ap",
+   "service_id": "svc-wifi"
+  },
+  {
+   "building_id": "CS",
+   "floor": 3,
+   "id": "ap-CS-3",
+   "kind": "wifi_ap",
+   "service_id": "svc-wifi"
+  },
+  {
+   "building_id": "MEL",
+   "id": "hvac-MEL-1",
+   "kind": "hvac_unit",
+   "service_id": "svc-hvac"
+  },
+  {
+   "building_id": "MEL",
+   "floor": 1,
+   "id": "ap-MEL-1",
+   "kind": "wifi_ap",
+   "service_id": "svc-wifi"
+  },
+  {
+   "building_id": "MEL",
+   "floor": 2,
+   "id": "ap-MEL-2",
+   "kind": "wifi_ap",
+   "service_id": "svc-wifi"
+  },
+  {
+   "building_id": "MEL",
+   "floor": 3,
+   "id": "ap-MEL-3",
+   "kind": "wifi_ap",
+   "service_id": "svc-wifi"
+  },
+  {
+   "building_id": "SAC",
+   "id": "hvac-SAC-1",
+   "kind": "hvac_unit",
+   "service_id": "svc-hvac"
+  },
+  {
+   "building_id": "SAC",
+   "floor": 1,
+   "id": "ap-SAC-1",
+   "kind": "wifi_ap",
+   "service_id": "svc-wifi"
+  },
+  {
+   "building_id": "SAC",
+   "floor": 2,
+   "id": "ap-SAC-2",
+   "kind": "wifi_ap",
+   "service_id": "svc-wifi"
+  },
+  {
+   "building_id": "JAV",
+   "id": "hvac-JAV-1",
+   "kind": "hvac_unit",
+   "service_id": "svc-hvac"
+  },
+  {
+   "building_id": "JAV",
+   "floor": 1,
+   "id": "ap-JAV-1",
+   "kind": "wifi_ap",
+   "service_id": "svc-wifi"
+  },
+  {
+   "building_id": "JAV",
+   "floor": 2,
+   "id": "ap-JAV-2",
+   "kind": "wifi_ap",
+   "service_id": "svc-wifi"
+  },
+  {
+   "building_id": "HUM",
+   "id": "hvac-HUM-1",
+   "kind": "hvac_unit",
+   "service_id": "svc-hvac"
+  },
+  {
+   "building_id": "HUM",
+   "floor": 1,
+   "id": "ap-HUM-1",
+   "kind": "wifi_ap",
+   "service_id": "svc-wifi"
+  },
+  {
+   "building_id": "HUM",
+   "floor": 2,
+   "id": "ap-HUM-2",
+   "kind": "wifi_ap",
+   "service_id": "svc-wifi"
+  },
+  {
+   "building_id": "HUM",
+   "floor": 3,
+   "id": "ap-HUM-3",
+   "kind": "wifi_ap",
+   "service_id": "svc-wifi"
+  },
+  {
+   "building_id": "CHM",
+   "id": "hvac-CHM-1",
+   "kind": "hvac_unit",
+   "service_id": "svc-hvac"
+  },
+  {
+   "building_id": "CHM",
+   "floor": 1,
+   "id": "ap-CHM-1",
+   "kind": "wifi_ap",
+   "service_id": "svc-wifi"
+  },
+  {
+   "building_id": "CHM",
+   "floor": 2,
+   "id": "ap-CHM-2",
+   "kind": "wifi_ap",
+   "service_id": "svc-wifi"
+  },
+  {
+   "building_id": "REC",
+   "id": "hvac-REC-1",
+   "kind": "hvac_unit",
+   "service_id": "svc-hvac"
+  },
+  {
+   "building_id": "REC",
+   "floor": 1,
+   "id": "ap-REC-1",
+   "kind": "wifi_ap",
+   "service_id": "svc-wifi"
+  },
+  {
+   "building_id": "REC",
+   "floor": 2,
+   "id": "ap-REC-2",
+   "kind": "wifi_ap",
+   "service_id": "svc-wifi"
+  },
+  {
+   "building_id": "REC",
+   "floor": 3,
+   "id": "ap-REC-3",
+   "kind": "wifi_ap",
+   "service_id": "svc-wifi"
+  },
+  {
+   "building_id": "RES",
+   "id": "hvac-RES-1",
+   "kind": "hvac_unit",
+   "service_id": "svc-hvac"
+  },
+  {
+   "building_id": "RES",
+   "floor": 1,
+   "id": "ap-RES-1",
+   "kind": "wifi_ap",
+   "service_id": "svc-wifi"
+  },
+  {
+   "building_id": "RES",
+   "floor": 2,
+   "id": "ap-RES-2",
+   "kind": "wifi_ap",
+   "service_id": "svc-wifi"
+  },
+  {
+   "building_id": "RES",
+   "floor": 3,
+   "id": "ap-RES-3",
+   "kind": "wifi_ap",
+   "service_id": "svc-wifi"
+  },
+  {
+   "building_id": "LE",
+   "id": "proj-LE-101",
+   "kind": "projector",
+   "room_id": "LE-101",
+   "service_id": "svc-av"
+  },
+  {
+   "building_id": "LE",
+   "id": "proj-LE-102",
+   "kind": "projector",
+   "room_id": "LE-102",
+   "service_id": "svc-av"
+  },
+  {
+   "building_id": "LE",
+   "id": "proj-LE-103",
+   "kind": "projector",
+   "room_id": "LE-103",
+   "service_id": "svc-av"
+  },
+  {
+   "building_id": "LE",
+   "id": "proj-LE-104",
+   "kind": "projector",
+   "room_id": "LE-104",
+   "service_id": "svc-av"
+  },
+  {
+   "building_id": "LE",
+   "id": "proj-LE-105",
+   "kind": "projector",
+   "room_id": "LE-105",
+   "service_id": "svc-av"
+  },
+  {
+   "building_id": "CS",
+   "id": "proj-CS-301",
+   "kind": "projector",
+   "room_id": "CS-301",
+   "service_id": "svc-av"
+  },
+  {
+   "building_id": "CS",
+   "id": "proj-CS-302",
+   "kind": "projector",
+   "room_id": "CS-302",
+   "service_id": "svc-av"
+  },
+  {
+   "building_id": "CS",
+   "id": "proj-CS-303",
+   "kind": "projector",
+   "room_id": "CS-303",
+   "service_id": "svc-av"
+  },
+  {
+   "building_id": "CS",
+   "id": "proj-CS-304",
+   "kind": "projector",
+   "room_id": "CS-304",
+   "service_id": "svc-av"
+  },
+  {
+   "building_id": "CS",
+   "id": "proj-CS-305",
+   "kind": "projector",
+   "room_id": "CS-305",
+   "service_id": "svc-av"
+  },
+  {
+   "building_id": "JAV",
+   "id": "proj-JAV-101",
+   "kind": "projector",
+   "room_id": "JAV-101",
+   "service_id": "svc-av"
+  },
+  {
+   "building_id": "JAV",
+   "id": "proj-JAV-102",
+   "kind": "projector",
+   "room_id": "JAV-102",
+   "service_id": "svc-av"
+  },
+  {
+   "building_id": "JAV",
+   "id": "proj-JAV-103",
+   "kind": "projector",
+   "room_id": "JAV-103",
+   "service_id": "svc-av"
+  },
+  {
+   "building_id": "JAV",
+   "id": "proj-JAV-104",
+   "kind": "projector",
+   "room_id": "JAV-104",
+   "service_id": "svc-av"
+  },
+  {
+   "building_id": "JAV",
+   "id": "proj-JAV-105",
+   "kind": "projector",
+   "room_id": "JAV-105",
+   "service_id": "svc-av"
+  },
+  {
+   "building_id": "HUM",
+   "id": "proj-HUM-301",
+   "kind": "projector",
+   "room_id": "HUM-301",
+   "service_id": "svc-av"
+  },
+  {
+   "building_id": "HUM",
+   "id": "proj-HUM-302",
+   "kind": "projector",
+   "room_id": "HUM-302",
+   "service_id": "svc-av"
+  },
+  {
+   "building_id": "HUM",
+   "id": "proj-HUM-303",
+   "kind": "projector",
+   "room_id": "HUM-303",
+   "service_id": "svc-av"
+  },
+  {
+   "building_id": "HUM",
+   "id": "proj-HUM-304",
+   "kind": "projector",
+   "room_id": "HUM-304",
+   "service_id": "svc-av"
+  },
+  {
+   "building_id": "HUM",
+   "id": "proj-HUM-305",
+   "kind": "projector",
+   "room_id": "HUM-305",
+   "service_id": "svc-av"
+  },
+  {
+   "building_id": "CHM",
+   "id": "proj-CHM-101",
+   "kind": "projector",
+   "room_id": "CHM-101",
+   "service_id": "svc-av"
+  },
+  {
+   "building_id": "CHM",
+   "id": "proj-CHM-102",
+   "kind": "projector",
+   "room_id": "CHM-102",
+   "service_id": "svc-av"
+  },
+  {
+   "building_id": "CHM",
+   "id": "proj-CHM-103",
+   "kind": "projector",
+   "room_id": "CHM-103",
+   "service_id": "svc-av"
+  },
+  {
+   "building_id": "CHM",
+   "id": "proj-CHM-104",
+   "kind": "projector",
+   "room_id": "CHM-104",
+   "service_id": "svc-av"
+  },
+  {
+   "building_id": "CHM",
+   "id": "proj-CHM-105",
+   "kind": "projector",
+   "room_id": "CHM-105",
+   "service_id": "svc-av"
+  },
+  {
+   "building_id": "JAV",
+   "id": "proj-JAV-LH1",
+   "kind": "projector",
+   "room_id": "JAV-LH1",
+   "service_id": "svc-av"
+  },
+  {
+   "building_id": "CS",
+   "id": "proj-CS-LH2",
+   "kind": "projector",
+   "room_id": "CS-LH2",
+   "service_id": "svc-av"
+  },
+  {
+   "building_id": "LE",
+   "id": "proj-LE-201",
+   "kind": "projector",
+   "room_id": "LE-201",
+   "service_id": "svc-av"
+  }
+ ],
+ "buildings": [
+  {
+   "campus_id": "main",
+   "code": "LE",
+   "floors": 2,
+   "id": "LE",
+   "kind": "academic",
+   "name": "Light Engineering (demo)",
+   "x": 0,
+   "y": 0
+  },
+  {
+   "campus_id": "main",
+   "code": "CS",
+   "floors": 3,
+   "id": "CS",
+   "kind": "academic",
+   "name": "Computer Science Building (demo)",
+   "x": 4,
+   "y": 0
+  },
+  {
+   "campus_id": "main",
+   "code": "MEL",
+   "floors": 3,
+   "id": "MEL",
+   "kind": "library",
+   "name": "Melville Library (demo)",
+   "x": 8,
+   "y": 3
+  },
+  {
+   "campus_id": "main",
+   "code": "SAC",
+   "floors": 2,
+   "id": "SAC",
+   "kind": "student",
+   "name": "Student Activities Center (demo)",
+   "x": 7,
+   "y": 6
+  },
+  {
+   "campus_id": "main",
+   "code": "JAV",
+   "floors": 2,
+   "id": "JAV",
+   "kind": "academic",
+   "name": "Javits Lecture Center (demo)",
+   "x": 5,
+   "y": 4
+  },
+  {
+   "campus_id": "main",
+   "code": "HUM",
+   "floors": 3,
+   "id": "HUM",
+   "kind": "academic",
+   "name": "Humanities Hall (demo)",
+   "x": 2,
+   "y": 7
+  },
+  {
+   "campus_id": "main",
+   "code": "CHM",
+   "floors": 2,
+   "id": "CHM",
+   "kind": "academic",
+   "name": "Chemistry Wing (demo)",
+   "x": 0,
+   "y": 4
+  },
+  {
+   "campus_id": "main",
+   "code": "REC",
+   "floors": 4,
+   "id": "REC",
+   "kind": "recreation",
+   "name": "Recreation Center (demo)",
+   "x": 10,
+   "y": 8
+  },
+  {
+   "campus_id": "main",
+   "code": "RES",
+   "floors": 5,
+   "id": "RES",
+   "kind": "residential",
+   "name": "Residential Commons (demo)",
+   "x": 12,
+   "y": 2
+  }
+ ],
+ "campus_events": [
+  {
+   "date": "2026-09-15",
+   "day_offset_from_anchor": 2,
+   "duration_min": 180,
+   "id": "ev-fair",
+   "org_id": "org-2",
+   "room_id": "SAC-BALL",
+   "start": "14:00",
+   "title": "Fall Career Fair"
+  },
+  {
+   "date": "2026-09-16",
+   "duration_min": 60,
+   "id": "ev-02",
+   "org_id": "org-2",
+   "room_id": "SAC-BALL",
+   "start": "19:00",
+   "title": "Research Showcase"
+  },
+  {
+   "date": "2026-09-24",
+   "duration_min": 90,
+   "id": "ev-03",
+   "org_id": "org-3",
+   "room_id": "SAC-BALL",
+   "start": "12:00",
+   "title": "Open Mic Night"
+  },
+  {
+   "date": "2026-09-22",
+   "duration_min": 120,
+   "id": "ev-04",
+   "org_id": "org-4",
+   "room_id": "SAC-BALL",
+   "start": "18:00",
+   "title": "Hack Night"
+  },
+  {
+   "date": "2026-09-30",
+   "duration_min": 60,
+   "id": "ev-05",
+   "org_id": "org-5",
+   "room_id": "SAC-BALL",
+   "start": "12:00",
+   "title": "Sustainability Talk"
+  },
+  {
+   "date": "2026-10-01",
+   "duration_min": 60,
+   "id": "ev-06",
+   "org_id": "org-6",
+   "room_id": "SAC-BALL",
+   "start": "18:00",
+   "title": "Study Skills Workshop"
+  },
+  {
+   "date": "2026-10-06",
+   "duration_min": 120,
+   "id": "ev-07",
+   "org_id": "org-1",
+   "room_id": "SAC-BALL",
+   "start": "19:00",
+   "title": "Club Fair"
+  },
+  {
+   "date": "2026-10-07",
+   "duration_min": 120,
+   "id": "ev-08",
+   "org_id": "org-2",
+   "room_id": "SAC-BALL",
+   "start": "18:00",
+   "title": "Film Screening"
+  },
+  {
+   "date": "2026-10-15",
+   "duration_min": 60,
+   "id": "ev-09",
+   "org_id": "org-3",
+   "room_id": "SAC-BALL",
+   "start": "12:00",
+   "title": "Guest Lecture"
+  },
+  {
+   "date": "2026-10-13",
+   "duration_min": 60,
+   "id": "ev-10",
+   "org_id": "org-4",
+   "room_id": "SAC-BALL",
+   "start": "12:00",
+   "title": "Alumni Panel"
+  },
+  {
+   "date": "2026-10-21",
+   "duration_min": 90,
+   "id": "ev-11",
+   "org_id": "org-5",
+   "room_id": "SAC-BALL",
+   "start": "14:00",
+   "title": "Game Night"
+  },
+  {
+   "date": "2026-10-22",
+   "duration_min": 120,
+   "id": "ev-12",
+   "org_id": "org-6",
+   "room_id": "SAC-BALL",
+   "start": "14:00",
+   "title": "Wellness Walk"
+  }
+ ],
+ "campuses": [
+  {
+   "id": "main",
+   "name": "SBU Demo Main Campus"
+  }
+ ],
+ "courses": [
+  {
+   "code": "CSE 101",
+   "credits": 3,
+   "dept_id": "CSE",
+   "id": "CSE-101",
+   "title": "Programming Fundamentals"
+  },
+  {
+   "code": "CSE 214",
+   "credits": 3,
+   "dept_id": "CSE",
+   "id": "CSE-214",
+   "title": "Data Structures"
+  },
+  {
+   "code": "CSE 316",
+   "credits": 3,
+   "dept_id": "CSE",
+   "id": "CSE-316",
+   "title": "Software Development"
+  },
+  {
+   "code": "CSE 320",
+   "credits": 3,
+   "dept_id": "CSE",
+   "id": "CSE-320",
+   "title": "Operating Systems"
+  },
+  {
+   "code": "MAT 125",
+   "credits": 4,
+   "dept_id": "MAT",
+   "id": "MAT-125",
+   "title": "Calculus I"
+  },
+  {
+   "code": "MAT 203",
+   "credits": 3,
+   "dept_id": "MAT",
+   "id": "MAT-203",
+   "title": "Calculus III"
+  },
+  {
+   "code": "MAT 211",
+   "credits": 4,
+   "dept_id": "MAT",
+   "id": "MAT-211",
+   "title": "Linear Algebra"
+  },
+  {
+   "code": "MAT 230",
+   "credits": 3,
+   "dept_id": "MAT",
+   "id": "MAT-230",
+   "title": "Probability"
+  },
+  {
+   "code": "PHY 131",
+   "credits": 3,
+   "dept_id": "PHY",
+   "id": "PHY-131",
+   "title": "Mechanics"
+  },
+  {
+   "code": "PHY 132",
+   "credits": 3,
+   "dept_id": "PHY",
+   "id": "PHY-132",
+   "title": "Electricity and Magnetism"
+  },
+  {
+   "code": "PHY 133",
+   "credits": 4,
+   "dept_id": "PHY",
+   "id": "PHY-133",
+   "title": "Thermodynamics"
+  },
+  {
+   "code": "PHY 251",
+   "credits": 4,
+   "dept_id": "PHY",
+   "id": "PHY-251",
+   "title": "Quantum Physics"
+  },
+  {
+   "code": "BIO 201",
+   "credits": 3,
+   "dept_id": "BIO",
+   "id": "BIO-201",
+   "title": "Cell Biology"
+  },
+  {
+   "code": "BIO 202",
+   "credits": 3,
+   "dept_id": "BIO",
+   "id": "BIO-202",
+   "title": "Genetics"
+  },
+  {
+   "code": "BIO 320",
+   "credits": 4,
+   "dept_id": "BIO",
+   "id": "BIO-320",
+   "title": "Ecology"
+  },
+  {
+   "code": "BIO 332",
+   "credits": 3,
+   "dept_id": "BIO",
+   "id": "BIO-332",
+   "title": "Physiology"
+  },
+  {
+   "code": "ECO 108",
+   "credits": 3,
+   "dept_id": "ECO",
+   "id": "ECO-108",
+   "title": "Principles of Economics"
+  },
+  {
+   "code": "ECO 201",
+   "credits": 3,
+   "dept_id": "ECO",
+   "id": "ECO-201",
+   "title": "Microeconomics"
+  },
+  {
+   "code": "ECO 301",
+   "credits": 4,
+   "dept_id": "ECO",
+   "id": "ECO-301",
+   "title": "Econometrics"
+  },
+  {
+   "code": "ECO 305",
+   "credits": 3,
+   "dept_id": "ECO",
+   "id": "ECO-305",
+   "title": "Public Policy"
+  },
+  {
+   "code": "WRT 101",
+   "credits": 3,
+   "dept_id": "WRT",
+   "id": "WRT-101",
+   "title": "Academic Writing"
+  },
+  {
+   "code": "WRT 102",
+   "credits": 3,
+   "dept_id": "WRT",
+   "id": "WRT-102",
+   "title": "Rhetoric"
+  },
+  {
+   "code": "WRT 205",
+   "credits": 3,
+   "dept_id": "WRT",
+   "id": "WRT-205",
+   "title": "World Literature"
+  },
+  {
+   "code": "WRT 220",
+   "credits": 3,
+   "dept_id": "WRT",
+   "id": "WRT-220",
+   "title": "Ethics"
+  }
+ ],
+ "covered_routes": [
+  "MEL-SAC"
+ ],
+ "data_origin": "synthetic",
+ "departments": [
+  {
+   "code": "CSE",
+   "id": "CSE",
+   "name": "Computer Science"
+  },
+  {
+   "code": "MAT",
+   "id": "MAT",
+   "name": "Mathematics"
+  },
+  {
+   "code": "PHY",
+   "id": "PHY",
+   "name": "Physics"
+  },
+  {
+   "code": "BIO",
+   "id": "BIO",
+   "name": "Biology"
+  },
+  {
+   "code": "ECO",
+   "id": "ECO",
+   "name": "Economics"
+  },
+  {
+   "code": "WRT",
+   "id": "WRT",
+   "name": "Writing and Humanities"
+  }
+ ],
+ "generator": {
+  "name": "generate_tenant_pack",
+  "seed": 2026,
+  "version": "1"
+ },
+ "knowledge": [
+  {
+   "data_origin": "synthetic",
+   "id": "kd-addrop",
+   "publisher": "Registrar (demo)",
+   "tags": [
+    "public",
+    "demo"
+   ],
+   "text": "The last day to add or drop a course without a transcript notation is September 14. The last day to withdraw from a course is November 6. Dates apply to the Fall 2026 term. Check with Academic Operations for exceptions.",
+   "title": "Add and drop deadlines"
+  },
+  {
+   "data_origin": "synthetic",
+   "id": "kd-finals",
+   "publisher": "Registrar (demo)",
+   "tags": [
+    "public",
+    "demo"
+   ],
+   "text": "Final examinations for Fall 2026 run from December 14 to December 21. The examination timetable is published by Academic Operations. Conflicts must be reported before the add and drop deadline.",
+   "title": "Final examination period"
+  },
+  {
+   "data_origin": "synthetic",
+   "id": "kd-credits",
+   "publisher": "Registrar (demo)",
+   "tags": [
+    "public",
+    "demo"
+   ],
+   "text": "A full-time load is 12 credits or more in a semester term. Taking more than 18 credits requires advisor approval. Course credits are shown beside each course title.",
+   "title": "Credit load policy"
+  },
+  {
+   "data_origin": "synthetic",
+   "id": "kd-library",
+   "publisher": "Library (demo)",
+   "tags": [
+    "public",
+    "demo"
+   ],
+   "text": "The library is open 08:00 to 22:00 on weekdays. Group study rooms seat 4 to 8 people and can be reserved for up to 2 hours per day. Quiet floors are marked at the entrance.",
+   "title": "Library hours and study rooms"
+  },
+  {
+   "data_origin": "synthetic",
+   "id": "kd-wifi",
+   "publisher": "IT Service Desk (demo)",
+   "tags": [
+    "public",
+    "demo"
+   ],
+   "text": "Report Wi-Fi or classroom technology problems to the IT Service Desk. Include the building, the room and the time. Outages are posted on the service status page.",
+   "title": "Wi-Fi and technology help"
+  },
+  {
+   "data_origin": "synthetic",
+   "id": "kd-facilities",
+   "publisher": "Facilities (demo)",
+   "tags": [
+    "public",
+    "demo"
+   ],
+   "text": "Report heating, cooling, lighting, or accessibility problems to Facilities with the building and room. Urgent safety issues must be reported to campus safety instead.",
+   "title": "Reporting a building or room problem"
+  },
+  {
+   "data_origin": "synthetic",
+   "id": "kd-parking",
+   "publisher": "Transportation (demo)",
+   "tags": [
+    "public",
+    "demo"
+   ],
+   "text": "Student parking permits are sold online for the Fall 2026 term. Campus shuttles run every 15 minutes on weekdays. Bicycle racks are located at each residence and the library.",
+   "title": "Parking and transportation"
+  },
+  {
+   "data_origin": "synthetic",
+   "id": "kd-accessibility",
+   "publisher": "Accessibility Services (demo)",
+   "tags": [
+    "public",
+    "demo"
+   ],
+   "text": "Students who need academic accommodations should contact Accessibility Services early in the term. Instructors receive accommodation letters through the official process, not from students directly.",
+   "title": "Accessibility and accommodations"
+  }
+ ],
+ "memberships": [
+  {
+   "person_id": "stf-01",
+   "role": "facilities",
+   "team_id": "team-facilities-1"
+  },
+  {
+   "person_id": "stf-02",
+   "role": "facilities",
+   "team_id": "team-facilities-2"
+  },
+  {
+   "person_id": "stf-03",
+   "role": "it",
+   "team_id": "team-it-1"
+  },
+  {
+   "person_id": "stf-04",
+   "role": "it",
+   "team_id": "team-it-2"
+  },
+  {
+   "person_id": "stf-05",
+   "role": "academic_ops",
+   "team_id": "team-academic_ops-1"
+  },
+  {
+   "person_id": "stf-06",
+   "role": "advising",
+   "team_id": "team-advising-1"
+  },
+  {
+   "person_id": "fac-01",
+   "role": "faculty"
+  },
+  {
+   "person_id": "fac-03",
+   "role": "faculty"
+  },
+  {
+   "org_id": "org-2",
+   "person_id": "stu-org-riley",
+   "role": "org_organizer"
+  }
+ ],
+ "orgs": [
+  {
+   "advisor_id": "fac-08",
+   "id": "org-1",
+   "name": "Robotics Club"
+  },
+  {
+   "advisor_id": "fac-01",
+   "id": "org-2",
+   "name": "Career Network"
+  },
+  {
+   "advisor_id": "fac-03",
+   "id": "org-3",
+   "name": "Debate Society"
+  },
+  {
+   "advisor_id": "fac-02",
+   "id": "org-4",
+   "name": "Sustainability Collective"
+  },
+  {
+   "advisor_id": "fac-08",
+   "id": "org-5",
+   "name": "Game Design Guild"
+  },
+  {
+   "advisor_id": "fac-02",
+   "id": "org-6",
+   "name": "Global Students Association"
+  }
+ ],
+ "people": {
+  "faculty": [
+   {
+    "dept_id": "CSE",
+    "display": "Jordan Instructor (demo)",
+    "id": "fac-01",
+    "title": "Instructor"
+   },
+   {
+    "dept_id": "CSE",
+    "display": "Marcus Bergstrom",
+    "id": "fac-02",
+    "title": "Instructor"
+   },
+   {
+    "dept_id": "MAT",
+    "display": "Sam Instructor (demo)",
+    "id": "fac-03",
+    "title": "Instructor"
+   },
+   {
+    "dept_id": "MAT",
+    "display": "Yara Lindqvist",
+    "id": "fac-04",
+    "title": "Instructor"
+   },
+   {
+    "dept_id": "PHY",
+    "display": "Tomas Sato",
+    "id": "fac-05",
+    "title": "Instructor"
+   },
+   {
+    "dept_id": "PHY",
+    "display": "Luca Nakamura",
+    "id": "fac-06",
+    "title": "Instructor"
+   },
+   {
+    "dept_id": "BIO",
+    "display": "Casey Novak",
+    "id": "fac-07",
+    "title": "Instructor"
+   },
+   {
+    "dept_id": "BIO",
+    "display": "Jonas Sato",
+    "id": "fac-08",
+    "title": "Instructor"
+   },
+   {
+    "dept_id": "ECO",
+    "display": "Jordan Kowalski",
+    "id": "fac-09",
+    "title": "Instructor"
+   },
+   {
+    "dept_id": "ECO",
+    "display": "Noor Kowalski",
+    "id": "fac-10",
+    "title": "Instructor"
+   },
+   {
+    "dept_id": "WRT",
+    "display": "Nia Lindqvist",
+    "id": "fac-11",
+    "title": "Instructor"
+   },
+   {
+    "dept_id": "WRT",
+    "display": "Hugo Reyes",
+    "id": "fac-12",
+    "title": "Instructor"
+   }
+  ],
+  "staff": [
+   {
+    "display": "Morgan Facilities (demo)",
+    "id": "stf-01",
+    "role": "facilities"
+   },
+   {
+    "display": "Tomas Mensah",
+    "id": "stf-02",
+    "role": "facilities"
+   },
+   {
+    "display": "Casey IT (demo)",
+    "id": "stf-03",
+    "role": "it"
+   },
+   {
+    "display": "Taylor Chaudhry",
+    "id": "stf-04",
+    "role": "it"
+   },
+   {
+    "display": "Taylor Academic Ops (demo)",
+    "id": "stf-05",
+    "role": "academic_ops"
+   },
+   {
+    "display": "Taylor Sato",
+    "id": "stf-06",
+    "role": "advising"
+   }
+  ],
+  "students": [
+   {
+    "display": "Alex Student (demo)",
+    "id": "student_alex",
+    "program": "Computer Science"
+   },
+   {
+    "display": "Blake Student (demo)",
+    "id": "student_blake",
+    "program": "Mathematics"
+   },
+   {
+    "display": "Casey Student (demo)",
+    "id": "student_casey",
+    "program": "Physics"
+   },
+   {
+    "display": "Dana Student (demo)",
+    "id": "student_dana",
+    "program": "Biology"
+   },
+   {
+    "display": "Sana Haddad",
+    "id": "stu-005",
+    "program": "Mathematics"
+   },
+   {
+    "display": "Jonas Moreau",
+    "id": "stu-006",
+    "program": "Mathematics"
+   },
+   {
+    "display": "Noor Ibrahim",
+    "id": "stu-007",
+    "program": "Economics"
+   },
+   {
+    "display": "Hugo Quinn",
+    "id": "stu-008",
+    "program": "Economics"
+   },
+   {
+    "display": "Amara Rossi",
+    "id": "stu-009",
+    "program": "Mathematics"
+   },
+   {
+    "display": "Priya Sato",
+    "id": "stu-010",
+    "program": "Computer Science"
+   },
+   {
+    "display": "Mateo Sato",
+    "id": "stu-011",
+    "program": "Computer Science"
+   },
+   {
+    "display": "Theo Ortega",
+    "id": "stu-012",
+    "program": "Biology"
+   },
+   {
+    "display": "Casey Adeyemi",
+    "id": "stu-013",
+    "program": "Economics"
+   },
+   {
+    "display": "Mateo Varga",
+    "id": "stu-014",
+    "program": "Biology"
+   },
+   {
+    "display": "Nia Sato",
+    "id": "stu-015",
+    "program": "Computer Science"
+   },
+   {
+    "display": "Priya Bergstrom",
+    "id": "stu-016",
+    "program": "Biology"
+   },
+   {
+    "display": "Lena Vance",
+    "id": "stu-017",
+    "program": "Mathematics"
+   },
+   {
+    "display": "Mei Tanaka",
+    "id": "stu-018",
+    "program": "Economics"
+   },
+   {
+    "display": "Taylor Bergstrom",
+    "id": "stu-019",
+    "program": "Biology"
+   },
+   {
+    "display": "Amara Tanaka",
+    "id": "stu-020",
+    "program": "Biology"
+   },
+   {
+    "display": "Luca Whitaker",
+    "id": "stu-021",
+    "program": "Mathematics"
+   },
+   {
+    "display": "Noor Varga",
+    "id": "stu-022",
+    "program": "Computer Science"
+   },
+   {
+    "display": "Amara Brennan",
+    "id": "stu-023",
+    "program": "Economics"
+   },
+   {
+    "display": "Luca Fontaine",
+    "id": "stu-024",
+    "program": "Computer Science"
+   },
+   {
+    "display": "Morgan Tanaka",
+    "id": "stu-025",
+    "program": "Computer Science"
+   },
+   {
+    "display": "Mei Mbeki",
+    "id": "stu-026",
+    "program": "Computer Science"
+   },
+   {
+    "display": "Riley Organizer (demo)",
+    "id": "stu-org-riley",
+    "program": "Economics"
+   }
+  ]
+ },
+ "personas": {
+  "acadops_taylor": {
+   "display": "Taylor Academic Ops (demo)",
+   "person_id": "stf-05",
+   "role": "academic_ops",
+   "team_id": "team-academic_ops-1"
+  },
+  "facilities_morgan": {
+   "display": "Morgan Facilities (demo)",
+   "person_id": "stf-01",
+   "role": "facilities",
+   "team_id": "team-facilities-1"
+  },
+  "faculty_jordan": {
+   "display": "Jordan Instructor (demo)",
+   "person_id": "fac-01",
+   "role": "faculty"
+  },
+  "faculty_sam": {
+   "display": "Sam Instructor (demo)",
+   "person_id": "fac-03",
+   "role": "faculty"
+  },
+  "it_casey": {
+   "display": "Casey IT (demo)",
+   "person_id": "stf-03",
+   "role": "it",
+   "team_id": "team-it-1"
+  },
+  "org_riley": {
+   "display": "Riley Organizer (demo)",
+   "org_id": "org-2",
+   "person_id": "stu-org-riley",
+   "role": "org_organizer"
+  },
+  "student_alex": {
+   "display": "Alex Student (demo)",
+   "person_id": "student_alex",
+   "role": "student"
+  },
+  "student_blake": {
+   "display": "Blake Student (demo)",
+   "person_id": "student_blake",
+   "role": "student"
+  },
+  "student_casey": {
+   "display": "Casey Student (demo)",
+   "person_id": "student_casey",
+   "role": "student"
+  },
+  "student_dana": {
+   "display": "Dana Student (demo)",
+   "person_id": "student_dana",
+   "role": "student"
+  }
+ },
+ "rooms": [
+  {
+   "available": true,
+   "bookable": false,
+   "building_id": "LE",
+   "capacity": 30,
+   "features": [
+    "projector"
+   ],
+   "floor": 1,
+   "id": "LE-101",
+   "kind": "classroom",
+   "name": "LE 101"
+  },
+  {
+   "available": true,
+   "bookable": false,
+   "building_id": "LE",
+   "capacity": 45,
+   "features": [
+    "projector"
+   ],
+   "floor": 1,
+   "id": "LE-102",
+   "kind": "classroom",
+   "name": "LE 102"
+  },
+  {
+   "available": true,
+   "bookable": false,
+   "building_id": "LE",
+   "capacity": 60,
+   "features": [
+    "projector"
+   ],
+   "floor": 1,
+   "id": "LE-103",
+   "kind": "classroom",
+   "name": "LE 103"
+  },
+  {
+   "available": true,
+   "bookable": false,
+   "building_id": "LE",
+   "capacity": 40,
+   "features": [
+    "projector"
+   ],
+   "floor": 2,
+   "id": "LE-104",
+   "kind": "classroom",
+   "name": "LE 104"
+  },
+  {
+   "available": true,
+   "bookable": false,
+   "building_id": "LE",
+   "capacity": 24,
+   "features": [
+    "projector"
+   ],
+   "floor": 2,
+   "id": "LE-105",
+   "kind": "classroom",
+   "name": "LE 105"
+  },
+  {
+   "available": true,
+   "bookable": false,
+   "building_id": "LE",
+   "capacity": 28,
+   "features": [
+    "lab-computers"
+   ],
+   "floor": 1,
+   "id": "LE-150",
+   "kind": "lab",
+   "name": "LE 150"
+  },
+  {
+   "available": true,
+   "bookable": false,
+   "building_id": "CS",
+   "capacity": 30,
+   "features": [
+    "projector"
+   ],
+   "floor": 1,
+   "id": "CS-301",
+   "kind": "classroom",
+   "name": "CS 301"
+  },
+  {
+   "available": true,
+   "bookable": false,
+   "building_id": "CS",
+   "capacity": 45,
+   "features": [
+    "projector"
+   ],
+   "floor": 1,
+   "id": "CS-302",
+   "kind": "classroom",
+   "name": "CS 302"
+  },
+  {
+   "available": true,
+   "bookable": false,
+   "building_id": "CS",
+   "capacity": 60,
+   "features": [
+    "projector"
+   ],
+   "floor": 1,
+   "id": "CS-303",
+   "kind": "classroom",
+   "name": "CS 303"
+  },
+  {
+   "available": true,
+   "bookable": false,
+   "building_id": "CS",
+   "capacity": 40,
+   "features": [
+    "projector"
+   ],
+   "floor": 2,
+   "id": "CS-304",
+   "kind": "classroom",
+   "name": "CS 304"
+  },
+  {
+   "available": true,
+   "bookable": false,
+   "building_id": "CS",
+   "capacity": 24,
+   "features": [
+    "projector"
+   ],
+   "floor": 2,
+   "id": "CS-305",
+   "kind": "classroom",
+   "name": "CS 305"
+  },
+  {
+   "available": true,
+   "bookable": false,
+   "building_id": "CS",
+   "capacity": 28,
+   "features": [
+    "lab-computers"
+   ],
+   "floor": 1,
+   "id": "CS-150",
+   "kind": "lab",
+   "name": "CS 150"
+  },
+  {
+   "available": true,
+   "bookable": true,
+   "building_id": "MEL",
+   "capacity": 6,
+   "features": [
+    "whiteboard"
+   ],
+   "floor": 2,
+   "id": "MEL-SR1",
+   "kind": "study_room",
+   "name": "MEL SR1"
+  },
+  {
+   "available": true,
+   "bookable": true,
+   "building_id": "MEL",
+   "capacity": 8,
+   "features": [
+    "whiteboard"
+   ],
+   "floor": 2,
+   "id": "MEL-SR2",
+   "kind": "study_room",
+   "name": "MEL SR2"
+  },
+  {
+   "available": true,
+   "bookable": true,
+   "building_id": "MEL",
+   "capacity": 6,
+   "features": [
+    "whiteboard"
+   ],
+   "floor": 2,
+   "id": "MEL-SR3",
+   "kind": "study_room",
+   "name": "MEL SR3"
+  },
+  {
+   "available": true,
+   "bookable": true,
+   "building_id": "MEL",
+   "capacity": 4,
+   "features": [
+    "whiteboard"
+   ],
+   "floor": 2,
+   "id": "MEL-SR4",
+   "kind": "study_room",
+   "name": "MEL SR4"
+  },
+  {
+   "available": true,
+   "bookable": false,
+   "building_id": "SAC",
+   "capacity": 400,
+   "features": [],
+   "floor": 1,
+   "id": "SAC-BALL",
+   "kind": "event_space",
+   "name": "SAC BALL"
+  },
+  {
+   "available": true,
+   "bookable": true,
+   "building_id": "SAC",
+   "capacity": 30,
+   "features": [],
+   "floor": 1,
+   "id": "SAC-MTG1",
+   "kind": "meeting_room",
+   "name": "SAC MTG1"
+  },
+  {
+   "available": true,
+   "bookable": false,
+   "building_id": "JAV",
+   "capacity": 30,
+   "features": [
+    "projector"
+   ],
+   "floor": 1,
+   "id": "JAV-101",
+   "kind": "classroom",
+   "name": "JAV 101"
+  },
+  {
+   "available": true,
+   "bookable": false,
+   "building_id": "JAV",
+   "capacity": 45,
+   "features": [
+    "projector"
+   ],
+   "floor": 1,
+   "id": "JAV-102",
+   "kind": "classroom",
+   "name": "JAV 102"
+  },
+  {
+   "available": true,
+   "bookable": false,
+   "building_id": "JAV",
+   "capacity": 60,
+   "features": [
+    "projector"
+   ],
+   "floor": 1,
+   "id": "JAV-103",
+   "kind": "classroom",
+   "name": "JAV 103"
+  },
+  {
+   "available": true,
+   "bookable": false,
+   "building_id": "JAV",
+   "capacity": 40,
+   "features": [
+    "projector"
+   ],
+   "floor": 2,
+   "id": "JAV-104",
+   "kind": "classroom",
+   "name": "JAV 104"
+  },
+  {
+   "available": true,
+   "bookable": false,
+   "building_id": "JAV",
+   "capacity": 24,
+   "features": [
+    "projector"
+   ],
+   "floor": 2,
+   "id": "JAV-105",
+   "kind": "classroom",
+   "name": "JAV 105"
+  },
+  {
+   "available": true,
+   "bookable": false,
+   "building_id": "JAV",
+   "capacity": 28,
+   "features": [
+    "lab-computers"
+   ],
+   "floor": 1,
+   "id": "JAV-150",
+   "kind": "lab",
+   "name": "JAV 150"
+  },
+  {
+   "available": true,
+   "bookable": false,
+   "building_id": "HUM",
+   "capacity": 30,
+   "features": [
+    "projector"
+   ],
+   "floor": 1,
+   "id": "HUM-301",
+   "kind": "classroom",
+   "name": "HUM 301"
+  },
+  {
+   "available": true,
+   "bookable": false,
+   "building_id": "HUM",
+   "capacity": 45,
+   "features": [
+    "projector"
+   ],
+   "floor": 1,
+   "id": "HUM-302",
+   "kind": "classroom",
+   "name": "HUM 302"
+  },
+  {
+   "available": true,
+   "bookable": false,
+   "building_id": "HUM",
+   "capacity": 60,
+   "features": [
+    "projector"
+   ],
+   "floor": 1,
+   "id": "HUM-303",
+   "kind": "classroom",
+   "name": "HUM 303"
+  },
+  {
+   "available": true,
+   "bookable": false,
+   "building_id": "HUM",
+   "capacity": 40,
+   "features": [
+    "projector"
+   ],
+   "floor": 2,
+   "id": "HUM-304",
+   "kind": "classroom",
+   "name": "HUM 304"
+  },
+  {
+   "available": true,
+   "bookable": false,
+   "building_id": "HUM",
+   "capacity": 24,
+   "features": [
+    "projector"
+   ],
+   "floor": 2,
+   "id": "HUM-305",
+   "kind": "classroom",
+   "name": "HUM 305"
+  },
+  {
+   "available": true,
+   "bookable": false,
+   "building_id": "HUM",
+   "capacity": 28,
+   "features": [
+    "lab-computers"
+   ],
+   "floor": 1,
+   "id": "HUM-150",
+   "kind": "lab",
+   "name": "HUM 150"
+  },
+  {
+   "available": true,
+   "bookable": false,
+   "building_id": "CHM",
+   "capacity": 30,
+   "features": [
+    "projector"
+   ],
+   "floor": 1,
+   "id": "CHM-101",
+   "kind": "classroom",
+   "name": "CHM 101"
+  },
+  {
+   "available": true,
+   "bookable": false,
+   "building_id": "CHM",
+   "capacity": 45,
+   "features": [
+    "projector"
+   ],
+   "floor": 1,
+   "id": "CHM-102",
+   "kind": "classroom",
+   "name": "CHM 102"
+  },
+  {
+   "available": true,
+   "bookable": false,
+   "building_id": "CHM",
+   "capacity": 60,
+   "features": [
+    "projector"
+   ],
+   "floor": 1,
+   "id": "CHM-103",
+   "kind": "classroom",
+   "name": "CHM 103"
+  },
+  {
+   "available": true,
+   "bookable": false,
+   "building_id": "CHM",
+   "capacity": 40,
+   "features": [
+    "projector"
+   ],
+   "floor": 2,
+   "id": "CHM-104",
+   "kind": "classroom",
+   "name": "CHM 104"
+  },
+  {
+   "available": true,
+   "bookable": false,
+   "building_id": "CHM",
+   "capacity": 24,
+   "features": [
+    "projector"
+   ],
+   "floor": 2,
+   "id": "CHM-105",
+   "kind": "classroom",
+   "name": "CHM 105"
+  },
+  {
+   "available": true,
+   "bookable": false,
+   "building_id": "CHM",
+   "capacity": 28,
+   "features": [
+    "lab-computers"
+   ],
+   "floor": 1,
+   "id": "CHM-150",
+   "kind": "lab",
+   "name": "CHM 150"
+  },
+  {
+   "available": true,
+   "bookable": false,
+   "building_id": "JAV",
+   "capacity": 120,
+   "features": [
+    "projector",
+    "lecture-capture"
+   ],
+   "floor": 1,
+   "id": "JAV-LH1",
+   "kind": "classroom",
+   "name": "JAV LH1"
+  },
+  {
+   "available": true,
+   "bookable": false,
+   "building_id": "CS",
+   "capacity": 120,
+   "features": [
+    "projector",
+    "lecture-capture"
+   ],
+   "floor": 1,
+   "id": "CS-LH2",
+   "kind": "classroom",
+   "name": "CS LH2"
+  },
+  {
+   "available": false,
+   "bookable": false,
+   "building_id": "LE",
+   "capacity": 80,
+   "features": [
+    "projector-under-replacement"
+   ],
+   "floor": 2,
+   "id": "LE-201",
+   "kind": "classroom",
+   "name": "LE 201",
+   "unavailable_reason": "Projector replacement"
+  }
+ ],
+ "scenario": {
+  "anchor": "next_tuesday_in_tenant_timezone",
+  "buildings": {
+   "a": "LE",
+   "b": "JAV",
+   "c": "CS",
+   "event": "SAC",
+   "library": "MEL"
+  },
+  "expected": {
+   "audiences": {
+    "e01": {
+     "faculty": [
+      "faculty_jordan"
+     ],
+     "not_notified": [
+      "student_dana",
+      "student_casey"
+     ],
+     "students": [
+      "stu-005",
+      "stu-006",
+      "stu-007",
+      "stu-008",
+      "stu-009",
+      "stu-010",
+      "stu-011",
+      "stu-012",
+      "student_alex",
+      "student_blake"
+     ]
+    },
+    "e04": {
+     "academic_ops": [
+      "acadops_taylor"
+     ],
+     "facilities": [
+      "facilities_morgan"
+     ],
+     "faculty": [
+      "faculty_jordan",
+      "faculty_sam"
+     ],
+     "not_notified": [
+      "student_dana"
+     ],
+     "note": "faculty and facilities see counts, not student names",
+     "students": [
+      "stu-005",
+      "stu-006",
+      "stu-007",
+      "stu-008",
+      "stu-009",
+      "stu-010",
+      "stu-011",
+      "stu-012",
+      "stu-013",
+      "stu-014",
+      "stu-015",
+      "stu-016",
+      "stu-017",
+      "stu-018",
+      "stu-019",
+      "stu-020",
+      "student_alex",
+      "student_blake",
+      "student_casey"
+     ]
+    },
+    "e07": {
+     "faculty": [
+      "faculty_sam"
+     ],
+     "it": [
+      "it_casey"
+     ],
+     "not_notified": [
+      "student_blake",
+      "student_dana"
+     ],
+     "students": [
+      "stu-013",
+      "stu-014",
+      "stu-015",
+      "stu-016",
+      "stu-017",
+      "stu-018",
+      "stu-019",
+      "stu-020",
+      "student_alex",
+      "student_casey"
+     ]
+    }
+   },
+   "canonical_events": [
+    "incident:hvac:JAV-LH1",
+    "service:wifi:zone-1",
+    "section_update:CSE-214-01",
+    "room_change:CSE-214-01",
+    "room_change:MAT-203-01",
+    "event_change:ev-fair"
+   ],
+   "filtered_signals": 2,
+   "impact": {
+    "affected_sections": [
+     "CSE-214-01",
+     "MAT-203-01"
+    ],
+    "feasible_rooms": [
+     "CS-LH2"
+    ],
+    "headcount": 168,
+    "incident_room": "JAV-LH1"
+   }
+  },
+  "id": "connected_campus_day",
+  "persona_ids": [
+   "student_alex",
+   "student_blake",
+   "student_casey",
+   "student_dana",
+   "facilities_morgan",
+   "it_casey",
+   "acadops_taylor",
+   "faculty_jordan",
+   "faculty_sam",
+   "org_riley"
+  ],
+  "rooms": {
+   "library_study": "MEL-SR1",
+   "room_a": "LE-201",
+   "room_b": "JAV-LH1",
+   "room_c": "CS-LH2"
+  },
+  "sections": {
+   "s1": "CSE-214-01",
+   "s2": "MAT-203-01",
+   "s3": "CSE-316-01"
+  },
+  "timeline": [
+   {
+    "at": "07:30",
+    "id": "e00",
+    "kind": "morning_sync",
+    "summary": "Schedules, deadlines, saved events and service status load for all roles"
+   },
+   {
+    "actor": "faculty_jordan",
+    "at": "08:05",
+    "autopilot": true,
+    "entity": {
+     "section_id": "CSE-214-01"
+    },
+    "id": "e01",
+    "kind": "faculty_course_update_drafted",
+    "payload": {
+     "extracted": {
+      "due_day_offset": 2,
+      "due_time": "17:00"
+     },
+     "text": "Assignment 3 is due Thursday at 17:00. Late work loses 10% per day."
+    }
+   },
+   {
+    "actor": "faculty_jordan",
+    "at": "08:10",
+    "autopilot": true,
+    "entity": {
+     "section_id": "CSE-214-01"
+    },
+    "id": "e02",
+    "kind": "faculty_course_update_approved",
+    "payload": {
+     "draft_ref": "e01"
+    }
+   },
+   {
+    "actor": "acadops_taylor",
+    "at": "09:10",
+    "autopilot": true,
+    "entity": {
+     "section_id": "CSE-214-01"
+    },
+    "id": "e03",
+    "kind": "room_change_posted",
+    "payload": {
+     "from_room": "LE-201",
+     "reason": "Projector replacement in LE 201",
+     "to_room": "JAV-LH1"
+    }
+   },
+   {
+    "actor": "system",
+    "at": "10:05",
+    "entity": {
+     "room_id": "JAV-LH1"
+    },
+    "id": "e04",
+    "kind": "facilities_incident_reported",
+    "payload": {
+     "incident": "hvac_fault",
+     "source": "building_sensor",
+     "temperature_c": 27.8,
+     "trend": "rising"
+    }
+   },
+   {
+    "actor": "facilities_morgan",
+    "at": "10:20",
+    "autopilot": true,
+    "entity": {
+     "section_id": "MAT-203-01"
+    },
+    "id": "e05",
+    "kind": "mitigation_proposed",
+    "payload": {
+     "action": "request_room_change",
+     "from_room": "JAV-LH1",
+     "to_room": "CS-LH2"
+    }
+   },
+   {
+    "actor": "acadops_taylor",
+    "at": "10:35",
+    "autopilot": true,
+    "entity": {
+     "section_id": "MAT-203-01"
+    },
+    "id": "e06",
+    "kind": "mitigation_approved",
+    "payload": {
+     "rationale": "Capacity and equipment match; no conflict at this time"
+    }
+   },
+   {
+    "actor": "system",
+    "at": "11:40",
+    "entity": {
+     "service_id": "svc-wifi"
+    },
+    "id": "e07",
+    "kind": "it_service_degraded",
+    "payload": {
+     "building_ids": [
+      "JAV",
+      "MEL"
+     ],
+     "severity": "degraded",
+     "zone": "zone-1"
+    }
+   },
+   {
+    "actor": "org_riley",
+    "at": "12:15",
+    "autopilot": true,
+    "entity": {
+     "event_id": "ev-fair"
+    },
+    "id": "e10",
+    "kind": "org_event_rescheduled",
+    "payload": {
+     "reason": "Moved up from Thursday",
+     "to": {
+      "day_offset": 0,
+      "end": "17:00",
+      "start": "14:00"
+     }
+    }
+   },
+   {
+    "actor": "student_alex",
+    "at": "12:35",
+    "entity": {
+     "building_id": "MEL",
+     "service_id": "svc-wifi"
+    },
+    "id": "e08",
+    "kind": "student_report_submitted",
+    "payload": {
+     "text": "Wi-Fi keeps dropping on the library second floor"
+    }
+   },
+   {
+    "actor": "it_casey",
+    "at": "13:30",
+    "autopilot": true,
+    "entity": {
+     "service_id": "svc-wifi"
+    },
+    "id": "e09",
+    "kind": "it_service_mitigated",
+    "payload": {
+     "note": "Access point restarted (simulated)"
+    }
+   },
+   {
+    "actor": "system",
+    "at": "15:55",
+    "entity": {
+     "room_id": "MEL-SR1"
+    },
+    "id": "e11",
+    "kind": "group_slot_available",
+    "payload": {
+     "group": "Software Team",
+     "meeting_minutes": 60
+    }
+   },
+   {
+    "actor": "system",
+    "at": "20:00",
+    "id": "e12",
+    "kind": "day_end_review",
+    "summary": "Open vs resolved, who was informed, filtered signals, audit"
+   }
+  ]
+ },
+ "schema_version": "tenant-pack/1",
+ "sections": [
+  {
+   "capacity": 80,
+   "course_id": "CSE-214",
+   "enrolled": 78,
+   "id": "CSE-214-01",
+   "instructor_id": "fac-01",
+   "meetings": [
+    {
+     "days": [
+      "Tue",
+      "Thu"
+     ],
+     "end": "11:20",
+     "room_id": "LE-201",
+     "start": "10:00"
+    }
+   ],
+   "roster": [
+    "student_alex",
+    "student_blake",
+    "stu-005",
+    "stu-006",
+    "stu-007",
+    "stu-008",
+    "stu-009",
+    "stu-010",
+    "stu-011",
+    "stu-012"
+   ],
+   "section_code": "01",
+   "tags": [
+    "scenario",
+    "s1"
+   ],
+   "term": "Fall 2026"
+  },
+  {
+   "capacity": 120,
+   "course_id": "MAT-203",
+   "enrolled": 90,
+   "id": "MAT-203-01",
+   "instructor_id": "fac-03",
+   "meetings": [
+    {
+     "days": [
+      "Tue",
+      "Thu"
+     ],
+     "end": "13:50",
+     "room_id": "JAV-LH1",
+     "start": "12:30"
+    }
+   ],
+   "roster": [
+    "student_alex",
+    "student_casey",
+    "stu-013",
+    "stu-014",
+    "stu-015",
+    "stu-016",
+    "stu-017",
+    "stu-018",
+    "stu-019",
+    "stu-020"
+   ],
+   "section_code": "01",
+   "tags": [
+    "scenario",
+    "s2"
+   ],
+   "term": "Fall 2026"
+  },
+  {
+   "capacity": 45,
+   "course_id": "CSE-316",
+   "enrolled": 45,
+   "id": "CSE-316-01",
+   "instructor_id": "fac-02",
+   "meetings": [
+    {
+     "days": [
+      "Tue",
+      "Thu"
+     ],
+     "end": "16:20",
+     "room_id": "CS-302",
+     "start": "15:00"
+    }
+   ],
+   "roster": [
+    "student_alex",
+    "student_casey",
+    "student_dana",
+    "stu-021",
+    "stu-022",
+    "stu-023",
+    "stu-024",
+    "stu-025",
+    "stu-026"
+   ],
+   "section_code": "01",
+   "tags": [
+    "scenario",
+    "s3"
+   ],
+   "term": "Fall 2026"
+  },
+  {
+   "capacity": 30,
+   "course_id": "CSE-101",
+   "enrolled": 30,
+   "id": "CSE-101-01",
+   "instructor_id": "fac-02",
+   "meetings": [
+    {
+     "days": [
+      "Mon",
+      "Wed",
+      "Fri"
+     ],
+     "end": "09:50",
+     "room_id": "HUM-301",
+     "start": "09:00"
+    }
+   ],
+   "roster": [],
+   "section_code": "01",
+   "tags": [],
+   "term": "Fall 2026"
+  },
+  {
+   "capacity": 60,
+   "course_id": "CSE-320",
+   "enrolled": 38,
+   "id": "CSE-320-01",
+   "instructor_id": "fac-02",
+   "meetings": [
+    {
+     "days": [
+      "Mon",
+      "Wed",
+      "Fri"
+     ],
+     "end": "13:50",
+     "room_id": "LE-103",
+     "start": "13:00"
+    }
+   ],
+   "roster": [],
+   "section_code": "01",
+   "tags": [],
+   "term": "Fall 2026"
+  },
+  {
+   "capacity": 45,
+   "course_id": "MAT-125",
+   "enrolled": 30,
+   "id": "MAT-125-01",
+   "instructor_id": "fac-03",
+   "meetings": [
+    {
+     "days": [
+      "Mon",
+      "Wed",
+      "Fri"
+     ],
+     "end": "10:50",
+     "room_id": "JAV-102",
+     "start": "10:00"
+    }
+   ],
+   "roster": [],
+   "section_code": "01",
+   "tags": [],
+   "term": "Fall 2026"
+  },
+  {
+   "capacity": 30,
+   "course_id": "MAT-125",
+   "enrolled": 22,
+   "id": "MAT-125-02",
+   "instructor_id": "fac-04",
+   "meetings": [
+    {
+     "days": [
+      "Tue",
+      "Thu"
+     ],
+     "end": "16:20",
+     "room_id": "CS-301",
+     "start": "15:00"
+    }
+   ],
+   "roster": [],
+   "section_code": "02",
+   "tags": [],
+   "term": "Fall 2026"
+  },
+  {
+   "capacity": 60,
+   "course_id": "MAT-211",
+   "enrolled": 34,
+   "id": "MAT-211-01",
+   "instructor_id": "fac-04",
+   "meetings": [
+    {
+     "days": [
+      "Mon",
+      "Wed",
+      "Fri"
+     ],
+     "end": "14:50",
+     "room_id": "CHM-103",
+     "start": "14:00"
+    }
+   ],
+   "roster": [],
+   "section_code": "01",
+   "tags": [],
+   "term": "Fall 2026"
+  },
+  {
+   "capacity": 45,
+   "course_id": "MAT-211",
+   "enrolled": 30,
+   "id": "MAT-211-02",
+   "instructor_id": "fac-04",
+   "meetings": [
+    {
+     "days": [
+      "Mon",
+      "Wed",
+      "Fri"
+     ],
+     "end": "10:50",
+     "room_id": "CHM-102",
+     "start": "10:00"
+    }
+   ],
+   "roster": [],
+   "section_code": "02",
+   "tags": [],
+   "term": "Fall 2026"
+  },
+  {
+   "capacity": 45,
+   "course_id": "MAT-230",
+   "enrolled": 42,
+   "id": "MAT-230-01",
+   "instructor_id": "fac-03",
+   "meetings": [
+    {
+     "days": [
+      "Tue",
+      "Thu"
+     ],
+     "end": "17:50",
+     "room_id": "CHM-102",
+     "start": "16:30"
+    }
+   ],
+   "roster": [],
+   "section_code": "01",
+   "tags": [],
+   "term": "Fall 2026"
+  },
+  {
+   "capacity": 60,
+   "course_id": "MAT-230",
+   "enrolled": 34,
+   "id": "MAT-230-02",
+   "instructor_id": "fac-04",
+   "meetings": [
+    {
+     "days": [
+      "Mon",
+      "Wed",
+      "Fri"
+     ],
+     "end": "09:50",
+     "room_id": "HUM-303",
+     "start": "09:00"
+    }
+   ],
+   "roster": [],
+   "section_code": "02",
+   "tags": [],
+   "term": "Fall 2026"
+  },
+  {
+   "capacity": 40,
+   "course_id": "PHY-131",
+   "enrolled": 26,
+   "id": "PHY-131-01",
+   "instructor_id": "fac-05",
+   "meetings": [
+    {
+     "days": [
+      "Tue",
+      "Thu"
+     ],
+     "end": "16:20",
+     "room_id": "LE-104",
+     "start": "15:00"
+    }
+   ],
+   "roster": [],
+   "section_code": "01",
+   "tags": [],
+   "term": "Fall 2026"
+  },
+  {
+   "capacity": 60,
+   "course_id": "PHY-132",
+   "enrolled": 30,
+   "id": "PHY-132-01",
+   "instructor_id": "fac-05",
+   "meetings": [
+    {
+     "days": [
+      "Tue",
+      "Thu"
+     ],
+     "end": "13:50",
+     "room_id": "CHM-103",
+     "start": "12:30"
+    }
+   ],
+   "roster": [],
+   "section_code": "01",
+   "tags": [],
+   "term": "Fall 2026"
+  },
+  {
+   "capacity": 60,
+   "course_id": "PHY-132",
+   "enrolled": 38,
+   "id": "PHY-132-02",
+   "instructor_id": "fac-05",
+   "meetings": [
+    {
+     "days": [
+      "Tue",
+      "Thu"
+     ],
+     "end": "09:50",
+     "room_id": "HUM-303",
+     "start": "08:30"
+    }
+   ],
+   "roster": [],
+   "section_code": "02",
+   "tags": [],
+   "term": "Fall 2026"
+  },
+  {
+   "capacity": 30,
+   "course_id": "PHY-133",
+   "enrolled": 30,
+   "id": "PHY-133-01",
+   "instructor_id": "fac-06",
+   "meetings": [
+    {
+     "days": [
+      "Tue",
+      "Thu"
+     ],
+     "end": "09:50",
+     "room_id": "JAV-101",
+     "start": "08:30"
+    }
+   ],
+   "roster": [],
+   "section_code": "01",
+   "tags": [],
+   "term": "Fall 2026"
+  },
+  {
+   "capacity": 40,
+   "course_id": "PHY-251",
+   "enrolled": 38,
+   "id": "PHY-251-01",
+   "instructor_id": "fac-06",
+   "meetings": [
+    {
+     "days": [
+      "Tue",
+      "Thu"
+     ],
+     "end": "16:20",
+     "room_id": "JAV-104",
+     "start": "15:00"
+    }
+   ],
+   "roster": [],
+   "section_code": "01",
+   "tags": [],
+   "term": "Fall 2026"
+  },
+  {
+   "capacity": 45,
+   "course_id": "PHY-251",
+   "enrolled": 26,
+   "id": "PHY-251-02",
+   "instructor_id": "fac-06",
+   "meetings": [
+    {
+     "days": [
+      "Mon",
+      "Wed",
+      "Fri"
+     ],
+     "end": "13:50",
+     "room_id": "CS-302",
+     "start": "13:00"
+    }
+   ],
+   "roster": [],
+   "section_code": "02",
+   "tags": [],
+   "term": "Fall 2026"
+  },
+  {
+   "capacity": 40,
+   "course_id": "BIO-201",
+   "enrolled": 22,
+   "id": "BIO-201-01",
+   "instructor_id": "fac-08",
+   "meetings": [
+    {
+     "days": [
+      "Mon",
+      "Wed",
+      "Fri"
+     ],
+     "end": "11:50",
+     "room_id": "CS-304",
+     "start": "11:00"
+    }
+   ],
+   "roster": [],
+   "section_code": "01",
+   "tags": [],
+   "term": "Fall 2026"
+  },
+  {
+   "capacity": 30,
+   "course_id": "BIO-201",
+   "enrolled": 26,
+   "id": "BIO-201-02",
+   "instructor_id": "fac-07",
+   "meetings": [
+    {
+     "days": [
+      "Mon",
+      "Wed",
+      "Fri"
+     ],
+     "end": "11:50",
+     "room_id": "HUM-301",
+     "start": "11:00"
+    }
+   ],
+   "roster": [],
+   "section_code": "02",
+   "tags": [],
+   "term": "Fall 2026"
+  },
+  {
+   "capacity": 45,
+   "course_id": "BIO-202",
+   "enrolled": 30,
+   "id": "BIO-202-01",
+   "instructor_id": "fac-08",
+   "meetings": [
+    {
+     "days": [
+      "Mon",
+      "Wed",
+      "Fri"
+     ],
+     "end": "14:50",
+     "room_id": "CHM-102",
+     "start": "14:00"
+    }
+   ],
+   "roster": [],
+   "section_code": "01",
+   "tags": [],
+   "term": "Fall 2026"
+  },
+  {
+   "capacity": 40,
+   "course_id": "BIO-320",
+   "enrolled": 38,
+   "id": "BIO-320-01",
+   "instructor_id": "fac-08",
+   "meetings": [
+    {
+     "days": [
+      "Tue",
+      "Thu"
+     ],
+     "end": "13:50",
+     "room_id": "JAV-104",
+     "start": "12:30"
+    }
+   ],
+   "roster": [],
+   "section_code": "01",
+   "tags": [],
+   "term": "Fall 2026"
+  },
+  {
+   "capacity": 30,
+   "course_id": "BIO-332",
+   "enrolled": 26,
+   "id": "BIO-332-01",
+   "instructor_id": "fac-07",
+   "meetings": [
+    {
+     "days": [
+      "Tue",
+      "Thu"
+     ],
+     "end": "11:20",
+     "room_id": "CHM-101",
+     "start": "10:00"
+    }
+   ],
+   "roster": [],
+   "section_code": "01",
+   "tags": [],
+   "term": "Fall 2026"
+  },
+  {
+   "capacity": 45,
+   "course_id": "ECO-108",
+   "enrolled": 42,
+   "id": "ECO-108-01",
+   "instructor_id": "fac-10",
+   "meetings": [
+    {
+     "days": [
+      "Mon",
+      "Wed",
+      "Fri"
+     ],
+     "end": "13:50",
+     "room_id": "HUM-302",
+     "start": "13:00"
+    }
+   ],
+   "roster": [],
+   "section_code": "01",
+   "tags": [],
+   "term": "Fall 2026"
+  },
+  {
+   "capacity": 60,
+   "course_id": "ECO-201",
+   "enrolled": 30,
+   "id": "ECO-201-01",
+   "instructor_id": "fac-09",
+   "meetings": [
+    {
+     "days": [
+      "Tue",
+      "Thu"
+     ],
+     "end": "13:50",
+     "room_id": "CS-303",
+     "start": "12:30"
+    }
+   ],
+   "roster": [],
+   "section_code": "01",
+   "tags": [],
+   "term": "Fall 2026"
+  },
+  {
+   "capacity": 60,
+   "course_id": "ECO-201",
+   "enrolled": 22,
+   "id": "ECO-201-02",
+   "instructor_id": "fac-10",
+   "meetings": [
+    {
+     "days": [
+      "Tue",
+      "Thu"
+     ],
+     "end": "11:20",
+     "room_id": "JAV-103",
+     "start": "10:00"
+    }
+   ],
+   "roster": [],
+   "section_code": "02",
+   "tags": [],
+   "term": "Fall 2026"
+  },
+  {
+   "capacity": 60,
+   "course_id": "ECO-301",
+   "enrolled": 26,
+   "id": "ECO-301-01",
+   "instructor_id": "fac-09",
+   "meetings": [
+    {
+     "days": [
+      "Tue",
+      "Thu"
+     ],
+     "end": "16:20",
+     "room_id": "CHM-103",
+     "start": "15:00"
+    }
+   ],
+   "roster": [],
+   "section_code": "01",
+   "tags": [],
+   "term": "Fall 2026"
+  },
+  {
+   "capacity": 24,
+   "course_id": "ECO-301",
+   "enrolled": 22,
+   "id": "ECO-301-02",
+   "instructor_id": "fac-09",
+   "meetings": [
+    {
+     "days": [
+      "Mon",
+      "Wed",
+      "Fri"
+     ],
+     "end": "10:50",
+     "room_id": "LE-105",
+     "start": "10:00"
+    }
+   ],
+   "roster": [],
+   "section_code": "02",
+   "tags": [],
+   "term": "Fall 2026"
+  },
+  {
+   "capacity": 45,
+   "course_id": "ECO-305",
+   "enrolled": 42,
+   "id": "ECO-305-01",
+   "instructor_id": "fac-10",
+   "meetings": [
+    {
+     "days": [
+      "Tue",
+      "Thu"
+     ],
+     "end": "13:50",
+     "room_id": "CS-302",
+     "start": "12:30"
+    }
+   ],
+   "roster": [],
+   "section_code": "01",
+   "tags": [],
+   "term": "Fall 2026"
+  },
+  {
+   "capacity": 45,
+   "course_id": "WRT-101",
+   "enrolled": 42,
+   "id": "WRT-101-01",
+   "instructor_id": "fac-11",
+   "meetings": [
+    {
+     "days": [
+      "Tue",
+      "Thu"
+     ],
+     "end": "11:20",
+     "room_id": "JAV-102",
+     "start": "10:00"
+    }
+   ],
+   "roster": [],
+   "section_code": "01",
+   "tags": [],
+   "term": "Fall 2026"
+  },
+  {
+   "capacity": 45,
+   "course_id": "WRT-102",
+   "enrolled": 18,
+   "id": "WRT-102-01",
+   "instructor_id": "fac-11",
+   "meetings": [
+    {
+     "days": [
+      "Mon",
+      "Wed",
+      "Fri"
+     ],
+     "end": "14:50",
+     "room_id": "HUM-302",
+     "start": "14:00"
+    }
+   ],
+   "roster": [],
+   "section_code": "01",
+   "tags": [],
+   "term": "Fall 2026"
+  },
+  {
+   "capacity": 60,
+   "course_id": "WRT-102",
+   "enrolled": 26,
+   "id": "WRT-102-02",
+   "instructor_id": "fac-12",
+   "meetings": [
+    {
+     "days": [
+      "Tue",
+      "Thu"
+     ],
+     "end": "17:50",
+     "room_id": "CHM-103",
+     "start": "16:30"
+    }
+   ],
+   "roster": [],
+   "section_code": "02",
+   "tags": [],
+   "term": "Fall 2026"
+  },
+  {
+   "capacity": 60,
+   "course_id": "WRT-205",
+   "enrolled": 34,
+   "id": "WRT-205-01",
+   "instructor_id": "fac-11",
+   "meetings": [
+    {
+     "days": [
+      "Mon",
+      "Wed",
+      "Fri"
+     ],
+     "end": "10:50",
+     "room_id": "CHM-103",
+     "start": "10:00"
+    }
+   ],
+   "roster": [],
+   "section_code": "01",
+   "tags": [],
+   "term": "Fall 2026"
+  },
+  {
+   "capacity": 40,
+   "course_id": "WRT-205",
+   "enrolled": 22,
+   "id": "WRT-205-02",
+   "instructor_id": "fac-12",
+   "meetings": [
+    {
+     "days": [
+      "Mon",
+      "Wed",
+      "Fri"
+     ],
+     "end": "13:50",
+     "room_id": "JAV-104",
+     "start": "13:00"
+    }
+   ],
+   "roster": [],
+   "section_code": "02",
+   "tags": [],
+   "term": "Fall 2026"
+  },
+  {
+   "capacity": 45,
+   "course_id": "WRT-220",
+   "enrolled": 42,
+   "id": "WRT-220-01",
+   "instructor_id": "fac-11",
+   "meetings": [
+    {
+     "days": [
+      "Mon",
+      "Wed",
+      "Fri"
+     ],
+     "end": "13:50",
+     "room_id": "LE-102",
+     "start": "13:00"
+    }
+   ],
+   "roster": [],
+   "section_code": "01",
+   "tags": [],
+   "term": "Fall 2026"
+  }
+ ],
+ "services": [
+  {
+   "coverage_building_ids": [
+    "JAV",
+    "MEL"
+   ],
+   "id": "svc-wifi",
+   "kind": "network",
+   "name": "Campus Wi-Fi",
+   "owner_team_id": "team-it-1",
+   "zone": "zone-1"
+  },
+  {
+   "coverage_building_ids": [
+    "LE",
+    "CS",
+    "MEL",
+    "SAC",
+    "JAV",
+    "HUM",
+    "CHM",
+    "REC",
+    "RES"
+   ],
+   "id": "svc-lms",
+   "kind": "lms",
+   "name": "Learning Platform",
+   "owner_team_id": "team-it-2"
+  },
+  {
+   "coverage_building_ids": [
+    "LE",
+    "CS",
+    "JAV",
+    "HUM",
+    "CHM"
+   ],
+   "id": "svc-av",
+   "kind": "av",
+   "name": "Classroom AV",
+   "owner_team_id": "team-it-2"
+  },
+  {
+   "coverage_building_ids": [
+    "MEL",
+    "SAC"
+   ],
+   "id": "svc-print",
+   "kind": "print",
+   "name": "Print Services",
+   "owner_team_id": "team-it-2"
+  },
+  {
+   "coverage_building_ids": [
+    "LE",
+    "CS",
+    "MEL",
+    "SAC",
+    "JAV",
+    "HUM",
+    "CHM",
+    "REC",
+    "RES"
+   ],
+   "id": "svc-hvac",
+   "kind": "hvac",
+   "name": "Building Climate Systems",
+   "owner_team_id": "team-facilities-1"
+  },
+  {
+   "coverage_building_ids": [
+    "JAV",
+    "CS"
+   ],
+   "id": "svc-capture",
+   "kind": "av",
+   "name": "Lecture Capture",
+   "owner_team_id": "team-it-2"
+  }
+ ],
+ "teams": [
+  {
+   "id": "team-facilities-1",
+   "member_ids": [
+    "stf-01"
+   ],
+   "name": "Facilities: academic core",
+   "role": "facilities",
+   "scope": {
+    "building_ids": [
+     "LE",
+     "JAV",
+     "CS"
+    ]
+   }
+  },
+  {
+   "id": "team-facilities-2",
+   "member_ids": [
+    "stf-02"
+   ],
+   "name": "Facilities: other buildings",
+   "role": "facilities",
+   "scope": {
+    "building_ids": [
+     "CS",
+     "MEL",
+     "SAC",
+     "HUM",
+     "CHM",
+     "REC",
+     "RES"
+    ]
+   }
+  },
+  {
+   "id": "team-it-1",
+   "member_ids": [
+    "stf-03"
+   ],
+   "name": "IT Service Desk: campus network",
+   "role": "it",
+   "scope": {
+    "building_ids": [
+     "JAV",
+     "MEL"
+    ],
+    "service_ids": [
+     "svc-wifi"
+    ]
+   }
+  },
+  {
+   "id": "team-it-2",
+   "member_ids": [
+    "stf-04"
+   ],
+   "name": "IT Service Desk: teaching technology",
+   "role": "it",
+   "scope": {
+    "service_ids": [
+     "svc-lms",
+     "svc-av"
+    ]
+   }
+  },
+  {
+   "id": "team-academic_ops-1",
+   "member_ids": [
+    "stf-05"
+   ],
+   "name": "Academic Operations",
+   "role": "academic_ops",
+   "scope": {
+    "department_ids": [
+     "CSE",
+     "MAT",
+     "PHY",
+     "BIO",
+     "ECO",
+     "WRT"
+    ]
+   }
+  },
+  {
+   "id": "team-advising-1",
+   "member_ids": [
+    "stf-06"
+   ],
+   "name": "Advising",
+   "role": "advising",
+   "scope": {
+    "department_ids": [
+     "CSE",
+     "MAT",
+     "PHY",
+     "BIO",
+     "ECO",
+     "WRT"
+    ]
+   }
+  }
+ ],
+ "tenant": {
+  "brand": {
+   "note": "Neutral demo theme. No real institutional branding."
+  },
+  "clock": "12h",
+  "course_code_format": "{d} {n}",
+  "credit_unit": "credits",
+  "data_origin": "synthetic",
+  "features": {
+   "facilities_workspace": true,
+   "faculty_workspace": true,
+   "it_workspace": true,
+   "org_workspace": true,
+   "security_simulation": true
+  },
+  "id": "sbu_demo",
+  "locale": "en-US",
+  "name": "SBU Demo University",
+  "public_links": {
+   "facilities": "https://facilities.example.invalid",
+   "it_help": "https://it.example.invalid",
+   "registrar": "https://registrar.example.invalid"
+  },
+  "role_vocabulary": {
+   "acadops": "Academic Operations",
+   "advising": "Advising",
+   "facilities": "Facilities",
+   "faculty": "Instructor",
+   "it": "IT Service Desk"
+  },
+  "room_code_format": "{b} {r}",
+  "short_name": "SBU Demo",
+  "term_system": "semester",
+  "timezone": "America/New_York",
+  "week_start": "sunday"
+ },
+ "terms": [
+  {
+   "add_drop_deadline": "2026-09-14",
+   "break_end": "2026-11-29",
+   "break_start": "2026-11-25",
+   "end": "2026-12-18",
+   "finals_end": "2026-12-21",
+   "finals_start": "2026-12-14",
+   "id": "term-current",
+   "name": "Fall 2026",
+   "start": "2026-08-31",
+   "system": "semester",
+   "weeks": 15,
+   "withdraw_deadline": "2026-11-06"
+  }
+ ],
+ "walking_minutes": {
+  "CHM-REC": 11,
+  "CHM-RES": 13,
+  "CS-CHM": 6,
+  "CS-HUM": 8,
+  "CS-JAV": 5,
+  "CS-MEL": 9,
+  "CS-REC": 10,
+  "CS-RES": 9,
+  "CS-SAC": 8,
+  "HUM-CHM": 4,
+  "HUM-REC": 8,
+  "HUM-RES": 12,
+  "JAV-CHM": 5,
+  "JAV-HUM": 4,
+  "JAV-REC": 7,
+  "JAV-RES": 8,
+  "LE-CHM": 4,
+  "LE-CS": 4,
+  "LE-HUM": 8,
+  "LE-JAV": 6,
+  "LE-MEL": 8,
+  "LE-REC": 13,
+  "LE-RES": 13,
+  "LE-SAC": 7,
+  "MEL-CHM": 8,
+  "MEL-HUM": 8,
+  "MEL-JAV": 6,
+  "MEL-REC": 6,
+  "MEL-RES": 4,
+  "MEL-SAC": 5,
+  "REC-RES": 7,
+  "SAC-CHM": 8,
+  "SAC-HUM": 5,
+  "SAC-JAV": 8,
+  "SAC-REC": 4,
+  "SAC-RES": 7
+ }
+}

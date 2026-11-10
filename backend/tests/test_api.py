@@ -566,8 +566,19 @@ def test_pulse_normal_no_critical_insights(client):
 
 
 def test_pulse_demo_incident_has_insights(client):
-    """scenario=demo_incident → Room 101 temperature insight with recommended_human_action."""
-    r = client.get("/api/v1/campus-pulse/insights?scenario=demo_incident")
+    """scenario=demo_incident → Room 101 temperature insight with recommended_human_action.
+
+    Uses a fixed virtual clock so the deterministic sensor simulation always
+    produces a Room 101 temperature above the warn threshold (24.0°C).
+    Without a fixed clock, the real-time bucket noise may fall below the
+    threshold on some runs, making the test flaky.
+    """
+    from datetime import datetime, timezone
+    from unittest.mock import patch
+
+    fixed_now = datetime(2026, 11, 7, 10, 0, 0, tzinfo=timezone.utc)
+    with patch("app.core.clock.get_now", return_value=fixed_now):
+        r = client.get("/api/v1/campus-pulse/insights?scenario=demo_incident")
     assert r.status_code == 200
     insights = r.json()
     room_temp = [

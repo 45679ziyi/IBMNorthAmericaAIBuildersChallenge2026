@@ -1,31 +1,59 @@
 /**
- * Time utilities — all dates displayed in campus timezone (Eastern).
+ * Time utilities — all dates displayed in campus timezone.
+ *
+ * U2: The timezone is no longer a hardcoded constant.  Use getTz() to get
+ * the current timezone, and setTz() to update it when the tenant config loads.
+ *
+ * NEVER use Date#getHours, Date#getMinutes, or hardcoded timezone literals
+ * in this file or anywhere else.  Always pass the tz string explicitly.
  */
 
-export const CAMPUS_TZ = 'America/New_York'
+// ── Timezone state ─────────────────────────────────────────────────────────────
 
-/** Format an ISO string as "10:00 AM" in campus timezone. */
-export function formatTime(iso: string): string {
+let _campusTz = 'America/New_York'
+let _campusClock: '12h' | '24h' = '12h'
+
+/** Return the current campus timezone string. */
+export function getTz(): string { return _campusTz }
+
+/** Update the campus timezone (called when tenant config loads). */
+export function setTz(tz: string): void { _campusTz = tz }
+
+/** Return the current campus clock mode. */
+export function getClock(): '12h' | '24h' { return _campusClock }
+
+/** Update the campus clock mode (called when tenant config loads). */
+export function setClock(c: '12h' | '24h'): void { _campusClock = c }
+
+/**
+ * @deprecated Use getTz() instead.  Kept for backward compatibility only.
+ * Will be removed in a future cleanup pass.
+ */
+export const CAMPUS_TZ = _campusTz
+
+/** Format an ISO string as "10:00 AM" (or "10:00" for 24h) in campus timezone. */
+export function formatTime(iso: string, tz = getTz(), clock = getClock()): string {
   return new Date(iso).toLocaleTimeString('en-US', {
     hour: 'numeric',
     minute: '2-digit',
-    timeZone: CAMPUS_TZ,
+    hour12: clock === '12h',
+    timeZone: tz,
   })
 }
 
 /** Format an ISO string as "Mon, Nov 3" in campus timezone. */
-export function formatDay(iso: string): string {
+export function formatDay(iso: string, tz = getTz()): string {
   return new Date(iso).toLocaleDateString('en-US', {
     weekday: 'short',
     month: 'short',
     day: 'numeric',
-    timeZone: CAMPUS_TZ,
+    timeZone: tz,
   })
 }
 
 /** Returns the YYYY-MM-DD date string (campus tz) for an ISO string. */
-function toLocaleDateStr(iso: string): string {
-  return new Date(iso).toLocaleDateString('en-CA', { timeZone: CAMPUS_TZ })
+function toLocaleDateStr(iso: string, tz = getTz()): string {
+  return new Date(iso).toLocaleDateString('en-CA', { timeZone: tz })
 }
 
 /** Returns true if two ISO strings fall on the same calendar day (campus tz). */
@@ -39,17 +67,14 @@ export function isSameDayAsNow(iso: string): boolean {
 }
 
 /** Returns a Date set to midnight on the given YYYY-MM-DD date string (campus tz). */
-export function startOfDay(isoDate: string): Date {
-  // Parse as campus-tz midnight via explicit locale formatting trick
+export function startOfDay(isoDate: string, tz = getTz()): Date {
   const [y, m, d] = isoDate.split('-').map(Number)
-  // Use Intl to figure out UTC offset at that date in campus tz
   const candidate = new Date(Date.UTC(y, m - 1, d, 12, 0, 0))
   const localStr = candidate.toLocaleString('en-CA', {
     year: 'numeric', month: '2-digit', day: '2-digit',
     hour: '2-digit', minute: '2-digit', second: '2-digit',
-    hour12: false, timeZone: CAMPUS_TZ,
+    hour12: false, timeZone: tz,
   })
-  // localStr looks like "2026-11-07, 07:00:00"
   const parts = localStr.replace(', ', 'T')
   const localMidnight = new Date(parts.replace(/^(.{10})T(.{8})$/, `$1T00:00:00`))
   return localMidnight
@@ -64,6 +89,7 @@ export function relativeDue(
   const now = new Date()
   const diffMs = due.getTime() - now.getTime()
   const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24))
+  const tz = getTz()
 
   if (diffMs < 0) {
     const absDays = Math.abs(diffDays)
@@ -77,11 +103,11 @@ export function relativeDue(
   if (diffDays === 1) return { text: 'Due tomorrow', isOverdue: false }
 
   if (diffDays <= 6) {
-    const weekday = due.toLocaleDateString('en-US', { weekday: 'short', timeZone: CAMPUS_TZ })
+    const weekday = due.toLocaleDateString('en-US', { weekday: 'short', timeZone: tz })
     return { text: `Due ${weekday}`, isOverdue: false }
   }
 
-  const dateStr = due.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: CAMPUS_TZ })
+  const dateStr = due.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: tz })
   return { text: `Due ${dateStr}`, isOverdue: false }
 }
 
@@ -91,9 +117,9 @@ export function minutesUntil(iso: string): number {
 }
 
 /** Time-of-day greeting based on campus timezone hour. */
-export function greeting(): string {
+export function greeting(tz = getTz()): string {
   const h = parseInt(
-    new Date().toLocaleString('en-US', { hour: 'numeric', hour12: false, timeZone: CAMPUS_TZ }),
+    new Date().toLocaleString('en-US', { hour: 'numeric', hour12: false, timeZone: tz }),
     10
   )
   if (h < 12) return 'Good morning'
@@ -106,13 +132,13 @@ export function greeting(): string {
 const toDate = (v: string | number | Date): Date => (v instanceof Date ? v : new Date(v))
 
 /** 'YYYY-MM-DD' in campus time. */
-export const dayKey = (v: string | number | Date): string =>
-  toDate(v).toLocaleDateString('en-CA', { timeZone: CAMPUS_TZ })
+export const dayKey = (v: string | number | Date, tz = getTz()): string =>
+  toDate(v).toLocaleDateString('en-CA', { timeZone: tz })
 
 /** Minutes since midnight, campus time. Never use Date#getHours/getMinutes. */
-export function minutesIntoDay(v: string | number | Date): number {
+export function minutesIntoDay(v: string | number | Date, tz = getTz()): number {
   const p = new Intl.DateTimeFormat('en-US', {
-    hour: 'numeric', minute: 'numeric', hourCycle: 'h23', timeZone: CAMPUS_TZ,
+    hour: 'numeric', minute: 'numeric', hourCycle: 'h23', timeZone: tz,
   }).formatToParts(toDate(v))
   return (
     Number(p.find(x => x.type === 'hour')?.value ?? 0) * 60 +
@@ -120,9 +146,9 @@ export function minutesIntoDay(v: string | number | Date): number {
   )
 }
 
-function tzOffsetMs(ts: number): number {
+function tzOffsetMs(ts: number, tz = getTz()): number {
   const p = new Intl.DateTimeFormat('en-US', {
-    timeZone: CAMPUS_TZ, hourCycle: 'h23',
+    timeZone: tz, hourCycle: 'h23',
     year: 'numeric', month: '2-digit', day: '2-digit',
     hour: '2-digit', minute: '2-digit', second: '2-digit',
   }).formatToParts(ts)
@@ -131,14 +157,14 @@ function tzOffsetMs(ts: number): number {
 }
 
 /** 'YYYY-MM-DDTHH:mm' campus wall time → ISO UTC (for datetime-local inputs). */
-export function localInputToIso(v: string): string {
+export function localInputToIso(v: string, tz = getTz()): string {
   const naive = Date.parse(`${v}:00Z`)
-  const first = naive - tzOffsetMs(naive)
-  return new Date(naive - tzOffsetMs(first)).toISOString()
+  const first = naive - tzOffsetMs(naive, tz)
+  return new Date(naive - tzOffsetMs(first, tz)).toISOString()
 }
 
 /** ISO UTC → 'YYYY-MM-DDTHH:mm' campus wall time (for datetime-local inputs). */
-export function isoToLocalInput(iso: string): string {
+export function isoToLocalInput(iso: string, tz = getTz()): string {
   const ts = Date.parse(iso)
-  return new Date(ts + tzOffsetMs(ts)).toISOString().slice(0, 16)
+  return new Date(ts + tzOffsetMs(ts, tz)).toISOString().slice(0, 16)
 }

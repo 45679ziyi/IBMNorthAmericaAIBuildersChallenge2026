@@ -11,7 +11,7 @@ POST /actions/{action_id}/undo       → UndoResponse   (M3)
 from __future__ import annotations
 
 import json
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone  # timedelta needed for D2 hero window
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -65,12 +65,23 @@ def _move_to_response(move: Move) -> MoveResponse:
     )
 
 
+# D2: priority values for sorting (lower = higher priority)
+_IMPACT_ORDER = {"high": 0, "medium": 1, "low": 2}
+_URGENCY_ORDER = {"high": 0, "today": 1, "soon": 2, "low": 3}
+# Window for the "reserved hero slot" (virtual minutes)
+_HERO_WINDOW_MINUTES = 60
+
+
 @router.get("", response_model=list[MoveResponse])
 def list_moves(
     audience: Optional[str] = Query(None, description="Filter by audience: student or staff"),
     db: Session = Depends(get_db),
 ):
-    """List current moves (non-expired, non-dismissed, non-snoozed or snooze-expired, auto_applied)."""
+    """List current moves ordered by impact → urgency → recency.
+
+    D2 fix: reserve the first slot for the newest high-impact card created
+    in the last 60 virtual minutes, so the hero decision is always visible.
+    """
     now = get_now()
     now_naive = now.replace(tzinfo=None) if now.tzinfo else now
 
@@ -82,7 +93,7 @@ def list_moves(
     moves = q.order_by(Move.created_at).all()
 
     # Filter out snoozed moves that haven't expired yet
-    result = []
+    active: list[Move] = []
     for m in moves:
         if m.status == "snoozed":
             if m.expires_at is not None:
@@ -91,10 +102,41 @@ def list_moves(
                     continue
             # Snooze expired — re-propose
             m.status = "proposed"
-        result.append(_move_to_response(m))
+        active.append(m)
 
     db.commit()
-    return result
+
+    # D2: sort by impact, then urgency, then recency (newest first)
+    def _sort_key(m: Move):
+        imp = _IMPACT_ORDER.get(m.impact or "", 99)
+        urg = _URGENCY_ORDER.get(m.urgency or "", 99)
+        # Negate created_at for recency (newer = smaller sort value)
+        ts = m.created_at.timestamp() if m.created_at else 0
+        return (imp, urg, -ts)
+
+    active.sort(key=_sort_key)
+
+    # D2: reserved hero slot — find the newest high-impact card in the last
+    # 60 virtual minutes and ensure it appears first if it would be pushed down.
+    hero_window_start = now - timedelta(minutes=_HERO_WINDOW_MINUTES)
+    hero_window_naive = (
+        hero_window_start.replace(tzinfo=None) if hero_window_start.tzinfo else hero_window_start
+    )
+    hero = None
+    for m in active:
+        if m.impact == "high" and m.created_at is not None:
+            created_naive = m.created_at if m.created_at.tzinfo is None else m.created_at.replace(tzinfo=None)
+            if created_naive >= hero_window_naive:
+                # Use the newest high-impact card in the window
+                if hero is None or (m.created_at > hero.created_at):
+                    hero = m
+
+    if hero is not None and active and active[0] is not hero:
+        # Promote hero to the front without changing relative order of others
+        active.remove(hero)
+        active.insert(0, hero)
+
+    return [_move_to_response(m) for m in active]
 
 
 @router.get("/handled", response_model=list[MoveResponse])

@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { CalendarDays, Clock, MapPin, RefreshCw, ChevronRight, Settings, HelpCircle } from 'lucide-react'
 import './TodayScreen.css'
 import { SkeletonList } from '../../components/Skeleton'
@@ -12,7 +12,9 @@ import { useBadges } from '../../state/badges'
 import {
   getEvents, getTasks, getAnnouncements, updateTask, getMoves, getHandledMoves,
   getSignals, getFeedsStatus, approveMoveReq, dismissMove as dismissMoveApi, undoMoveAll,
+  fetchInbox, getCampusIncidents,
   CalendarEvent, Task, Announcement, Move, Signal, FeedStatus,
+  type InboxNotification, type CanonicalEvent,
 } from '../../api/client'
 import {
   formatTime, relativeDue, greeting,
@@ -337,25 +339,26 @@ function SourcesStrip({ feedStatuses, onFeedClick }: { feedStatuses: FeedStatus[
   return (
     <section className="today-section sources-strip-section" aria-labelledby="sources-heading">
       <h2 id="sources-heading">Data sources</h2>
-      <div className="sources-strip" role="list">
+      {/* D7 fix: use <ul>/<li> so role="listitem" is valid within role="list" */}
+      <ul className="sources-strip" role="list">
         {feedStatuses.map(f => (
-          <button
-            key={f.feed}
-            role="listitem"
-            className="source-chip btn btn-ghost"
-            onClick={() => onFeedClick(f.feed)}
-            title={`Click to see recent signals from ${f.feed}`}
-          >
-            <span className="source-name">{f.feed.replace(/_/g, ' ')}</span>
-            {f.last_signal_at && (
-              <span className="source-time text-sm text-muted">
-                Updated {formatTime(f.last_signal_at)}
-              </span>
-            )}
-            <StatusChip variant="synthetic" label="Synthetic" />
-          </button>
+          <li key={f.feed} role="listitem">
+            <button
+              className="source-chip btn btn-ghost"
+              onClick={() => onFeedClick(f.feed)}
+              title={`Click to see recent signals from ${f.feed}`}
+            >
+              <span className="source-name">{f.feed.replace(/_/g, ' ')}</span>
+              {f.last_signal_at && (
+                <span className="source-time text-sm text-muted">
+                  Updated {formatTime(f.last_signal_at)}
+                </span>
+              )}
+              <StatusChip variant="synthetic" label="Synthetic" />
+            </button>
+          </li>
         ))}
-      </div>
+      </ul>
     </section>
   )
 }
@@ -478,8 +481,14 @@ function TodayTimeline({
           </div>
         ))}
       </div>
-      <div className="tl-track" role="list" aria-label="Today's timeline">
-        {/* Grid lines */}
+      {/*
+        D7 fix: tl-track must NOT have role="list" because not all children are
+        listitems (grid lines, rain band, signal flags are presentational).
+        Use role="region" with an aria-label instead so it is still a landmark,
+        and render the accessible list of blocks as a separate <ul> inside.
+      */}
+      <div className="tl-track" role="region" aria-label="Today's timeline">
+        {/* Grid lines — presentational */}
         {hourLabels.map(h => (
           <div
             key={h}
@@ -489,7 +498,7 @@ function TodayTimeline({
           />
         ))}
 
-        {/* Rain band */}
+        {/* Rain band — D7 fix: aria-hidden; it is purely decorative */}
         {rainBand && (
           <div
             className="tl-rain-band"
@@ -497,46 +506,48 @@ function TodayTimeline({
               '--top':    `${rainBand.startPct}%`,
               '--height': `${rainBand.heightPct}%`,
             } as React.CSSProperties}
-            aria-label="Forecasted rain"
+            aria-hidden="true"
           />
         )}
+        {/* Provide a text description for the rain band accessibly */}
+        {rainBand && <span className="sr-only">Forecasted rain period on timeline.</span>}
 
-        {/* Blocks */}
-        {items.map(item => {
-          const startMins = minutesIntoDay(item.start_at_utc)
-          const endMins   = minutesIntoDay(item.end_at_utc)
-          const topPct    = ((startMins - TIMELINE_START_H * 60) / (TIMELINE_HOURS * 60)) * 100
-          const heightPct = (Math.max(endMins - startMins, 15) / (TIMELINE_HOURS * 60)) * 100
-          const kindClass = item.kind === 'aurora' ? 'tl-block-aurora' : `tl-block-${item.kind}`
-          return (
-            <div
-              key={item.id}
-              role="listitem"
-              className={`tl-block ${kindClass}`}
-              style={{ '--top': `${topPct}%`, '--height': `${heightPct}%` } as React.CSSProperties}
-              aria-label={`${item.title}, ${formatTime(item.start_at_utc)} to ${formatTime(item.end_at_utc)}, ${item.kind}`}
-            >
-              <span className="tl-block-title">{item.title}</span>
-              <span className="tl-block-time">
-                <Clock size={10} aria-hidden="true" /> {formatTime(item.start_at_utc)}
-              </span>
-            </div>
-          )
-        })}
+        {/* Blocks — accessible list */}
+        <ul className="tl-blocks-list" aria-label="Timeline events">
+          {items.map(item => {
+            const startMins = minutesIntoDay(item.start_at_utc)
+            const endMins   = minutesIntoDay(item.end_at_utc)
+            const topPct    = ((startMins - TIMELINE_START_H * 60) / (TIMELINE_HOURS * 60)) * 100
+            const heightPct = (Math.max(endMins - startMins, 15) / (TIMELINE_HOURS * 60)) * 100
+            const kindClass = item.kind === 'aurora' ? 'tl-block-aurora' : `tl-block-${item.kind}`
+            return (
+              <li
+                key={item.id}
+                className={`tl-block ${kindClass}`}
+                style={{ '--top': `${topPct}%`, '--height': `${heightPct}%` } as React.CSSProperties}
+                aria-label={`${item.title}, ${formatTime(item.start_at_utc)} to ${formatTime(item.end_at_utc)}, ${item.kind}`}
+              >
+                <span className="tl-block-title">{item.title}</span>
+                <span className="tl-block-time">
+                  <Clock size={10} aria-hidden="true" /> {formatTime(item.start_at_utc)}
+                </span>
+              </li>
+            )
+          })}
+        </ul>
 
-        {/* Signal flags */}
+        {/* Signal flags — buttons, not listitems */}
         {signalFlags.map((sf, i) => (
-          <div
+          <button
             key={sf.signal.id ?? i}
             className={`tl-signal-flag tl-signal-flag-${sf.signal.feed.replace(/_/g, '-')}`}
             style={{ '--pos': `${sf.pct}%` } as React.CSSProperties}
             title={sf.signal.summary}
             onClick={() => setTooltipSignal(tt => tt?.id === sf.signal.id ? null : sf.signal)}
-            role="button"
             aria-label={`Signal: ${sf.signal.summary}`}
           >
             <span className="tl-signal-dot" aria-hidden="true" />
-          </div>
+          </button>
         ))}
 
         {/* Signal tooltip */}
@@ -552,30 +563,31 @@ function TodayTimeline({
           </div>
         )}
 
-        {/* Leave-by marker */}
+        {/* Leave-by marker — presentational */}
         {leaveBy && (
           <div
             className="tl-leave-by"
             style={{ '--pos': `${leaveBy.pct}%` } as React.CSSProperties}
-            aria-label={leaveBy.label}
+            aria-hidden="true"
           >
-            <span className="tl-leave-by-line" aria-hidden="true" />
+            <span className="tl-leave-by-line" />
             <span className="tl-leave-by-label">{leaveBy.label}</span>
           </div>
         )}
+        {leaveBy && <span className="sr-only">{leaveBy.label}</span>}
 
-        {/* Now marker */}
+        {/* Now marker — presentational */}
         <div
           ref={markerRef}
           className="tl-now-marker"
           style={{ '--pos': `${pct}%` } as React.CSSProperties}
-          role="presentation"
+          aria-hidden="true"
         >
-          <span className="sr-only">{`Current time: ${timeLabel}`}</span>
-          <span className="tl-now-dot" aria-hidden="true" />
-          <span className="tl-now-line" aria-hidden="true" />
-          <span className="tl-now-label" aria-hidden="true">{timeLabel}</span>
+          <span className="tl-now-dot" />
+          <span className="tl-now-line" />
+          <span className="tl-now-label">{timeLabel}</span>
         </div>
+        <span className="sr-only">{`Current time: ${timeLabel}`}</span>
       </div>
     </div>
   )
@@ -590,6 +602,8 @@ export default function TodayScreen() {
   const [handledMoves, setHandledMoves] = useState<Move[]>([])
   const [signals,      setSignals]      = useState<Signal[]>([])
   const [feedStatuses, setFeedStatuses] = useState<FeedStatus[]>([])
+  const [inboxItems,   setInboxItems]   = useState<InboxNotification[]>([])
+  const [campusIncidents, setCampusIncidents] = useState<CanonicalEvent[]>([])
   const [loading,      setLoading]      = useState(true)
   const [error,        setError]        = useState<string | null>(null)
   const [whyMove,      setWhyMove]      = useState<Move | null>(null)
@@ -612,11 +626,15 @@ export default function TodayScreen() {
       getEvents(), getTasks(), getAnnouncements(),
       getMoves(), getHandledMoves(),
       getSignals(), getFeedsStatus(),
+      fetchInbox().catch(() => [] as InboxNotification[]),
+      getCampusIncidents().catch(() => [] as CanonicalEvent[]),
     ])
-      .then(([ev, tk, an, mv, hm, sg, fs]) => {
+      .then(([ev, tk, an, mv, hm, sg, fs, ib, ci]) => {
         setEvents(ev); setTasks(tk); setAnnouncements(an)
         setMoves(mv); setHandledMoves(hm)
         setSignals(sg); setFeedStatuses(fs)
+        setInboxItems(ib as InboxNotification[])
+        setCampusIncidents(ci as CanonicalEvent[])
         setLoading(false)
       })
       .catch(e => { setError(String(e)); setLoading(false) })
@@ -787,7 +805,7 @@ export default function TodayScreen() {
 
   return (
     <div className="today-screen">
-      {/* Header */}
+      {/* Header — full width */}
       <div className="today-header">
         <div>
           <h1 className="today-greeting">{greeting()}</h1>
@@ -822,61 +840,118 @@ export default function TodayScreen() {
         </div>
       </div>
 
-      {/* Now/Next band */}
+      {/* Now/Next band — full width */}
       {!loading && <NowNextBand events={todayEvents} tasks={tasks} now={now} />}
 
-      {/* Needs your decision */}
-      {!loading && proposedMoves.length > 0 && (
-        <section className="today-section" aria-labelledby="decisions-heading">
-          <h2 id="decisions-heading">Needs your decision</h2>
-          <div className="move-cards-list">
-            {proposedMoves.map(m => (
-              <MoveCard
-                key={m.id}
-                move={m}
-                onApprove={handleApprove}
-                onDismiss={handleDismiss}
-                onWhyClick={handleWhyClick}
-                isNew={newMoveIds.has(m.id)}
-              />
-            ))}
-          </div>
-        </section>
-      )}
+      {/*
+        D6 fix: two-column command center at ≥1024 px.
+        Left column: timeline.  Right column: decisions + handled.
+        On narrower screens it reverts to a single column (stacked).
+      */}
+      <div className="today-command-center">
+        {/* Left: Timeline */}
+        <div className="today-col-timeline">
+          <section aria-labelledby="today-timeline-heading" className="today-section">
+            <h2 id="today-timeline-heading">Today's Timeline</h2>
+            {loading
+              ? <SkeletonList count={2} lines={3} />
+              : timelineItems.length === 0
+                ? <EmptyState message="No events or tasks today." action={{ label: 'Import calendar →', onClick: () => navigate('/planner') }} />
+                : <TodayTimeline
+                    items={timelineItems}
+                    signalFlags={signalFlags}
+                    rainBand={rainBand}
+                    leaveBy={leaveBy}
+                    now={now}
+                  />
+            }
+          </section>
+        </div>
 
-      {/* Handled for you */}
-      {!loading && (
-        <HandledSection
-          handledMoves={handledMoves}
-          feedStatuses={feedStatuses}
-          onUndo={handleUndo}
-          simMode={simMode}
-        />
-      )}
+        {/* Right: Decisions + Handled */}
+        <div className="today-col-decisions">
+          {/* Needs your decision */}
+          {!loading && proposedMoves.length > 0 && (
+            <section className="today-section" aria-labelledby="decisions-heading">
+              <h2 id="decisions-heading">Needs your decision</h2>
+              <div className="move-cards-list">
+                {proposedMoves.map(m => (
+                  <MoveCard
+                    key={m.id}
+                    move={m}
+                    onApprove={handleApprove}
+                    onDismiss={handleDismiss}
+                    onWhyClick={handleWhyClick}
+                    isNew={newMoveIds.has(m.id)}
+                  />
+                ))}
+              </div>
+            </section>
+          )}
 
-      {/* Today's timeline */}
-      <section aria-labelledby="today-timeline-heading" className="today-section">
-        <h2 id="today-timeline-heading">Today's Timeline</h2>
-        {loading
-          ? <SkeletonList count={2} lines={3} />
-          : timelineItems.length === 0
-            ? <EmptyState message="No events or tasks today." action={{ label: 'Import calendar →', onClick: () => navigate('/planner') }} />
-            : <TodayTimeline
-                items={timelineItems}
-                signalFlags={signalFlags}
-                rainBand={rainBand}
-                leaveBy={leaveBy}
-                now={now}
-              />
-        }
-      </section>
+          {/* Handled for you */}
+          {!loading && (
+            <HandledSection
+              handledMoves={handledMoves}
+              feedStatuses={feedStatuses}
+              onUndo={handleUndo}
+              simMode={simMode}
+            />
+          )}
 
-      {/* Sources strip */}
+          {/* Campus Status */}
+          {!loading && (
+            <section className="today-section" aria-labelledby="campus-status-heading">
+              <h2 id="campus-status-heading">Campus Status</h2>
+              {campusIncidents.length === 0 ? (
+                <p className="today-campus-ok">✓ No active incidents</p>
+              ) : (
+                <ul className="today-incident-list">
+                  {campusIncidents.slice(0, 3).map(inc => (
+                    <li key={inc.id} className="today-incident-item">
+                      <Link to={`/events/${inc.id}`} className="today-incident-link">
+                        <span className="today-incident-type">{inc.type.replace(/\./g, ' › ')}</span>
+                        <span className={`today-incident-sev today-sev-${inc.severity}`}>{inc.severity}</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          )}
+
+          {/* Inbox Preview */}
+          {!loading && (
+            <section className="today-section" aria-labelledby="inbox-preview-heading">
+              <div className="section-header-row">
+                <h2 id="inbox-preview-heading">Inbox</h2>
+                <button className="btn btn-ghost btn-sm" onClick={() => navigate('/inbox')}>
+                  View all <ChevronRight size={13} aria-hidden="true" />
+                </button>
+              </div>
+              {inboxItems.filter(n => n.state === 'unread').length === 0 ? (
+                <p className="text-muted">No unread notifications.</p>
+              ) : (
+                <ul className="today-inbox-list">
+                  {inboxItems.filter(n => n.state === 'unread').slice(0, 3).map(n => (
+                    <li key={n.id} className="today-inbox-item card" onClick={() => navigate('/inbox')}>
+                      <span className="today-inbox-title">{n.title}</span>
+                      <span className="text-muted text-sm">{n.kind}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          )}
+        </div>
+      </div>
+
+      {/* Sources strip — full width */}
       {!loading && (
         <SourcesStrip feedStatuses={feedStatuses} onFeedClick={handleFeedClick} />
       )}
 
-      {/* Day summary counters */}
+      {/* Day summary counters — full width */}
       {!loading && feedStatuses.length > 0 && (
         <DaySummaryCounters
           feedStatuses={feedStatuses}

@@ -214,8 +214,9 @@ def get_incident_impact(incident_id: str, db: Session = Depends(get_db)):
     incident_room_id = inc_payload.get("room", "")
 
     # Find commitments that use the affected room (original or currently)
+    from app.core.tenancy import DEFAULT_ACTOR_ID, ActorContext, current_user_id as _cuid
     from app.core.config import settings
-    user_id = settings.demo_user_id
+    user_id = settings.demo_user_id  # ops routes use the default user; U2 pack loader will replace this
 
     # Find all class events on the anchor date
     from datetime import date, timedelta
@@ -385,7 +386,7 @@ def approve_mitigation(incident_id: str, db: Session = Depends(get_db)):
     impact = get_incident_impact(incident_id, db)
 
     from app.core.config import settings
-    user_id = settings.demo_user_id
+    user_id = settings.demo_user_id  # ops routes use the default user; U2 pack loader will replace this
 
     changes_made = []
     for mitigation in impact.feasible_mitigations:

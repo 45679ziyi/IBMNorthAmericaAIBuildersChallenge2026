@@ -1,4 +1,7 @@
-"""Demo data reset endpoint."""
+"""Demo data reset endpoint.
+
+U1: uses ActorContext to resolve the correct user_id.
+"""
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends
@@ -8,15 +11,18 @@ from app.db.session import get_db
 from app.models.models import (
     CalendarEvent, Task, Announcement, CampusEvent, DailyPlan, PlanBlock, SensorReading
 )
-from app.core.config import settings
+from app.core.tenancy import ActorContext, resolve_actor, current_user_id
 
 router = APIRouter()
 
 
 @router.delete("/demo/reset", status_code=200)
-def reset_demo_data(db: Session = Depends(get_db)):
+def reset_demo_data(
+    db: Session = Depends(get_db),
+    actor: ActorContext = Depends(resolve_actor),
+):
     """Clear all demo-sourced records and re-seed from fixtures."""
-    user_id = settings.demo_user_id
+    user_id = current_user_id(actor)
     db.query(PlanBlock).filter(
         PlanBlock.daily_plan_id.in_(
             db.query(DailyPlan.id).filter(DailyPlan.user_id == user_id)
@@ -44,9 +50,12 @@ def reset_demo_data(db: Session = Depends(get_db)):
 
 
 @router.delete("/user/data", status_code=200)
-def delete_user_data(db: Session = Depends(get_db)):
+def delete_user_data(
+    db: Session = Depends(get_db),
+    actor: ActorContext = Depends(resolve_actor),
+):
     """Delete all local prototype data for the current demo user."""
-    user_id = settings.demo_user_id
+    user_id = current_user_id(actor)
     db.query(PlanBlock).filter(
         PlanBlock.daily_plan_id.in_(
             db.query(DailyPlan.id).filter(DailyPlan.user_id == user_id)

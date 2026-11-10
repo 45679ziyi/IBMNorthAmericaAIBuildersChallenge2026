@@ -97,19 +97,34 @@ def evaluate(db: Session, now: datetime) -> list[Move]:
     # Collect moves that are newly proposed this cycle and eligible for auto
     auto_candidates: list[Move] = []
 
+    # Statuses that are "terminal" for the purposes of reconciliation.
+    # D4 fix: executed/executed_simulated/auto_applied moves are not re-proposed
+    #         even if the detector still sees the same condition. Their counts
+    #         are frozen at execution time.
+    # D5 fix: policy is never overwritten on a move that is no longer "proposed".
+    _TERMINAL_STATUSES = frozenset({"executed", "executed_simulated", "auto_applied", "dismissed"})
+
     for spec in specs:
         fp = _fingerprint(spec)
         live_keys.add(spec.key)
 
         if spec.key in existing:
             move = existing[spec.key]
+
+            # D4: don't re-propose or update terminal moves
+            if move.status in _TERMINAL_STATUSES:
+                continue
+
             if move.status == "dismissed" and move.fingerprint == fp:
                 # Same content, still dismissed — don't re-propose
                 continue
-            # Content changed or not dismissed: update
+
+            old_fp = move.fingerprint
+            # D5: policy is fixed at creation. Never overwrite it during reconciliation.
+            # Only update mutable display fields; preserve policy.
             move.kind = spec.kind
             move.audience = spec.audience
-            move.policy = spec.policy
+            # policy intentionally NOT updated — fixed at creation (D5)
             move.urgency = spec.urgency
             move.impact = spec.impact
             move.title = spec.title
@@ -118,12 +133,12 @@ def evaluate(db: Session, now: datetime) -> list[Move]:
             move.actions = json.dumps(spec.actions)
             move.fingerprint = fp
             move.updated_at = now
-            if move.fingerprint != fp or move.status in ("expired",):
+            if old_fp != fp or move.status in ("expired",):
                 move.status = "proposed"
-                if spec.policy == "auto":
+                if move.policy == "auto":
                     auto_candidates.append(move)
         else:
-            # Create new move
+            # Create new move — policy is set once here and never changed
             move = Move(
                 key=spec.key,
                 kind=spec.kind,

@@ -1,0 +1,56 @@
+/* State components shared styles */
+
+.state-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-3);
+  padding: var(--sp-10) var(--sp-6);
+  text-align: center;
+  color: var(--ink-muted);
+}
+
+.state-title {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--ink);
+  margin: 0;
+}
+
+.state-message {
+  font-size: .9rem;
+  margin: 0;
+}
+
+.state-spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--line);
+  border-top-color: var(--dawn);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .state-spinner { animation: none; border-top-color: var(--dawn); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.state-error { color: var(--red); }
+.state-denied { color: var(--orange, var(--ink-muted)); }
+
+.state-stale-wrapper { position: relative; }
+
+.state-stale-banner {
+  background: color-mix(in srgb, var(--yellow, #f5c518) 15%, var(--panel));
+  color: var(--ink-muted);
+  font-size: .75rem;
+  padding: var(--sp-1) var(--sp-3);
+  border-radius: var(--r-sm);
+  margin-bottom: var(--sp-2);
+  text-align: center;
+}

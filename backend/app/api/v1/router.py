@@ -17,11 +17,23 @@ from app.api.v1 import (
     autonomy,
     calendar_export,
     ops,
+    identity,
+    tenant,
+    canonical_events,
+    work_items,
+    inbox,
+    threads,
+    service_requests,
+    campus,
+    course_updates,
+    trust,
 )
 
 api_router = APIRouter()
 
 api_router.include_router(health.router, tags=["health"])
+api_router.include_router(identity.router, tags=["identity"])   # U1
+api_router.include_router(tenant.router, tags=["tenant"])       # U2
 api_router.include_router(events.router, prefix="/events", tags=["events"])
 api_router.include_router(tasks.router, prefix="/tasks", tags=["tasks"])
 api_router.include_router(announcements.router, prefix="/announcements", tags=["announcements"])
@@ -37,3 +49,11 @@ api_router.include_router(moves_router.router, prefix="/moves", tags=["moves"])
 api_router.include_router(autonomy.router, prefix="/autonomy", tags=["autonomy"])
 api_router.include_router(calendar_export.router, prefix="/calendar", tags=["calendar"])
 api_router.include_router(ops.router, prefix="/ops", tags=["ops"])
+api_router.include_router(canonical_events.router, prefix="/canonical-events", tags=["canonical-events"])  # U3
+api_router.include_router(work_items.router, prefix="/work-items", tags=["work-items"])  # U3
+api_router.include_router(inbox.router, prefix="/inbox", tags=["inbox"])  # U4
+api_router.include_router(threads.router, prefix="/canonical-events", tags=["threads"])  # U4
+api_router.include_router(service_requests.router, prefix="/service-requests", tags=["service-requests"])  # U4
+api_router.include_router(campus.router, tags=["campus"])                         # U5-3
+api_router.include_router(course_updates.router, prefix="/course-updates", tags=["course-updates"])  # U5-5
+api_router.include_router(trust.router, prefix="/trust", tags=["trust"])          # U6-6

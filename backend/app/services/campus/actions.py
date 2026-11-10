@@ -143,7 +143,11 @@ def execute_action(db: Session, action: dict, move: Any) -> dict:
 def _create_calendar_block(
     db: Session, params: dict, move: Any, now: datetime
 ) -> dict:
-    """Insert a CalendarEvent with source_type='aurora_block'."""
+    """Insert a CalendarEvent with source_type='aurora_block'.
+
+    D10 fix: reject creation if the new block overlaps an existing committed
+    event (class or aurora_block) for the same user.
+    """
     from app.core.config import settings
 
     title = params.get("title", "Study Block")
@@ -153,6 +157,14 @@ def _create_calendar_block(
 
     start_utc = _parse_dt(start_str, now)
     end_utc = _parse_dt(end_str, now)
+
+    # D10: Check for overlap with existing committed events
+    overlap = _check_calendar_overlap(db, settings.demo_user_id, start_utc, end_utc)
+    if overlap:
+        raise ValueError(
+            f"Cannot create block '{title}': overlaps existing commitment "
+            f"'{overlap.title}' ({overlap.start_at_utc} – {overlap.end_at_utc})."
+        )
 
     event = CalendarEvent(
         id=str(uuid.uuid4()),
@@ -171,9 +183,34 @@ def _create_calendar_block(
     db.flush()
 
     return {
-        "result": f"Simulated: calendar block '{title}' created." if False else f"Calendar block '{title}' created.",
+        "result": f"Calendar block '{title}' created.",
         "undo_payload": {"delete_event_id": event.id},
     }
+
+
+def _check_calendar_overlap(
+    db: Session, user_id: str, start_utc: datetime, end_utc: datetime
+) -> "CalendarEvent | None":
+    """Return the first overlapping hard commitment, or None.
+
+    D10: Only checks against class events (event_type='class') and aurora_blocks.
+    Saved events (event_type='other') and personal events are NOT hard commitments
+    and must not block aurora_block creation.
+    A block that touches but does not overlap (end == other_start) is allowed.
+    """
+    start_naive = start_utc.replace(tzinfo=None) if start_utc.tzinfo else start_utc
+    end_naive = end_utc.replace(tzinfo=None) if end_utc.tzinfo else end_utc
+
+    return (
+        db.query(CalendarEvent)
+        .filter(
+            CalendarEvent.user_id == user_id,
+            CalendarEvent.event_type.in_(["class", "aurora_block"]),
+            CalendarEvent.start_at_utc < end_naive,
+            CalendarEvent.end_at_utc > start_naive,
+        )
+        .first()
+    )
 
 
 def _update_event_location(
@@ -292,10 +329,45 @@ def _book_room(
 def _request_room_change(
     db: Session, params: dict, move: Any, now: datetime
 ) -> dict:
-    """Simulated room change request — no real request is sent."""
+    """Simulated room change request.
+
+    D4 fix: actually update the CalendarEvent's location so the commitment
+    moves to the new room. This ensures that after approval, subsequent
+    evaluate() calls see the class in the new room and the ops_impact
+    detector no longer generates a new proposed move for the same incident.
+    The move stays terminal (executed_simulated) and is not re-proposed.
+    """
+    commitment_id = params.get("commitment_id")
+    proposed_room = params.get("proposed_room")
+    proposed_room_name = params.get("proposed_room_name", proposed_room)
+    old_room = params.get("current_room", "unknown")
+
+    result_text = "Simulated: no room change request was sent."
+
+    if commitment_id and proposed_room:
+        from app.core.config import settings as _settings
+        event = (
+            db.query(CalendarEvent)
+            .filter(
+                CalendarEvent.user_id == _settings.demo_user_id,
+                CalendarEvent.source_reference == commitment_id,
+            )
+            .first()
+        )
+        if event:
+            event.location_text = proposed_room_name or proposed_room
+            db.flush()
+            result_text = (
+                f"Simulated: room change applied — class moved from {old_room} "
+                f"to {proposed_room_name or proposed_room}."
+            )
+
     return {
-        "result": "Simulated: no room change request was sent.",
-        "undo_payload": {"delete_action_log_id": "__self__"},
+        "result": result_text,
+        "undo_payload": {
+            "restore_room_commitment_id": commitment_id,
+            "old_room_name": old_room,
+        },
     }
 
 
@@ -383,6 +455,25 @@ def _apply_undo(db: Session, payload: dict, log: ActionLog) -> str:
             event.location_text = payload["old_location"]
             return f"Location restored to '{payload['old_location']}'."
         return f"Event {payload['event_id']} not found."
+
+    if "restore_room_commitment_id" in payload:
+        # D4: undo a request_room_change by restoring the old room name
+        from app.core.config import settings as _settings
+        commitment_id = payload["restore_room_commitment_id"]
+        old_room_name = payload.get("old_room_name", "")
+        if commitment_id:
+            event = (
+                db.query(CalendarEvent)
+                .filter(
+                    CalendarEvent.user_id == _settings.demo_user_id,
+                    CalendarEvent.source_reference == commitment_id,
+                )
+                .first()
+            )
+            if event:
+                event.location_text = old_room_name
+                return f"Room restored to '{old_room_name}' for commitment {commitment_id}."
+        return f"Commitment {commitment_id} not found for room restore."
 
     if "delete_action_log_id" in payload:
         # For simulated/draft actions: the log itself is the artifact

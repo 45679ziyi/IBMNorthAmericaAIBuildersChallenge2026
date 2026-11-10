@@ -24,7 +24,6 @@ import pytz
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
-from app import core
 from app.core.clock import get_now, set_virtual_now
 from app.db.session import get_db
 from app.models.models import Signal, SimState
@@ -39,7 +38,6 @@ from app.services.campus.scenario import (
     get_anchor_date,
     get_or_create_sim_state,
     load_scenario,
-    reset_scenario,
     seed_scenario,
 )
 from app.services.campus.signals import (
@@ -72,12 +70,34 @@ def _state_to_response(state: SimState) -> SimStateResponse:
         applied = json.loads(state.applied_signal_ids)
     except (json.JSONDecodeError, TypeError):
         applied = []
+    dm = getattr(state, "director_mode", "off") or "off"
+    director_mode = dm if dm in ("off", "autopilot") else "off"
+    active_persona = getattr(state, "active_persona", None)
+    # Compute pending step IDs (in scenario, not yet executed)
+    pending: list[str] = []
+    if state.mode == "scenario" and state.scenario_id:
+        try:
+            from app.services.campus.scenario import load_scenario as _ls
+            sc = _ls(state.scenario_id)
+            try:
+                executed = set(json.loads(getattr(state, "executed_step_ids", "[]") or "[]"))
+            except Exception:
+                executed = set()
+            pending = [
+                s["id"] for s in sc.get("timeline", [])
+                if s.get("id") and s["id"] not in executed
+            ]
+        except Exception:
+            pass
     return SimStateResponse(
         mode=state.mode,
         scenario_id=state.scenario_id,
         anchor_date=state.anchor_date,
         virtual_now=_ensure_utc(state.virtual_now),
         applied_signal_ids=applied,
+        director_mode=director_mode,
+        active_persona=active_persona,
+        pending_step_ids=pending,
     )
 
 
@@ -252,9 +272,47 @@ def advance_scenario(body: SimAdvanceRequest, db: Session = Depends(get_db)):
     # Apply signals in range (current, new_utc]
     _seed_and_apply_up_to(db, scenario, anchor, state, new_utc)
 
+    # U3 Director: run autopilot steps if enabled
+    director_mode = getattr(state, "director_mode", "off") or "off"
+    if director_mode == "autopilot":
+        _run_autopilot_steps(db, state, scenario, anchor, new_utc)
+
     # M2 planning engine evaluation
     _run_evaluate(db)
 
+    db.refresh(state)
+    return _state_to_response(state)
+
+
+# ─── Director endpoints ────────────────────────────────────────────────────────
+
+@router.post("/director", response_model=SimStateResponse)
+def set_director(body: dict, db: Session = Depends(get_db)):
+    """Set director mode: autopilot | off."""
+    mode = body.get("mode", "off")
+    if mode not in ("autopilot", "off"):
+        raise HTTPException(status_code=400, detail="mode must be 'autopilot' or 'off'.")
+    state = get_or_create_sim_state(db)
+    state.director_mode = mode
+    db.commit()
+    db.refresh(state)
+    return _state_to_response(state)
+
+
+@router.post("/take-over", response_model=SimStateResponse)
+def take_over(body: dict, db: Session = Depends(get_db)):
+    """Human takes over from autopilot for a specific persona."""
+    from app.core.tenancy import KNOWN_PERSONAS
+    persona = body.get("persona")
+    if not persona:
+        raise HTTPException(status_code=400, detail="'persona' is required.")
+    if persona not in KNOWN_PERSONAS:
+        raise HTTPException(status_code=400, detail=f"Unknown persona '{persona}'.")
+    state = get_or_create_sim_state(db)
+    state.active_persona = persona
+    # Switch off autopilot since human is taking over
+    state.director_mode = "off"
+    db.commit()
     db.refresh(state)
     return _state_to_response(state)
 
@@ -355,3 +413,141 @@ def _run_evaluate(db: Session) -> None:
     """Run the M2 planning engine evaluate()."""
     from app.services.campus.engine import evaluate
     evaluate(db, get_now())
+
+
+# ─── Autopilot ────────────────────────────────────────────────────────────────
+
+def _run_autopilot_steps(
+    db: Session,
+    state: "SimState",
+    scenario: dict,
+    anchor: "date",
+    up_to_utc: "datetime",
+) -> None:
+    """Execute scenario timeline steps marked autopilot=true up to up_to_utc.
+
+    Steps are identified by their 'id' in the scenario timeline.
+    If a human has already executed a step (it's in executed_step_ids), skip it.
+    Actor mode is set to 'autopilot' in the audit record.
+    """
+    import json as _json
+    from app.core.tenancy import ActorContext
+
+    try:
+        executed_ids: set = set(_json.loads(state.executed_step_ids or "[]"))
+    except (ValueError, TypeError):
+        executed_ids = set()
+
+    timeline = scenario.get("timeline", [])
+    up_to_naive = up_to_utc.replace(tzinfo=None) if up_to_utc.tzinfo else up_to_utc
+
+    for step in timeline:
+        if not step.get("autopilot"):
+            continue
+        step_id = step.get("id", "")
+        if step_id in executed_ids:
+            continue
+
+        # Check if this step's time is within range
+        step_at_str = step.get("at", "")
+        if step_at_str:
+            try:
+                step_utc = _hhmm_to_utc(anchor, step_at_str)
+                step_naive = step_utc.replace(tzinfo=None)
+                if step_naive > up_to_naive:
+                    continue
+            except (ValueError, KeyError):
+                continue
+
+        # Determine actor for this autopilot step
+        actor_id = step.get("actor", state.active_persona or "facilities_morgan")
+        from app.core.tenancy import KNOWN_PERSONAS
+        role = KNOWN_PERSONAS.get(actor_id, "facilities")
+        autopilot_actor = ActorContext(actor_id=actor_id, role=role)
+
+        # Execute step action
+        action = step.get("action")
+        if action:
+            _execute_autopilot_action(db, step, autopilot_actor)
+
+        executed_ids.add(step_id)
+
+    state.executed_step_ids = _json.dumps(sorted(executed_ids))
+    db.commit()
+
+
+def _execute_autopilot_action(
+    db: Session,
+    step: dict,
+    actor: object,
+) -> None:
+    """Execute a single autopilot step action via the same service paths as human."""
+    from app.services.workflows.engine import engine as wf_engine, TransitionRequest
+    from app.models.models import WorkItem
+
+    action_type = step.get("action", {}).get("type") if isinstance(step.get("action"), dict) else step.get("action")
+
+    if action_type == "workflow_transition":
+        work_item_ref = step.get("action", {}).get("work_item_ref")
+        action_name = step.get("action", {}).get("transition")
+        payload = step.get("action", {}).get("payload", {})
+
+        if work_item_ref and action_name:
+            # Find work item by canonical_event_id or direct ID
+            wi = db.query(WorkItem).filter(
+                (WorkItem.id == work_item_ref) |
+                (WorkItem.canonical_event_id == work_item_ref)
+            ).first()
+            if wi is not None:
+                req = TransitionRequest(
+                    action=action_name,
+                    payload=payload,
+                    actor_mode="autopilot",
+                )
+                try:
+                    wf_engine.advance(db, wi, req, actor)
+                    db.commit()
+                except Exception:
+                    # Autopilot steps never crash the advance endpoint
+                    db.rollback()
+
+
+# ─── U5-7: Director endpoints ─────────────────────────────────────────────────
+
+from pydantic import BaseModel as _BaseModel
+from app.core.tenancy import KNOWN_PERSONAS as _KNOWN_PERSONAS
+
+_VALID_DIRECTOR_MODES = {"off", "autopilot"}
+
+
+class DirectorBody(_BaseModel):
+    mode: str = "autopilot"
+
+
+class TakeOverBody(_BaseModel):
+    persona: str = "facilities_morgan"
+
+
+@router.post("/director", response_model=SimStateResponse)
+def set_director_mode(body: DirectorBody, db: Session = Depends(get_db)):
+    """Enable or disable autopilot (director mode)."""
+    if body.mode not in _VALID_DIRECTOR_MODES:
+        raise HTTPException(status_code=400, detail=f"mode must be one of {sorted(_VALID_DIRECTOR_MODES)}")
+    state = get_or_create_sim_state(db)
+    state.director_mode = body.mode
+    db.commit()
+    db.refresh(state)
+    return _state_to_response(state)
+
+
+@router.post("/take-over", response_model=SimStateResponse)
+def take_over(body: TakeOverBody, db: Session = Depends(get_db)):
+    """Switch active persona for hands-on decision taking."""
+    if body.persona not in _KNOWN_PERSONAS:
+        raise HTTPException(status_code=400, detail=f"Unknown persona '{body.persona}'")
+    state = get_or_create_sim_state(db)
+    state.active_persona = body.persona
+    state.director_mode = "off"
+    db.commit()
+    db.refresh(state)
+    return _state_to_response(state)

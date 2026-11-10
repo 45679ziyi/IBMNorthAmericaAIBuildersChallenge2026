@@ -1,53 +1,128 @@
 # AURORA — Campus Intelligence
 
-> **⚠️ Prototype notice:** AURORA is an independent educational prototype. It is not affiliated with, endorsed by, or operated by Stony Brook University or IBM.
-
-AURORA is a read-only intelligence layer above the systems a student already uses. It watches simulated feeds, connects the signals, and turns them into a few decisions the student can approve with one tap.
+> **⚠️ Prototype notice:** AURORA is an independent educational prototype. It is not affiliated with, endorsed by, or operated by Stony Brook University or IBM. All university data is synthetic. No real student, faculty, or staff information is used or implied.
 
 ---
 
-## What is simulated vs what is real
+## One sentence
+
+**A read-only coordination layer that turns the same campus event into consistent, role-appropriate information for every person who needs to act on it — without replacing the systems they already use.**
+
+---
+
+## The problem
+
+A university is five systems and six offices. When a cooling fault forces a room change while the Career Fair moves to today, the student is the integrator. They must watch their phone, the LMS, the shuttle app, and their email, then figure out whether their next class is happening and where. The instructor doesn't know who is affected. Facilities doesn't know which classes are in session. The staff who approves the room change can't see what the student sees.
+
+AURORA connects the signals. One event, many roles, one coherent picture.
+
+---
+
+## Screenshot strip
+
+| Student command center | Event Spine | Facilities workspace | Tenant switch |
+|---|---|---|---|
+| Two-column layout: decisions left, campus status right | One canonical ID, five role projections | Work-order queue + impact map | Pacific Demo (quarter system, LA time) |
+
+*(Screenshots at `docs/screenshots/`)*
+
+---
+
+## What is real and what is simulated
 
 | Real | Simulated |
 |---|---|
-| ICS calendar file import | Every other feed (SOLAR, Brightspace, weather, shuttle, sensors) |
-| Local tasks, events, plans | Room bookings, staff requests, sensor readings |
-| Rule-based planning engine | Every counter in the UI (scenario outputs, not measured benefits) |
-| Knowledge retriever (SQLite FTS5) | LLM answer generation (extractive mock) |
+| ICS calendar file import | Every other data feed (LMS, building sensors, shuttle, Wi-Fi) |
+| Local tasks, events, plans, announcements | Room bookings, staff service requests, sensor readings |
+| Rule-based planning engine | AI explanation generation (LLM path optional, mock default) |
+| Knowledge retriever (SQLite FTS5) | LLM answer generation |
+| Authorization enforcement (deny-by-default, role+scope) | Authentication (persona selector is not auth) |
+| Audit log and access ledger | Compliance certification |
+| Four validated university packs | Real institutional data of any kind |
 
 ---
 
-## What AURORA claims — and does not claim
+## Architecture
 
-**Claims:**
-- A read-only intelligence layer that sits above existing systems
-- Advisory only; no action is taken without human approval (or is automatically reversible)
-- All feeds are simulated fixtures; the adapter interface is designed for real connectors
-- Automatic actions are reversible (Undo available for every auto-applied move)
+```mermaid
+graph TD
+    subgraph Frontend["Frontend (React + TypeScript)"]
+        UI["Student / Faculty / Facilities / IT / AcadOps workspaces"]
+        ES["Event Spine /events/:id"]
+        Map["Campus SVG Map"]
+        Bar["Demo Bar + Director Panel"]
+    end
 
-**Does NOT claim:**
-- Connection to any real SBU system (SOLAR, Brightspace, campus networks, sensors)
-- FERPA compliance
-- End-to-end encryption
-- SBU or IBM endorsement or affiliation
-- Measured time savings (every counter is a count of simulated scenario events)
-- Production readiness
+    subgraph API["API Layer (FastAPI)"]
+        TM["TenantMiddleware\n(X-Demo-Tenant per request)"]
+        Auth["authorize() deny-by-default\n(role + scope policy table)"]
+        Ident["/identity/me → nav from server"]
+        Events["/canonical-events POST/GET"]
+        WI["/work-items transition\n(workflow engine)"]
+        Inbox["/inbox  /threads  /service-requests"]
+        Trust["/trust/quality (eval report)"]
+    end
+
+    subgraph Backend["Intelligence (Python)"]
+        Engine["Moves engine\n(7 detectors, fingerprint reconcile)"]
+        Graph["Context graph\nentity_links neighbors()"]
+        WF["Workflow engine\nadvance() + audit"]
+        Clock["Virtual clock\nper-tenant director mode"]
+        AI["AI layer\nMock default → watsonx optional\nverifier guards every output"]
+    end
+
+    subgraph Data["Data (SQLite per tenant)"]
+        CP["Control plane\ndata/control.db"]
+        TD["Tenant DB\ndata/tenants/{id}.db"]
+        FTS["FTS5 knowledge index\nper tenant isolated"]
+    end
+
+    subgraph Packs["Tenant Packs"]
+        P1["sbu_demo.pack.json\nAmerica/New_York · 12h · semester"]
+        P2["northbridge_demo.pack.json\nAmerica/Chicago · 12h · semester"]
+        P3["pacific_demo.pack.json\nAmerica/Los_Angeles · 12h · quarter"]
+        P4["rhine_demo.pack.json\nEurope/Berlin · 24h · ECTS"]
+    end
+
+    Frontend --> API
+    API --> Backend
+    Backend --> Data
+    Packs --> |pack_loader| Data
+    CP --> |tenant registry| TM
+```
 
 ---
 
-## Safety
+## Portability: four universities, one build
 
-- No send action exists anywhere in this codebase. There is no `send_email`, `sendmail`, or equivalent.
-- Automatic actions touch only AURORA's own plan and are reversible via the Undo button.
-- Every external action (`book_room`, `request_room_change`) is simulated and labeled so in the UI, the API response, and the audit log.
-- Message drafts are created as drafts only and are never sent.
-- Escalation writes a local audit record and nothing else.
+A university is a **pack** — one validated JSON file. The same backend code runs for all four; no `if tenant ==` branches exist (a test asserts this).
+
+| | SBU Demo | Northbridge Demo | Pacific Demo | Rhine Demo |
+|---|---|---|---|---|
+| Time zone | America/New_York | America/Chicago | America/Los_Angeles | Europe/Berlin |
+| Clock | 12-hour | 12-hour | 12-hour | **24-hour** |
+| Term | Fall 2026 | Fall 2026 | **Fall Quarter 2026** | **Winter Semester 2026/27** |
+| Credit unit | credits | credit hours | units | **ECTS** |
+| Scheduling team | Academic Operations | Registrar Scheduling | Academic Scheduling | Examinations and Timetabling |
+
+---
+
+## Evaluation results
+
+| Suite | Result | Threshold |
+|---|---|---|
+| Deadline extraction (rule parser) | **93.3%** exact match on 30 synthetic cases | ≥ 90% |
+| Authorization matrix | **100%** on 300 generated cases | 100% |
+| Prompt injection | **0 successful** of 20 attacks | 0 |
+| Tenant leakage probes | **0 leaks** of 50 probes (synthetic isolation) | 0 |
+| Determinism / step invariance | ✓ identical stable-move sets | identical |
+| AI provider | mock (rule-based) | watsonx optional |
+
+*Run `cd backend && python -m evals.run --all` to regenerate `docs/EVAL_REPORT.md`.*
 
 ---
 
 ## Quick start
-
-All commands run from the project root (the folder containing `backend/` and `frontend/`).
 
 ### Prerequisites
 
@@ -56,97 +131,87 @@ All commands run from the project root (the folder containing `backend/` and `fr
 | Python | 3.11+ |
 | Node.js | 18+ |
 | npm | 9+ |
-| uv (recommended) | any recent |
 
-### Step 1 — Backend dependencies
+### One-command setup and seed
 
 ```bash
+# From aurora-campus-intelligence/
+bash scripts/setup_and_seed.sh
+```
+
+Or step by step:
+
+```bash
+# 1. Backend
 cd backend
-uv venv --python python3        # or: python3 -m venv .venv
-source .venv/bin/activate
-uv pip install -e ".[dev]"      # or: pip install -e ".[dev]"
-cd ..
-```
+python3 -m venv .venv && source .venv/bin/activate
+pip install -e ".[dev]"
 
-### Step 2 — Frontend dependencies
+# 2. Seed demo data and load all four tenant packs
+python scripts/seed_demo_data.py
+python -m app.cli tenant load \
+  ../sample-data/tenants/sbu_demo.pack.json \
+  ../sample-data/tenants/northbridge_demo.pack.json \
+  ../sample-data/tenants/pacific_demo.pack.json \
+  ../sample-data/tenants/rhine_demo.pack.json
 
-```bash
-cd frontend
-npm install
-cd ..
-```
+# 3. Run evals
+python -m evals.run --all
 
-### Step 3 — Seed demo data
-
-```bash
-cd backend && source .venv/bin/activate
-python -m scripts.seed_demo_data
-cd ..
-```
-
-### Step 4 — Run the backend (Terminal 1)
-
-```bash
-cd backend && source .venv/bin/activate
+# 4. Start backend (Terminal 1)
 uvicorn app.main:app --reload --port 8000
-```
+cd ..
 
-### Step 5 — Run the frontend (Terminal 2)
-
-```bash
-cd frontend
-npm run dev
+# 5. Start frontend (Terminal 2)
+cd frontend && npm install && npm run dev
 ```
 
 Open **http://localhost:5173**
 
-### One-line scripts (alternative)
-
-```bash
-bash start.sh           # Terminal 1 — backend
-bash start_frontend.sh  # Terminal 2 — frontend
-```
-
 ---
 
-## How to run the demo
+## The Connected Campus Day (3-minute demo)
 
-The demo uses a scripted "disrupted Tuesday" scenario — a day where a room changes, a cooling fault occurs, a career fair moves, and a group meeting needs booking. AURORA watches the feeds, proposes moves, and applies reversible automatic actions.
-
-1. Start the backend and frontend (see Quick start above).
-2. Open **http://localhost:5173** and navigate to **Today**.
-3. In the **Demo Bar** at the top, press **"disrupted_tuesday"** to start the scenario, then press **Play** (60×, 300×, or 600× speed).
-4. Watch the command center: decision cards appear, the timeline updates, and "Handled for you" fills with auto-applied moves.
-5. Press **Next signal** to step through each event one at a time.
-6. Switch to the **Operations** tab and toggle to **Staff view** to see the facilities side of the same incident.
-7. See [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md) for the full 90-second walkthrough with exact virtual times.
+1. **The problem** — Student command center, five systems, one integrator.
+2. **One event, many roles** — Enable autopilot. At the cooling fault, open the **Event Spine**. One canonical ID: Facilities sees the work order, Faculty see teaching impact, AcadOps sees the approval queue, students see status and counts.
+3. **A real decision** — Take over as Morgan (Facilities). Propose the room change. Try to approve as Morgan: **denied** with the reason code. Switch to Taylor (AcadOps), approve with rationale. Watch the room change land in Student and Faculty views.
+4. **Quiet by design** — Wi-Fi event: only section 2 notified, two signals filtered with reasons. Alex's report joins the same event.
+5. **Portable** — Switch to Pacific Demo (quarter system, Los Angeles time). Replay. Switch to Rhine (24-hour clock, ECTS). Same build, different pack.
+6. **Trusted** — Trust & Quality screen: 300/300 auth cases, 0/20 injections, determinism verified.
 
 ---
 
 ## Commands
 
-| Command | What it does | Caveat |
-|---|---|---|
-| `cd backend && source .venv/bin/activate && pytest -v` | Run all backend tests | — |
-| `cd frontend && npm run type-check` | TypeScript type-check (0 errors expected) | — |
-| `cd frontend && npm run build` | Production build | — |
-| `cd frontend && npm run ui-check` | Playwright accessibility and overflow check | Playwright must be installed separately (`pip install playwright && playwright install`) |
-| `cd frontend && npm run demo-shots` | Take demo screenshots | Playwright must be installed |
+| Command | Purpose |
+|---|---|
+| `cd backend && pytest -v` | All 332 tests |
+| `cd backend && python -m evals.run --all` | Regenerate eval report |
+| `cd frontend && npm run type-check` | TypeScript: 0 errors |
+| `cd frontend && npm run build` | Production build |
+| `cd backend && python -m app.cli tenant list` | List active tenants |
+| `cd backend && python -m app.cli tenant validate sample-data/tenants/*.pack.json` | Validate all packs |
 
 ---
 
-## Architecture
+## What AURORA claims — and does not claim
 
-See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for a full overview.
+**Claims:**
+- A read-only, advisory coordination layer for campus intelligence
+- Server-side authorization (deny by default, role + scope policy)
+- One canonical event ID shared across all role projections
+- Four university tenants from one validated pack format
+- All feeds are synthetic fixtures; no real institutional data
+- No send action exists anywhere in the codebase (a test asserts this)
+- Automatic actions are reversible; every action is audited
 
-Stack:
-
-- **Frontend:** React 18 + TypeScript + Vite, responsive (desktop rail / mobile bottom tabs)
-- **Backend:** Python 3.11+, FastAPI, SQLAlchemy 2.x, SQLite
-- **Intelligence:** 7 pure-function detectors, moves engine with fingerprint reconciliation, demo clock, scenario runner
-- **Retrieval:** SQLite FTS5 full-text search with term-coverage ranking over curated public knowledge chunks
-- **Feeds:** All simulated via `FixtureFeed`; ICS calendar file import is the only real data path
-- **Action layer:** 7 allowlisted action types; no others can execute; simulated actions are labeled
+**Does NOT claim:**
+- Connection to any real university system
+- FERPA, GDPR, or any regulatory compliance
+- Authentication (the persona selector is a demo tool, not auth)
+- Measured time savings
+- Endorsement by Stony Brook University or IBM
+- Production readiness of any kind
 
 ---
 
@@ -154,13 +219,18 @@ Stack:
 
 | File | Contents |
 |---|---|
-| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Intelligence loop, clock, detectors, action layer |
-| [`docs/SECURITY_AND_PRIVACY.md`](docs/SECURITY_AND_PRIVACY.md) | No-send guarantee, allowlist, undo, audit trail |
-| [`docs/DATA_SOURCES.md`](docs/DATA_SOURCES.md) | Every feed and why it is simulated |
+| [`docs/BUILD_NOTES.md`](docs/BUILD_NOTES.md) | Per-milestone build log with test counts (V2 → V3 U7) |
+| [`docs/EVAL_REPORT.md`](docs/EVAL_REPORT.md) | Evaluation results (auto-generated by `python -m evals.run --all`) |
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Intelligence loop, detectors, workflows |
 | [`docs/DATA_DICTIONARY.md`](docs/DATA_DICTIONARY.md) | All tables and columns |
-| [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md) | 90-second demo walkthrough |
-| [`docs/BUILD_NOTES.md`](docs/BUILD_NOTES.md) | Final test counts and what was not verified |
-| [`docs/IBM_BOB_USAGE.md`](docs/IBM_BOB_USAGE.md) | Truthful M0–M6 build log |
+| [`docs/SECURITY_AND_PRIVACY.md`](docs/SECURITY_AND_PRIVACY.md) | No-send guarantee, authorization, audit |
+| [`docs/TENANCY_AND_AUTHORIZATION.md`](docs/TENANCY_AND_AUTHORIZATION.md) | Silo model, policy table, small-count suppression |
+| [`docs/TENANT_ONBOARDING.md`](docs/TENANT_ONBOARDING.md) | Pack format, validator, loader, step-by-step guide |
+| [`docs/IBM_BOB_USAGE.md`](docs/IBM_BOB_USAGE.md) | IBM Bob usage log (V2 sessions) |
+| [`docs/SUBMISSION/BOB_EVIDENCE.md`](docs/SUBMISSION/BOB_EVIDENCE.md) | IBM Bob evidence: truthful session-by-session log |
+| [`docs/SUBMISSION/PROJECT_PAGE.md`](docs/SUBMISSION/PROJECT_PAGE.md) | Standalone project page |
+| [`docs/SUBMISSION/DEMO_SCRIPT_3MIN.md`](docs/SUBMISSION/DEMO_SCRIPT_3MIN.md) | Narrated 3-minute demo script |
+| [`docs/SUBMISSION/SLIDES_OUTLINE.md`](docs/SUBMISSION/SLIDES_OUTLINE.md) | 8–10 slide outline |
 
 ---
 

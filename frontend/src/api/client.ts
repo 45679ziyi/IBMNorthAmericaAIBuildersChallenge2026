@@ -1,15 +1,34 @@
 /**
  * AURORA API client — typed fetch wrapper.
  * All calls target /api/v1 (proxied to FastAPI in dev, direct in prod).
+ *
+ * U1: Every request carries X-Demo-Tenant and X-Demo-Actor headers.
+ * These are stored in module-level mutable state and updated by the
+ * tenant/persona switchers.
  */
 
-import { CAMPUS_TZ } from '../lib/time'
+import { getTz } from '../lib/time'
 
 const BASE = '/api/v1'
 
+// ── U1: Demo context headers ────────────────────────────────────────────────
+
+let _currentTenant = 'sbu_demo'
+let _currentActor  = 'student_alex'
+
+export function setDemoTenant(id: string) { _currentTenant = id }
+export function setDemoActor(id: string)  { _currentActor  = id }
+export function getDemoTenant()           { return _currentTenant }
+export function getDemoActor()            { return _currentActor  }
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json', ...init?.headers },
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Demo-Tenant': _currentTenant,
+      'X-Demo-Actor':  _currentActor,
+      ...init?.headers,
+    },
     ...init,
   })
   if (!res.ok) {
@@ -316,7 +335,7 @@ export const markAllAnnouncementsRead = () =>
   request<{ marked: number }>('/announcements/mark-all-read', { method: 'POST' })
 
 // Plans
-export const generatePlan = (plan_date: string, timezone = CAMPUS_TZ) =>
+export const generatePlan = (plan_date: string, timezone = getTz()) =>
   request<DailyPlan>('/plans/generate', {
     method: 'POST',
     body: JSON.stringify({ plan_date, timezone }),
@@ -398,3 +417,317 @@ export const approveMitigation = (incidentId: string) =>
     `/ops/incidents/${incidentId}/approve-mitigation`,
     { method: 'POST' }
   )
+
+// ── U1: Identity ──────────────────────────────────────────────────────────────
+
+export interface PersonaInfo {
+  id: string
+  display_name: string
+  role: string
+  has_personal_data: boolean
+}
+
+export interface NavItem {
+  key: string
+  label: string
+  path: string
+}
+
+export interface IdentityMe {
+  actor_id: string
+  role: string
+  display_name: string
+  tenant: string
+  has_personal_data: boolean
+  capabilities: string[]
+  nav: NavItem[]
+  auth_mode: string
+  disclaimer: string
+}
+
+export const getPersonas   = () => request<PersonaInfo[]>('/identity/personas')
+export const getIdentityMe = () => request<IdentityMe>('/identity/me')
+export const getEffectivePermissions = () =>
+  request<Array<{ action: string; allowed: boolean; reason_code: string }>>('/identity/effective-permissions')
+
+// ── U2: Tenant ─────────────────────────────────────────────────────────────────
+
+export interface TenantConfig {
+  tenant_id: string
+  time_zone: string
+  clock: '12h' | '24h'
+  week_start: 'sunday' | 'monday'
+  course_code_format: string
+  room_code_format: string
+  credit_unit: string
+  role_vocabulary: Record<string, string>
+  min_cell_size: number
+}
+
+export interface TenantSummary {
+  id: string
+  name: string
+  is_default: boolean
+}
+
+export const getTenantConfig  = () => request<TenantConfig>('/tenant/config')
+export const listTenants      = () => request<TenantSummary[]>('/tenants')
+
+// ── U4: Inbox + Service Requests ───────────────────────────────────────────
+
+export interface WhyEntry {
+  rel: string
+  entity_type: string
+  entity_id: string
+  text: string
+}
+
+export interface InboxNotification {
+  id: string
+  canonical_event_id?: string
+  work_item_id?: string
+  recipient_person_id: string
+  kind: string
+  title: string
+  body: string
+  why: WhyEntry[]
+  state: 'unread' | 'read' | 'acknowledged'
+  requires_ack: boolean
+  data_origin: string
+  created_at: string
+  read_at?: string
+}
+
+export interface NotificationPref {
+  id: string
+  person_id: string
+  category: string
+  enabled: boolean
+}
+
+export interface ServiceRequest {
+  id: string
+  tenant_id: string
+  requester_person_id: string
+  service_id: string
+  title: string
+  body: string
+  status: string
+  assigned_team_id?: string
+  version: number
+  data_origin: string
+  created_at: string
+  updated_at: string
+}
+
+export const fetchInbox           = () => request<InboxNotification[]>('/inbox')
+export const fetchInboxUnread     = () => request<{ unread: number }>('/inbox/unread-count')
+export const markInboxRead        = (id: string) =>
+  request<InboxNotification>(`/inbox/${id}/read`, { method: 'POST' })
+export const markInboxAck         = (id: string) =>
+  request<InboxNotification>(`/inbox/${id}/ack`, { method: 'POST' })
+export const fetchInboxPrefs      = () => request<NotificationPref[]>('/inbox/preferences')
+export const updateInboxPref      = (category: string, enabled: boolean) =>
+  request<NotificationPref>('/inbox/preferences', {
+    method: 'PUT',
+    body: JSON.stringify({ category, enabled }),
+  })
+
+export const createServiceRequest = (payload: { service_id: string; title: string; body?: string }) =>
+  request<ServiceRequest>('/service-requests', { method: 'POST', body: JSON.stringify(payload) })
+export const fetchServiceRequests = () => request<ServiceRequest[]>('/service-requests')
+export const transitionServiceRequest = (id: string, target_status: string) =>
+  request<ServiceRequest>(`/service-requests/${id}/transition`, {
+    method: 'POST',
+    body: JSON.stringify({ target_status }),
+  })
+
+// ── Canonical Events (U5) ──────────────────────────────────────────────────
+
+export interface CanonicalEvent {
+  id: string
+  tenant_id: string
+  type: string
+  status: string
+  severity: string
+  correlation_id?: string
+  idempotency_key: string
+  source_feed?: string
+  source_record_id?: string
+  occurred_at?: string
+  received_at: string
+  entity_refs: Array<{ type: string; id: string }>
+  classification: string
+  corroborations: number
+  schema_version: string
+  last_actor?: string
+  last_actor_mode: string
+  created_at: string
+  audience?: Record<string, string[]>
+}
+
+export interface ReachResponse {
+  canonical_event_id: string
+  audience_counts: Record<string, number>
+  audience_ids?: Record<string, string[]>
+}
+
+export interface ThreadMessage {
+  id: string
+  thread_id: string
+  author_person_id: string
+  body: string
+  data_origin: string
+  created_at: string
+}
+
+export interface Thread {
+  id: string
+  canonical_event_id?: string
+  work_item_id?: string
+  service_request_id?: string
+  title: string
+  created_at: string
+  messages: ThreadMessage[]
+}
+
+export interface WorkItem {
+  id: string
+  canonical_event_id?: string
+  workflow_type: string
+  status: string
+  version: number
+  owner_person_id?: string
+  assigned_team_id?: string
+  tenant_id: string
+  payload: Record<string, unknown>
+  required_next_fields: string[]
+  created_at: string
+  updated_at: string
+}
+
+export const getCanonicalEvent     = (id: string) => request<CanonicalEvent>(`/canonical-events/${id}`)
+export const getCanonicalEventReach = (id: string) => request<ReachResponse>(`/canonical-events/${id}/reach`)
+export const getCanonicalEventThread = (id: string) => request<Thread>(`/canonical-events/${id}/thread`)
+export const postThreadMessage     = (id: string, body: string) =>
+  request<ThreadMessage>(`/canonical-events/${id}/thread`, {
+    method: 'POST',
+    body: JSON.stringify({ body }),
+  })
+
+export const getWorkItems = (params?: {
+  workflow_type?: string
+  status?: string
+  canonical_event_id?: string
+  team?: string
+}) => {
+  const q = new URLSearchParams()
+  if (params?.workflow_type) q.set('workflow_type', params.workflow_type)
+  if (params?.status) q.set('status', params.status)
+  if (params?.canonical_event_id) q.set('canonical_event_id', params.canonical_event_id)
+  if (params?.team) q.set('team', params.team)
+  const qs = q.toString()
+  return request<WorkItem[]>(`/work-items${qs ? '?' + qs : ''}`)
+}
+
+export const transitionWorkItem = (id: string, action: string, payload: Record<string, unknown> = {}, rationale?: string) =>
+  request<{ work_item_id: string; from_status: string; to_status: string; version: number; transition_id: string }>(
+    `/work-items/${id}/transition`, {
+      method: 'POST',
+      body: JSON.stringify({ action, payload, rationale }),
+    })
+
+// ── Campus Buildings (U5-3) ───────────────────────────────────────────────
+
+export interface Building {
+  id: string
+  code: string
+  name: string
+  x: number
+  y: number
+  floors: number
+  kind: string
+}
+
+export const getCampusBuildings = () => request<Building[]>('/campus/buildings')
+export const getCampusIncidents = () => request<CanonicalEvent[]>('/campus/incidents')
+
+// ── Course Updates (U5-5) ─────────────────────────────────────────────────
+
+export interface DeadlineExtraction {
+  title?: string
+  due_date?: string
+  due_time?: string
+  est_minutes?: number
+  confidence: number
+  quote?: string
+}
+
+export interface CourseUpdateDraft {
+  id: string
+  section_id: string
+  text: string
+  status: string
+  extracted: DeadlineExtraction
+  ai_run_id?: string
+  created_at: string
+  updated_at: string
+}
+
+export const createCourseUpdateDraft = (section_id: string, text: string) =>
+  request<CourseUpdateDraft>('/course-updates/drafts', {
+    method: 'POST',
+    body: JSON.stringify({ section_id, text }),
+  })
+
+export const getCourseUpdate        = (id: string) => request<CourseUpdateDraft>(`/course-updates/${id}`)
+export const previewCourseUpdate    = (id: string) =>
+  request<{ preview: string; recipients: number }>(`/course-updates/${id}/preview`, { method: 'POST' })
+export const approveCourseUpdate    = (id: string) =>
+  request<{ status: string; notifications_created: number }>(`/course-updates/${id}/approve`, { method: 'POST' })
+
+// ── Sim Director (U5-7) ───────────────────────────────────────────────────
+
+export interface DirectorState {
+  mode: 'real' | 'scenario'
+  scenario_id: string | null
+  anchor_date: string | null
+  virtual_now: string | null
+  applied_signal_ids: string[]
+  director_mode: string        // "off" | "autopilot"
+  active_persona: string | null
+  pending_step_ids: string[]
+}
+
+export const getDirectorState  = () => request<DirectorState>('/sim/state')
+export const setDirectorMode   = (enabled: boolean) =>
+  request<DirectorState>('/sim/director', { method: 'POST', body: JSON.stringify({ mode: enabled ? 'autopilot' : 'off' }) })
+export const simTakeOver       = () =>
+  request<DirectorState>('/sim/take-over', { method: 'POST' })
+
+// ── Trust & Quality (U6-6) ────────────────────────────────────────────────
+
+export interface TrustQuality {
+  authorization: { cases: number; pass_rate: number }
+  deadline_extraction: { cases: number; exact_match: number } | { status: string }
+  retrieval: { cases: number; coverage_accuracy: number } | { status: string }
+  injection: { cases: number; successful_injections: number } | { status: string }
+  tenant_leakage: { probes: number; leaks: number } | { status: string }
+  determinism: { tenants: number; identical_hashes: boolean } | { status: string }
+  ai_provider: string
+  watsonx_configured: boolean
+}
+
+export const getTrustQuality = () => request<TrustQuality>('/trust/quality')
+
+// ── AI Runs badge (U6-3) ──────────────────────────────────────────────────
+
+export interface AIRun {
+  id: string
+  task: string
+  provider: string
+  validated: boolean
+  fallback_used: boolean
+  latency_ms?: number
+  created_at: string
+}

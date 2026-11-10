@@ -1,6 +1,7 @@
 /* TodayScreen — token-only colors. No hex values. */
 
-.today-screen { max-width: 720px; }
+/* D6 fix: full-width at all sizes; inner two-column grid takes over at ≥1024 px */
+.today-screen { max-width: 1400px; }
 
 /* ── Header ─────────────────────────────────────────────────────────────── */
 .today-header {
@@ -110,6 +111,31 @@
   .progress-bar-fill { transition: none; }
 }
 
+/* ── D6: Two-column command center ─────────────────────────────────────── */
+.today-command-center {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-6);
+}
+
+@media (min-width: 1024px) {
+  .today-command-center {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: var(--sp-6);
+  }
+  .today-col-timeline {
+    flex: 0 0 420px;
+    position: sticky;
+    top: var(--sp-4);
+  }
+  .today-col-decisions {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
 /* ── Sections ───────────────────────────────────────────────────────────── */
 .today-section { margin-bottom: var(--sp-6); }
 .section-header-row {
@@ -120,7 +146,20 @@
 }
 .section-header-row h2 { margin: 0; }
 
-/* ── Single-column timeline ─────────────────────────────────────────────── */
+/* ── D7 fix: tl-blocks-list — absolutely-positioned <ul> that fills tl-track */
+.tl-blocks-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  position: absolute;
+  inset: 0;
+  pointer-events: none; /* let child <li> handle their own pointer events */
+}
+.tl-blocks-list > li {
+  pointer-events: auto;
+}
+
+/* ── Timeline ─────────────────────────────────────────────────────────────── */
 .today-timeline {
   display: flex;
   gap: var(--sp-2);
@@ -590,3 +629,32 @@
 .autonomy-toggle:disabled { opacity: .6; cursor: wait; }
 .autonomy-locked-note { max-width: 200px; display: block; line-height: 1.4; }
 .autonomy-note { margin-top: var(--sp-4); padding-top: var(--sp-4); border-top: 1px solid var(--line); }
+
+/* ── Campus Status + Inbox Preview (U5-4) ──────────────────────────────── */
+.today-campus-ok { color: var(--ink-muted); font-size: .88rem; display: flex; align-items: center; gap: var(--sp-2); }
+
+.today-incident-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: var(--sp-2); }
+.today-incident-item { }
+.today-incident-link {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: var(--sp-2) var(--sp-3);
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md);
+  text-decoration: none; color: var(--ink);
+  font-size: .85rem;
+}
+.today-incident-link:hover { border-color: var(--dawn); }
+.today-incident-type { flex: 1; }
+.today-incident-sev { font-size: .72rem; font-weight: 600; padding: 1px 6px; border-radius: var(--r-pill); }
+.today-sev-critical { background: color-mix(in srgb, var(--red) 15%, transparent); color: var(--red); }
+.today-sev-high     { background: color-mix(in srgb, orange 15%, transparent); color: darkorange; }
+.today-sev-medium   { background: color-mix(in srgb, #f5c518 15%, transparent); color: #8a6800; }
+.today-sev-low      { background: color-mix(in srgb, var(--dawn) 12%, transparent); color: var(--dawn); }
+
+.today-inbox-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: var(--sp-2); }
+.today-inbox-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: var(--sp-2) var(--sp-3); cursor: pointer; gap: var(--sp-2);
+  font-size: .85rem;
+}
+.today-inbox-item:hover { border-color: var(--dawn); }
+.today-inbox-title { flex: 1; font-weight: 500; }

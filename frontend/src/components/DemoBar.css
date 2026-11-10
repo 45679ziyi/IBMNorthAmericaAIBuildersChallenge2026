@@ -90,3 +90,37 @@
   color: var(--violet);
   font-weight: 600;
 }
+
+/* ── Director panel (U5-7) ─────────────────────────────────────────────────── */
+.demo-bar {
+  flex-wrap: wrap;
+  height: auto;
+  min-height: 44px;
+  overflow: visible;
+}
+
+.demo-bar-director {
+  width: 100%;
+  padding: var(--sp-2) var(--sp-4) var(--sp-3);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+  border-top: 1px solid color-mix(in srgb, var(--violet) 20%, var(--line));
+  font-size: .82rem;
+}
+
+.demo-bar-director-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  cursor: pointer;
+  font-size: .82rem;
+  color: var(--ink);
+}
+
+.demo-bar-steps { margin-left: auto; }
+.demo-bar-steps-label { font-size: .72rem; color: var(--ink-muted); display: block; margin-bottom: 2px; }
+.demo-bar-steps-list { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: var(--sp-1); }
+.demo-bar-step-item { font-size: .68rem; padding: 1px 6px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-sm); color: var(--ink-muted); }
+.demo-bar-step-more { font-style: italic; }

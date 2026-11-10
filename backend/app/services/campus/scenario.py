@@ -129,7 +129,7 @@ def seed_scenario(db: Session, scenario: dict, anchor: date) -> None:
             estimated_minutes=t.get("est_minutes", 30),
             priority="normal",
             status="todo",
-            source_type="demo",
+            source_type="approved_connector",  # distinguish from legacy 'demo' tasks (D1)
             source_signal_id=None,
             provenance="scenario",
         )
@@ -141,16 +141,33 @@ def seed_scenario(db: Session, scenario: dict, anchor: date) -> None:
 # ─── Reset ────────────────────────────────────────────────────────────────────
 
 def reset_scenario(db: Session) -> None:
-    """Delete all rows tagged with scenario provenance for the demo user."""
+    """Delete all rows tagged with scenario provenance for the demo user.
+
+    D3 fix: also delete aurora_block CalendarEvents so repeated starts
+    don't accumulate extra blocks.
+
+    D1 fix: legacy demo tasks (source_type='demo') are filtered out in
+    world.py when a scenario is active (filtered by provenance/source_type),
+    so they do not need to be deleted or modified here.
+    """
     from app.models.models import Move, Signal  # avoid circular at module level
 
     user_id = settings.demo_user_id
 
+    # Delete scenario-seeded class/saved events
     db.query(CalendarEvent).filter(
         CalendarEvent.user_id == user_id,
         CalendarEvent.source_type == "scenario",
     ).delete(synchronize_session=False)
 
+    # D3: delete aurora_blocks created by previous scenario runs
+    db.query(CalendarEvent).filter(
+        CalendarEvent.user_id == user_id,
+        CalendarEvent.source_type == "aurora_block",
+    ).delete(synchronize_session=False)
+
+    # Delete scenario-seeded tasks (D1: these now use source_type='approved_connector'
+    # with provenance='scenario' to distinguish them from legacy demo tasks)
     db.query(Task).filter(
         Task.user_id == user_id,
         Task.provenance == "scenario",

@@ -1,0 +1,114 @@
+.inbox-screen {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: var(--space-4, 16px);
+}
+
+.inbox-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: var(--space-4, 16px);
+}
+
+.inbox-loading,
+.inbox-empty,
+.inbox-error {
+  padding: var(--space-8, 32px);
+  text-align: center;
+  color: var(--color-muted, #57606a);
+}
+
+.inbox-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3, 12px);
+}
+
+.inbox-item {
+  background: var(--color-surface, #f7f8fa);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 8px;
+  padding: var(--space-3, 12px) var(--space-4, 16px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 8px);
+}
+
+.inbox-item-unread {
+  border-left: 3px solid var(--color-accent, #3b82d4);
+}
+
+.inbox-item-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 8px);
+}
+
+.inbox-kind {
+  font-size: 0.75rem;
+  color: var(--color-muted, #57606a);
+  font-weight: 500;
+}
+
+.chip {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.chip-unread  { background: #dbeafe; color: #1d4ed8; }
+.chip-read    { background: #f0fdf4; color: #15803d; }
+.chip-ack     { background: #f5f3ff; color: #6d28d9; }
+
+.inbox-item-title {
+  font-weight: 600;
+  margin: 0;
+}
+
+.inbox-item-body {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-muted, #57606a);
+}
+
+.inbox-why {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-left: 2px solid var(--color-border, #e5e7eb);
+  padding-left: var(--space-3, 12px);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.inbox-why-entry {
+  font-size: 0.75rem;
+  color: var(--color-muted, #57606a);
+}
+
+.why-rel {
+  font-weight: 600;
+  color: var(--color-text, #1f2328);
+}
+
+.why-entity {
+  font-family: monospace;
+  font-size: 0.7rem;
+}
+
+.inbox-item-actions {
+  display: flex;
+  gap: var(--space-2, 8px);
+  flex-wrap: wrap;
+}
+
+.inbox-time {
+  font-size: 0.7rem;
+  color: var(--color-muted, #57606a);
+  align-self: flex-end;
+}

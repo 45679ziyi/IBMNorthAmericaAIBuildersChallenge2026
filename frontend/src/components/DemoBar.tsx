@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { RotateCcw, Play, Pause, SkipForward, Users } from 'lucide-react'
-import { advanceSim, resetSim } from '../api/client'
+import { RotateCcw, Play, Pause, SkipForward, Users, ChevronDown, ChevronUp } from 'lucide-react'
+import { advanceSim, resetSim, setDirectorMode, simTakeOver, getDirectorState } from '../api/client'
 import type { SimState } from '../api/client'
-import { CAMPUS_TZ } from '../lib/time'
+import { getTz } from '../lib/time'
 import './DemoBar.css'
 
 type SpeedOption = { label: string; intervalMs: number }
@@ -29,7 +29,7 @@ function formatVirtualTime(iso: string): string {
     weekday: 'short',
     month: 'short',
     day: 'numeric',
-    timeZone: CAMPUS_TZ,
+    timeZone: getTz(),
   })
 }
 
@@ -37,6 +37,10 @@ export function DemoBar({ simState, onAdvance, onReset, onStop: _onStop, onStaff
   const [playing, setPlaying] = useState(false)
   const [speedIdx, setSpeedIdx] = useState(0)
   const [speedOpen, setSpeedOpen] = useState(false)
+  const [directorOpen, setDirectorOpen] = useState(false)
+  const [directorMode, setDirMode] = useState(false)
+  const [pendingSteps, setPendingSteps] = useState<string[]>([])
+  const [takingOver, setTakingOver] = useState(false)
   const speedRef = useRef<HTMLDivElement>(null)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
@@ -97,11 +101,35 @@ export function DemoBar({ simState, onAdvance, onReset, onStop: _onStop, onStaff
     } catch { /* ignore */ }
   }
 
+  // Load director state
+  useEffect(() => {
+    getDirectorState()
+      .then(s => { setDirMode(s.director_mode === 'autopilot'); setPendingSteps(s.pending_step_ids ?? []) })
+      .catch(() => {})
+  }, [simState])
+
+  async function handleToggleDirector() {
+    const newMode = !directorMode
+    try {
+      const s = await setDirectorMode(newMode)
+      setDirMode(s.director_mode === 'autopilot'); setPendingSteps(s.pending_step_ids ?? [])
+    } catch { /* ignore */ }
+  }
+
+  async function handleTakeOver() {
+    setTakingOver(true)
+    try {
+      const s = await simTakeOver()
+      setDirMode(s.director_mode === 'autopilot'); setPendingSteps(s.pending_step_ids ?? [])
+      onAdvance()
+    } catch { /* ignore */ } finally { setTakingOver(false) }
+  }
+
   const virtualTime = simState.virtual_now ? formatVirtualTime(simState.virtual_now) : '–'
 
   return (
     <div className="demo-bar" role="status" aria-label="Simulation bar">
-      <span className="demo-bar-label">Simulation</span>
+      <span className="demo-bar-label">SIMULATION</span>
       <span className="demo-bar-time" aria-label={`Virtual time: ${virtualTime}`}>{virtualTime}</span>
 
       <div className="demo-bar-actions">
@@ -171,7 +199,55 @@ export function DemoBar({ simState, onAdvance, onReset, onStop: _onStop, onStaff
         >
           <Users size={13} aria-hidden="true" /> Staff view
         </button>
+
+        {/* Director toggle */}
+        <button
+          className="btn btn-ghost btn-sm demo-bar-btn"
+          onClick={() => setDirectorOpen(o => !o)}
+          aria-expanded={directorOpen}
+          aria-label="Director panel"
+        >
+          Director {directorOpen ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+        </button>
       </div>
+
+      {/* Director panel */}
+      {directorOpen && (
+        <div className="demo-bar-director">
+          <label className="demo-bar-director-toggle">
+            <input
+              type="checkbox"
+              checked={directorMode}
+              onChange={handleToggleDirector}
+              aria-label="Autopilot"
+            />
+            <span>Autopilot {directorMode ? 'ON' : 'OFF'}</span>
+          </label>
+
+          <button
+            className="btn btn-primary btn-sm"
+            disabled={takingOver}
+            onClick={handleTakeOver}
+            title="Take over as Morgan (Facilities)"
+          >
+            {takingOver ? 'Switching…' : 'Take over as Morgan'}
+          </button>
+
+          {pendingSteps.length > 0 && (
+            <div className="demo-bar-steps">
+              <span className="demo-bar-steps-label">Pending steps ({pendingSteps.length})</span>
+              <ul className="demo-bar-steps-list">
+                {pendingSteps.slice(0, 5).map(id => (
+                  <li key={id} className="demo-bar-step-item">{id}</li>
+                ))}
+                {pendingSteps.length > 5 && (
+                  <li className="demo-bar-step-item demo-bar-step-more">+{pendingSteps.length - 5} more</li>
+                )}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
