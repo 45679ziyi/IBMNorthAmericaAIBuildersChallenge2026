@@ -463,6 +463,39 @@ class EntityLink(Base):
     rel: Mapped[str] = mapped_column(String(64))         # e.g. "in_building"
     to_type: Mapped[str] = mapped_column(String(64))     # e.g. "building"
     to_id: Mapped[str] = mapped_column(String(64))
+    # V4-05: optional JSON blob for entity attributes (capacity, features, name, meetings…)
+    meta_json: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+
+
+# ── V4-05: Scenario models ─────────────────────────────────────────────────────
+
+class ScenarioRun(Base):
+    """A what-if scenario run. Does NOT mutate canonical state.
+
+    Records inputs, computed results, and promotion status.
+    A scenario run is always read-only until explicitly promoted by an
+    authorized actor — promotion writes a separate decision audit record.
+    """
+    __tablename__ = "scenario_runs"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True, default=_uuid)
+    tenant_id: Mapped[str] = mapped_column(String(64), default="sbu_demo")
+    canonical_event_id: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
+    engine_version: Mapped[str] = mapped_column(String(32), default="v1")
+    scenario_type: Mapped[str] = mapped_column(String(64), default="classroom_outage")
+    inputs_json: Mapped[str] = mapped_column(Text, default="{}")   # typed input params
+    result_json: Mapped[str] = mapped_column(Text, default="{}")   # full ScenarioResult
+    result_hash: Mapped[Optional[str]] = mapped_column(String(128), nullable=True)
+    status: Mapped[str] = mapped_column(String(32), default="computed")
+    # computed | stale | promoted | cancelled
+    promoted_by: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
+    promoted_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    promoted_option_id: Mapped[Optional[str]] = mapped_column(String(128), nullable=True)
+    promotion_rationale: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    data_origin: Mapped[str] = mapped_column(String(32), default="synthetic_simulation")
+    created_by: Mapped[str] = mapped_column(String(64), default="")
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=_now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=_now)
 
 
 # ── U3: Canonical event models ─────────────────────────────────────────────────

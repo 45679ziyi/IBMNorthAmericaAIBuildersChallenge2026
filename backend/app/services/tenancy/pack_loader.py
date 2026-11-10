@@ -293,14 +293,27 @@ def _init_tenant_db(engine) -> None:
 
 # ── Entity link helper ─────────────────────────────────────────────────────────
 
-def _add_link(db: Session, from_type: str, from_id: str, rel: str, to_type: str, to_id: str) -> None:
+def _add_link(
+    db: Session,
+    from_type: str, from_id: str,
+    rel: str,
+    to_type: str, to_id: str,
+    meta_json: str | None = None,
+) -> None:
     existing = (
         db.query(EntityLink)
         .filter_by(from_type=from_type, from_id=from_id, rel=rel, to_type=to_type, to_id=to_id)
         .first()
     )
     if existing is None:
-        db.add(EntityLink(from_type=from_type, from_id=from_id, rel=rel, to_type=to_type, to_id=to_id))
+        db.add(EntityLink(
+            from_type=from_type, from_id=from_id,
+            rel=rel,
+            to_type=to_type, to_id=to_id,
+            meta_json=meta_json,
+        ))
+    elif meta_json is not None and existing.meta_json is None:
+        existing.meta_json = meta_json
 
 
 # ── Main loader ────────────────────────────────────────────────────────────────
@@ -579,15 +592,41 @@ def _load_knowledge(db: Session, knowledge: list) -> None:
 
 
 def _load_entity_links(db: Session, pack: dict) -> None:
-    """Build entity_links from pack relationships (Section 4.3)."""
-    # room in_building building
-    for room in pack.get("rooms", []):
-        _add_link(db, "room", room["id"], "in_building", "building", room["building_id"])
+    """Build entity_links from pack relationships (Section 4.3).
 
-    # section meets_in room; section taught_by person
+    V4-05: room and section links include meta_json with attributes
+    (capacity, features, name, meetings) so the Scenario Engine can query
+    room/section properties without a separate table.
+    """
+    import json as _json
+
+    # room in_building building — with room meta (capacity, features, name, kind)
+    for room in pack.get("rooms", []):
+        room_meta = _json.dumps({
+            "capacity": room.get("capacity"),
+            "features": room.get("features", []),
+            "name": room.get("name", room["id"]),
+            "kind": room.get("kind", "room"),
+            "floor": room.get("floor"),
+            "available": room.get("available", True),
+        })
+        _add_link(db, "room", room["id"], "in_building", "building", room["building_id"],
+                  meta_json=room_meta)
+
+    # section meets_in room — with meeting meta (days, start, end)
     for sec in pack.get("sections", []):
         for meeting in sec.get("meetings", []):
-            _add_link(db, "section", sec["id"], "meets_in", "room", meeting["room_id"])
+            meeting_meta = _json.dumps({
+                "days": meeting.get("days", []),
+                "start": meeting.get("start"),
+                "end": meeting.get("end"),
+                "section_id": sec["id"],
+                "enrolled": sec.get("enrolled", len(sec.get("roster", []))),
+                "capacity": sec.get("capacity"),
+                "course_id": sec.get("course_id"),
+            })
+            _add_link(db, "section", sec["id"], "meets_in", "room", meeting["room_id"],
+                      meta_json=meeting_meta)
         _add_link(db, "section", sec["id"], "taught_by", "person", sec["instructor_id"])
         # student enrolled_in section
         for student_id in sec.get("roster", []):

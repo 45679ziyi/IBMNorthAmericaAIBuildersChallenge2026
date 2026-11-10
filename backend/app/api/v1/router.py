@@ -27,6 +27,7 @@ from app.api.v1 import (
     campus,
     course_updates,
     trust,
+    scenarios,
 )
 
 api_router = APIRouter()
@@ -57,3 +58,4 @@ api_router.include_router(service_requests.router, prefix="/service-requests", t
 api_router.include_router(campus.router, tags=["campus"])                         # U5-3
 api_router.include_router(course_updates.router, prefix="/course-updates", tags=["course-updates"])  # U5-5
 api_router.include_router(trust.router, prefix="/trust", tags=["trust"])          # U6-6
+api_router.include_router(scenarios.router, prefix="/scenarios", tags=["scenarios"])  # V4-05

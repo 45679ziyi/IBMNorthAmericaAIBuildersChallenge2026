@@ -107,6 +107,14 @@ POLICY_TABLE: list[PolicyRule] = [
     PolicyRule("draft:course_update",  _roles("faculty"),                    reason_code="FACULTY_ONLY"),
     PolicyRule("approve:course_update", _roles("faculty"),                   reason_code="FACULTY_ONLY"),
 
+    # ── Scenarios (V4-05) ────────────────────────────────────────────────────
+    # Any staff role can create a scenario (read-only simulation).
+    # Only academic_ops can promote (approve) a scenario option.
+    PolicyRule("create:scenario",  _roles("facilities", "it", "academic_ops", "faculty"), reason_code="SCENARIO_ROLE_DENIED"),
+    PolicyRule("read:scenario",    _roles("facilities", "it", "academic_ops", "faculty"), reason_code="SCENARIO_ROLE_DENIED"),
+    PolicyRule("approve:scenario", _roles("academic_ops"),
+               denied=_roles("facilities", "it", "faculty"),                              reason_code="SCENARIO_APPROVAL_ACADOPS_ONLY"),
+
     # ── Service requests ─────────────────────────────────────────────────────
     PolicyRule("submit:service_request", _ALL_ROLES,                         reason_code="SERVICE_REQUEST_DENIED"),
     PolicyRule("read:service_request_own", _ALL_ROLES,                       reason_code="OWN_ONLY"),
