@@ -731,3 +731,113 @@ export interface AIRun {
   latency_ms?: number
   created_at: string
 }
+
+// ── Scenarios V4-05 ──────────────────────────────────────────────────────────
+
+export interface ScoreFactors {
+  capacity_fit: number
+  building_proximity: number
+  feature_match: number
+  same_building: number
+  total: number
+  capacity_fit_basis: string
+  proximity_basis: string
+  feature_match_basis: string
+  missing_data: string[]
+}
+
+export interface CandidateOption {
+  option_id: string
+  room_id: string
+  room_name: string
+  building_id: string
+  capacity: number
+  features: string[]
+  rank: number
+  score: number
+  score_factors: ScoreFactors
+  data_origin: string
+}
+
+export interface InfeasibleOption {
+  room_id: string
+  room_name: string
+  failed_constraints: string[]
+}
+
+export interface AffectedSection {
+  section_id: string
+  course_id: string
+  enrolled: number
+  enrolled_display: string
+  meeting_days: string[]
+  meeting_start: string
+  meeting_end: string
+  affected_meetings_in_window: number
+}
+
+export interface ScenarioResult {
+  scenario_id: string
+  engine_version: string
+  scenario_type: string
+  inputs: Record<string, unknown>
+  candidates: CandidateOption[]
+  infeasible: InfeasibleOption[]
+  affected_sections: AffectedSection[]
+  summary: {
+    affected_sections_count: number
+    affected_students_display: string
+    feasible_alternatives: number
+    infeasible_rooms_checked: number
+    repair_delay_minutes: number
+    best_option_id: string | null
+    data_completeness: string
+  }
+  missing_data: string[]
+  assumptions: string[]
+  result_hash: string
+  data_origin: string
+}
+
+export interface ScenarioRun {
+  id: string
+  tenant_id: string
+  canonical_event_id: string | null
+  engine_version: string
+  scenario_type: string
+  status: string
+  inputs: Record<string, unknown>
+  result: ScenarioResult
+  result_hash: string | null
+  promoted_by: string | null
+  promoted_at: string | null
+  promoted_option_id: string | null
+  promotion_rationale: string | null
+  data_origin: string
+  created_at: string
+}
+
+export const createScenario = (body: {
+  canonical_event_id?: string
+  affected_room_id: string
+  repair_delay_minutes: number
+  min_capacity?: number
+  required_features?: string[]
+}) => request<ScenarioRun>('/scenarios', { method: 'POST', body: JSON.stringify(body) })
+
+export const getScenario = (id: string) =>
+  request<ScenarioRun>(`/scenarios/${id}`)
+
+export const listScenarios = (canonical_event_id?: string) =>
+  request<ScenarioRun[]>(`/scenarios${canonical_event_id ? `?canonical_event_id=${canonical_event_id}` : ''}`)
+
+export const compareScenarios = (id_a: string, id_b: string, id_c?: string) =>
+  request<{ runs: Record<string, unknown>[]; changed_inputs: Record<string, unknown>; shared_inputs: Record<string, unknown>; hashes_match: boolean }>(
+    `/scenarios/compare/${id_a}/${id_b}${id_c ? `/${id_c}` : ''}`
+  )
+
+export const promoteScenario = (id: string, selected_option_id: string, rationale: string) =>
+  request<{ status: string; promoted_option_id: string; note: string }>(
+    `/scenarios/${id}/promote`,
+    { method: 'POST', body: JSON.stringify({ selected_option_id, rationale }) }
+  )
