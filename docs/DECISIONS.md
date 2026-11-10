@@ -74,3 +74,39 @@ Format: Decision ID, context, option chosen, rationale, alternatives considered.
 **Decision:** This is a targeted service-layer change requiring new EntityLink relationship types (`responsible_team`, building ownership). Keeping it in V4-02 milestone to avoid bundling with the auth layer changes in V4-01.
 
 **Date:** 2026-11-10
+
+---
+
+## D-007 — Stakeholder Agents: LLM-decoupled deterministic fallback
+
+**Context:** V4-08 requires Stakeholder Analysis Agents that produce structured findings per role. The V4 spec mandates that "LLM outage must not break deterministic core workflows."
+
+**Decision:** Implement `_fallback_analysis()` as the primary analysis path. `use_llm=False` is always the default in this V4 prototype release. The fallback derives findings directly from structured context data (room capacity, meeting counts, candidate scores) with no inference. All findings are annotated with evidence references or marked `is_assumption=True`.
+
+**Rationale:** Ensures reliability in demo environments, offline operation, and CI tests. LLM integration can be layered in via the `use_llm=True` path in a future release without changing the orchestrator contract.
+
+**Date:** 2026-11-09
+
+---
+
+## D-008 — Resource Discovery: hard constraints before soft scoring
+
+**Context:** V4-09 Campus Resource Discovery. Two approaches were considered: (a) score everything and rank, (b) filter hard constraints first then score soft preferences.
+
+**Decision:** Filter first (b). Hard constraints (capacity, features, excluded rooms) eliminate infeasible rooms before any scoring. Infeasible rooms are returned in a separate `infeasible` list with their failure reason. Soft scoring only runs on feasible candidates.
+
+**Rationale:** Filtering first prevents "almost good" infeasible rooms from appearing at rank 6–10 and confusing users. The infeasible list with reasons enables transparent "why not this room" explanations without showing rooms with misleading scores.
+
+**Date:** 2026-11-09
+
+---
+
+## D-009 — Discovery and Agent services: no API endpoints in V4 prototype
+
+**Context:** V4-08 (agents) and V4-09 (discovery) are new services. The question was whether to expose them via new FastAPI routers or provide them as library functions only.
+
+**Decision:** Library functions only in V4 prototype. No new API endpoints for agents or discovery. The Scenario Engine (V4-05) already provides the primary user-facing scenario workflow via `/api/v1/scenarios`. Agents and discovery can be called from the scenario workflow or from internal services without their own endpoints.
+
+**Rationale:** Reduces demo surface area. New endpoints require authentication, schema documentation, and versioning. For the V4 prototype demonstration, calling these services internally from the scenario workflow is sufficient. API endpoints can be added in V5 based on actual usage patterns.
+
+**Date:** 2026-11-09
