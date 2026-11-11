@@ -75,7 +75,6 @@ _ROLE_NAV: dict[str, list[NavItem]] = {
         NavItem(key="campus",    label="Campus",   path="/campus"),
         NavItem(key="assistant", label="Ask",      path="/assistant"),
         NavItem(key="inbox",     label="Inbox",    path="/inbox"),
-        NavItem(key="privacy",   label="Privacy",  path="/privacy"),
     ],
     "faculty": [
         NavItem(key="today",     label="Today",    path="/"),

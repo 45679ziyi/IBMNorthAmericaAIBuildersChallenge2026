@@ -38,6 +38,62 @@ def _get_tenant_engine(tenant_id: str, db_path: str):
             connect_args={"check_same_thread": False},
             echo=False,
         )
+        # Ensure schema is up-to-date for this tenant DB (create tables +
+        # apply any missing column migrations added after initial creation).
+        from app.models.models import Base
+        Base.metadata.create_all(bind=engine)
+        # Run column migrations against this tenant engine directly
+        from sqlalchemy import text as _text
+        with engine.connect() as _conn:
+            # sim_state columns
+            rows = _conn.execute(_text("PRAGMA table_info(sim_state)")).fetchall()
+            existing = {r[1] for r in rows}
+            if "director_mode" not in existing:
+                _conn.execute(_text(
+                    "ALTER TABLE sim_state ADD COLUMN director_mode TEXT NOT NULL DEFAULT 'off'"
+                ))
+            if "active_persona" not in existing:
+                _conn.execute(_text(
+                    "ALTER TABLE sim_state ADD COLUMN active_persona TEXT"
+                ))
+            if "executed_step_ids" not in existing:
+                _conn.execute(_text(
+                    "ALTER TABLE sim_state ADD COLUMN executed_step_ids TEXT NOT NULL DEFAULT '[]'"
+                ))
+            # announcements columns
+            rows = _conn.execute(_text("PRAGMA table_info(announcements)")).fetchall()
+            existing = {r[1] for r in rows}
+            if "is_read" not in existing:
+                _conn.execute(_text(
+                    "ALTER TABLE announcements ADD COLUMN is_read BOOLEAN NOT NULL DEFAULT 0"
+                ))
+            if "read_at_utc" not in existing:
+                _conn.execute(_text(
+                    "ALTER TABLE announcements ADD COLUMN read_at_utc DATETIME"
+                ))
+            # tasks columns
+            rows = _conn.execute(_text("PRAGMA table_info(tasks)")).fetchall()
+            existing = {r[1] for r in rows}
+            if "source_signal_id" not in existing:
+                _conn.execute(_text(
+                    "ALTER TABLE tasks ADD COLUMN source_signal_id TEXT"
+                ))
+            if "provenance" not in existing:
+                _conn.execute(_text(
+                    "ALTER TABLE tasks ADD COLUMN provenance TEXT NOT NULL DEFAULT 'manual'"
+                ))
+            # FTS5 virtual table
+            _conn.execute(_text(
+                """
+                CREATE VIRTUAL TABLE IF NOT EXISTS knowledge_chunks_fts
+                USING fts5(
+                    chunk_id UNINDEXED,
+                    text,
+                    tokenize='porter unicode61'
+                )
+                """
+            ))
+            _conn.commit()
         _TENANT_ENGINES[tenant_id] = engine
     return _TENANT_ENGINES[tenant_id]
 
