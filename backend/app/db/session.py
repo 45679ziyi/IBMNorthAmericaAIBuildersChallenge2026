@@ -26,57 +26,100 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 def init_db() -> None:
     """Create all tables and enable FTS5 virtual table for knowledge chunks."""
     Base.metadata.create_all(bind=engine)
-    _setup_fts()
-    _ensure_columns()
+    _setup_fts(engine)
+    _ensure_columns(engine)
     _seed_personas()
 
 
-def _ensure_columns() -> None:
-    """Add missing columns to existing tables (safe to call multiple times)."""
-    with engine.connect() as conn:
+def _ensure_columns(target_engine=None) -> None:
+    """Add missing columns to existing tables (safe to call multiple times).
+
+    Accepts an optional *target_engine* so the same migrations can be applied
+    to both the legacy aurora.db and any per-tenant SQLite file.  Defaults to
+    the module-level ``engine`` (aurora.db) for backward compatibility.
+    """
+    eng = target_engine if target_engine is not None else engine
+    with eng.connect() as conn:
+        def _cols(table: str) -> set:
+            return {r[1] for r in conn.execute(text(f"PRAGMA table_info({table})")).fetchall()}
+
         # ── announcements ────────────────────────────────────────────────────
-        rows = conn.execute(text("PRAGMA table_info(announcements)")).fetchall()
-        existing = {row[1] for row in rows}
+        existing = _cols("announcements")
         if "is_read" not in existing:
-            conn.execute(
-                text("ALTER TABLE announcements ADD COLUMN is_read BOOLEAN NOT NULL DEFAULT 0")
-            )
+            conn.execute(text(
+                "ALTER TABLE announcements ADD COLUMN is_read BOOLEAN NOT NULL DEFAULT 0"
+            ))
         if "read_at_utc" not in existing:
-            conn.execute(
-                text("ALTER TABLE announcements ADD COLUMN read_at_utc DATETIME")
-            )
+            conn.execute(text("ALTER TABLE announcements ADD COLUMN read_at_utc DATETIME"))
 
-        # ── tasks (V2 additions) ─────────────────────────────────────────────
-        rows = conn.execute(text("PRAGMA table_info(tasks)")).fetchall()
-        existing = {row[1] for row in rows}
+        # ── tasks ────────────────────────────────────────────────────────────
+        existing = _cols("tasks")
         if "source_signal_id" not in existing:
-            conn.execute(
-                text("ALTER TABLE tasks ADD COLUMN source_signal_id TEXT")
-            )
+            conn.execute(text("ALTER TABLE tasks ADD COLUMN source_signal_id TEXT"))
         if "provenance" not in existing:
-            conn.execute(
-                text("ALTER TABLE tasks ADD COLUMN provenance TEXT NOT NULL DEFAULT 'manual'")
-            )
+            conn.execute(text(
+                "ALTER TABLE tasks ADD COLUMN provenance TEXT NOT NULL DEFAULT 'manual'"
+            ))
 
-        # ── sim_state (U3 additions) ─────────────────────────────────────────
-        rows = conn.execute(text("PRAGMA table_info(sim_state)")).fetchall()
-        existing = {row[1] for row in rows}
+        # ── sim_state ────────────────────────────────────────────────────────
+        existing = _cols("sim_state")
         if "director_mode" not in existing:
-            conn.execute(text("ALTER TABLE sim_state ADD COLUMN director_mode TEXT NOT NULL DEFAULT 'off'"))
+            conn.execute(text(
+                "ALTER TABLE sim_state ADD COLUMN director_mode TEXT NOT NULL DEFAULT 'off'"
+            ))
         if "active_persona" not in existing:
             conn.execute(text("ALTER TABLE sim_state ADD COLUMN active_persona TEXT"))
         if "executed_step_ids" not in existing:
-            conn.execute(text("ALTER TABLE sim_state ADD COLUMN executed_step_ids TEXT NOT NULL DEFAULT '[]'"))
+            conn.execute(text(
+                "ALTER TABLE sim_state ADD COLUMN executed_step_ids TEXT NOT NULL DEFAULT '[]'"
+            ))
 
-        # ── course_updates (U5-5) — create via create_all but ensure if missed ─
-        # Tables are created by Base.metadata.create_all at startup, so no ALTER needed
+        # ── signals (V4 additions) ───────────────────────────────────────────
+        existing = _cols("signals")
+        if "relevance_reason" not in existing:
+            conn.execute(text("ALTER TABLE signals ADD COLUMN relevance_reason TEXT"))
+        if "data_origin" not in existing:
+            conn.execute(text(
+                "ALTER TABLE signals ADD COLUMN data_origin TEXT NOT NULL DEFAULT 'synthetic'"
+            ))
+        if "scenario_id" not in existing:
+            conn.execute(text("ALTER TABLE signals ADD COLUMN scenario_id TEXT"))
+        if "canonical_event_id" not in existing:
+            conn.execute(text("ALTER TABLE signals ADD COLUMN canonical_event_id TEXT"))
+
+        # ── moves (V4 additions) ─────────────────────────────────────────────
+        existing = _cols("moves")
+        if "canonical_event_id" not in existing:
+            conn.execute(text("ALTER TABLE moves ADD COLUMN canonical_event_id TEXT"))
+        if "dismissed_at" not in existing:
+            conn.execute(text("ALTER TABLE moves ADD COLUMN dismissed_at DATETIME"))
+        if "expires_at" not in existing:
+            conn.execute(text("ALTER TABLE moves ADD COLUMN expires_at DATETIME"))
+
+        # ── notifications (V4 additions) ─────────────────────────────────────
+        existing = _cols("notifications")
+        if "idempotency_key" not in existing:
+            conn.execute(text("ALTER TABLE notifications ADD COLUMN idempotency_key TEXT"))
+        if "work_item_id" not in existing:
+            conn.execute(text("ALTER TABLE notifications ADD COLUMN work_item_id TEXT"))
+
+        # ── service_requests (V4 additions) ──────────────────────────────────
+        existing = _cols("service_requests")
+        if "canonical_event_id" not in existing:
+            conn.execute(text("ALTER TABLE service_requests ADD COLUMN canonical_event_id TEXT"))
+
+        # ── entity_links (V4-05 addition) ─────────────────────────────────────
+        existing = _cols("entity_links")
+        if "meta_json" not in existing:
+            conn.execute(text("ALTER TABLE entity_links ADD COLUMN meta_json TEXT"))
 
         conn.commit()
 
 
-def _setup_fts() -> None:
+def _setup_fts(target_engine=None) -> None:
     """Create SQLite FTS5 virtual table for knowledge chunk search if not present."""
-    with engine.connect() as conn:
+    eng = target_engine if target_engine is not None else engine
+    with eng.connect() as conn:
         conn.execute(
             text(
                 """
