@@ -623,85 +623,135 @@ def _upsert_work_items(db) -> None:
     db.flush()
 
 
+def _w(*texts: str, feed: str = "detector") -> list[dict]:
+    """Build WhyItem-compatible dicts from plain text strings."""
+    return [{"feed": feed, "text": t} for t in texts]
+
+
+def _a(action_id: str, atype: str, **params) -> dict:
+    """Build ActionSpec-compatible dict."""
+    return {"id": action_id, "type": atype, "params": params, "external": False, "simulated": False}
+
+
+def _a_sim(action_id: str, atype: str, **params) -> dict:
+    """Build simulated ActionSpec-compatible dict."""
+    return {"id": action_id, "type": atype, "params": params, "external": False, "simulated": True}
+
+
 def _upsert_moves(db) -> None:
+    import hashlib
     moves = [
         # ── Student moves ──────────────────────────────────────────────────
         dict(id="vd-mv-01", key="deadline:vd-task-01", kind="deadline_alert",
              audience="student", status="proposed", policy="auto", urgency="urgent",
              impact="high", title="⚠️  Assignment due TONIGHT — CSE 213 PA3",
              summary="CSE 213 Programming Assignment 3 is due tonight at 11:59 PM. You have 120 min estimated work remaining.",
-             why=["Due date: tonight 11:59 PM","Status: in_progress","Estimated: 120 min remaining"],
-             actions=[{"type":"open_task","task_id":"vd-task-01"},{"type":"add_study_block","minutes":120}],
+             why=_w("Due date: tonight 11:59 PM", "Status: in_progress", "Estimated: 120 min remaining"),
+             actions=[_a("mv01-a1","open_task", task_id="vd-task-01"),
+                      _a("mv01-a2","add_study_block", minutes=120)],
              canonical_event_id=None),
         dict(id="vd-mv-02", key="ingest:vd-sig-004", kind="task_created",
              audience="student", status="executed_simulated", policy="auto", urgency="today",
              impact="medium", title="Quiz prep task created — MAT 203 Quiz 4",
              summary="New task created: 'Prepare for MAT 203 Quiz 4' (90 min, due Thursday 12:30 PM) based on Brightspace announcement.",
-             why=["Announcement: Quiz 4 on Thursday","Course: MAT 203","Estimated: 90 min"],
-             actions=[{"type":"view_task","task_id":"vd-task-03"}],
+             why=_w("Announcement: Quiz 4 on Thursday", "Course: MAT 203", "Estimated: 90 min",
+                    feed="brightspace"),
+             actions=[_a_sim("mv02-a1","view_task", task_id="vd-task-03")],
              canonical_event_id=None),
         dict(id="vd-mv-03", key="change:cse214:vd-sig-005", kind="calendar_update",
              audience="student", status="executed_simulated", policy="auto", urgency="now",
              impact="medium", title="CSE 214 room updated → Javits 101",
              summary="Your calendar has been updated. CSE 214 is now in Javits 101 (was LE 201). Leave library by 9:51 AM (6 min walk + 3 min buffer).",
-             why=["Room change signal from SOLAR","Walking time MEL→JAV: 6 min","Buffer: 3 min"],
-             actions=[{"type":"update_calendar","commitment":"c-cse214","new_room":"JAV-101"},{"type":"set_reminder","at":"09:51","text":"Leave for Javits 101 — CSE 214"}],
+             why=_w("Room change signal from SOLAR", "Walking time MEL→JAV: 6 min", "Buffer: 3 min",
+                    feed="solar"),
+             actions=[_a_sim("mv03-a1","update_calendar", commitment="c-cse214", new_room="JAV-101"),
+                      _a_sim("mv03-a2","set_reminder", at="09:51", text="Leave for Javits 101 — CSE 214")],
              canonical_event_id=CE_ROOM_CHANGE),
         dict(id="vd-mv-04", key="disruption:inc-hvac-jav101:student", kind="disruption_info",
              audience="student", status="proposed", policy="info", urgency="now",
              impact="low", title="ℹ️  Javits 101 is hot — MAT 203 may move",
              summary="Cooling fault in JAV 101 (27.8 °C, rising). Your MAT 203 class at 12:30 uses this room — an update is expected.",
-             why=["HVAC fault signal","Your MAT 203 is scheduled in JAV-101","Facilities team notified"],
-             actions=[{"type":"watch_for_update","canonical_event_id":CE_HVAC}],
+             why=_w("HVAC fault signal from building_ops", "Your MAT 203 is scheduled in JAV-101",
+                    "Facilities team notified", feed="building_ops"),
+             actions=[_a("mv04-a1","watch_for_update", canonical_event_id=CE_HVAC)],
              canonical_event_id=CE_HVAC),
         dict(id="vd-mv-05", key="change:mat203:vd-sig-008", kind="calendar_update",
              audience="student", status="executed_simulated", policy="auto", urgency="now",
              impact="medium", title="MAT 203 room updated → Javits 102",
              summary="MAT 203 has been moved to Javits 102 (same building). No extra walking needed. Your calendar is updated.",
-             why=["Room change signal from SOLAR","Same building — no route change","Caused by: HVAC fault in JAV-101"],
-             actions=[{"type":"update_calendar","commitment":"c-mat203","new_room":"JAV-102"}],
+             why=_w("Room change signal from SOLAR", "Same building — no route change",
+                    "Caused by: HVAC fault in JAV-101", feed="solar"),
+             actions=[_a_sim("mv05-a1","update_calendar", commitment="c-mat203", new_room="JAV-102")],
              canonical_event_id=CE_HVAC),
         dict(id="vd-mv-06", key="disruption:weather:rain-1400", kind="weather_alert",
              audience="student", status="executed_simulated", policy="auto", urgency="today",
              impact="low", title="🌧  Rain 2:00–5:00 PM — bring an umbrella",
              summary="85% chance of rain from 2:00 to 5:00 PM. Your walk to CSE 316 (JAV→CS, 5 min, outdoors) is during this window.",
-             why=["Weather feed: rain 14:00-17:00, 85%","CSE 316 walk: JAV→CS, 5 min outdoors","Career Fair: also during rain window"],
-             actions=[{"type":"set_reminder","at":"13:50","text":"Grab your umbrella — rain expected from 2 PM"}],
+             why=_w("Weather feed: rain 14:00-17:00, 85%", "CSE 316 walk: JAV→CS, 5 min outdoors",
+                    "Career Fair also during rain window", feed="weather"),
+             actions=[_a_sim("mv06-a1","set_reminder", at="13:50",
+                             text="Grab your umbrella — rain expected from 2 PM")],
              canonical_event_id=None),
         dict(id="vd-mv-07", key="conflict:vd-ce-01:c-cse316", kind="schedule_conflict",
              audience="student", status="proposed", policy="ask", urgency="today",
              impact="medium", title="Career Fair vs CSE 316 — you can do both",
              summary="Career Fair moved to today 2:00–5:00 PM. Your CSE 316 is at 3:00 PM. You can attend the fair 2:00–2:45 PM (must leave by 2:49). On approval: a visit block and leave-by reminder will be added.",
-             why=["Career Fair: 14:00-17:00 today","CSE 316: 15:00-16:20 in CS-2311","Walking JAV→CS: 5 min","Earliest arrival: 13:58 after MAT 203"],
-             actions=[{"type":"add_calendar_block","title":"Career Fair visit","start":"14:00","end":"14:45"},{"type":"set_reminder","at":"14:49","text":"Leave Career Fair → CSE 316"}],
+             why=_w("Career Fair: 14:00-17:00 today", "CSE 316: 15:00-16:20 in CS-2311",
+                    "Walking JAV→CS: 5 min", "Earliest arrival: 13:58 after MAT 203",
+                    feed="campus_events"),
+             actions=[_a_sim("mv07-a1","add_calendar_block",
+                             title="Career Fair visit", start="14:00", end="14:45"),
+                      _a_sim("mv07-a2","set_reminder", at="14:49",
+                             text="Leave Career Fair → CSE 316")],
              canonical_event_id=CE_CAREER_FAIR),
         dict(id="vd-mv-08", key="group:vd-task-04:slot", kind="group_meeting",
              audience="student", status="proposed", policy="ask", urgency="today",
              impact="medium", title="Team meeting slot found — CSE 316 report",
              summary="All four CSE 316 teammates are free 5:15–6:15 PM. Melville Study Room 3 is available (4:30–6:30 PM slot). On approval: room booking (SIMULATED), draft invites created.",
-             why=["CSE 316 group report due in 3 days","Teammates Priya/Marcus/Dana all free at 17:15","MEL Study Room 3 available 16:30-18:30"],
-             actions=[{"type":"book_room_simulated","room":"MEL-SR3","start":"17:15","end":"18:15"},{"type":"draft_invites","to":["Priya","Marcus","Dana"]},{"type":"add_calendar_block","title":"CSE 316 Team Meeting","start":"17:15","end":"18:15"}],
+             why=_w("CSE 316 group report due in 3 days",
+                    "Teammates Priya/Marcus/Dana all free at 17:15",
+                    "MEL Study Room 3 available 16:30-18:30", feed="library_rooms"),
+             actions=[_a_sim("mv08-a1","book_room_simulated",
+                             room="MEL-SR3", start="17:15", end="18:15"),
+                      _a_sim("mv08-a2","draft_invites", to=["Priya","Marcus","Dana"]),
+                      _a_sim("mv08-a3","add_calendar_block",
+                             title="CSE 316 Team Meeting", start="17:15", end="18:15")],
              canonical_event_id=None),
         # ── Staff moves ────────────────────────────────────────────────────
         dict(id="vd-mv-09", key="ops:inc-hvac-jav101", kind="ops_incident",
              audience="staff", status="proposed", policy="ask", urgency="now",
              impact="high", title="🔧  HVAC fault — Javits 101 needs immediate action",
              summary="Cooling fault in JAV-101 at 10:05 AM (27.8 °C, rising). Impact: 2 sections, 168 students (78 now in CSE 214, 90 in MAT 203 at 12:30). Only viable swap: move MAT 203 to JAV-102 (capacity 120, available). LE-201 projector out, CS-2311 too small (60 cap).",
-             why=["HVAC fault at 10:05 AM, 27.8°C rising","CSE-214 (78 students): in room NOW","MAT-203 (90 students): 12:30 PM in same room","JAV-102: 120 cap, free at 12:30","LE-201: unavailable (projector)","CS-2311: capacity 60 — too small"],
-             actions=[{"type":"reassign_room","section":"MAT-203-01","from_room":"JAV-101","to_room":"JAV-102"},{"type":"notify_instructor","person_id":FAC_SAM},{"type":"notify_students","section":"MAT-203-01"},{"type":"file_service_request","service_id":"svc-hvac"}],
+             why=_w("HVAC fault at 10:05 AM — 27.8°C and rising",
+                    "CSE-214 (78 students): in room RIGHT NOW",
+                    "MAT-203 (90 students): 12:30 PM in same room",
+                    "JAV-102: capacity 120, free at 12:30",
+                    "LE-201: unavailable (projector fault)",
+                    "CS-2311: capacity 60 — too small for 90 students",
+                    feed="building_ops"),
+             actions=[_a("mv09-a1","reassign_room",
+                         section="MAT-203-01", from_room="JAV-101", to_room="JAV-102"),
+                      _a("mv09-a2","notify_instructor", person_id=FAC_SAM),
+                      _a("mv09-a3","notify_students", section="MAT-203-01"),
+                      _a("mv09-a4","file_service_request", service_id="svc-hvac")],
              canonical_event_id=CE_HVAC),
         dict(id="vd-mv-10", key="ops:wifi-mel", kind="ops_incident",
              audience="staff", status="proposed", policy="ask", urgency="today",
              impact="medium", title="📶  Wi-Fi degraded — Melville Library floors 2–3",
              summary="Access points MEL-2 and MEL-3 reporting 18% packet loss since 11:20 AM. ~85 active sessions affected. Recommend restart and monitoring.",
-             why=["AP health alert: ap-MEL-2 and ap-MEL-3","Packet loss: 18% (threshold: 5%)","Active sessions: ~85","Library peak hours: 10 AM–6 PM"],
-             actions=[{"type":"restart_ap","ap_id":"ap-MEL-2"},{"type":"restart_ap","ap_id":"ap-MEL-3"},{"type":"create_service_request","service_id":"svc-wifi"}],
+             why=_w("AP health alert: ap-MEL-2 and ap-MEL-3",
+                    "Packet loss: 18% (threshold: 5%)",
+                    "Active sessions: ~85",
+                    "Library peak hours: 10 AM–6 PM",
+                    feed="it_monitor"),
+             actions=[_a("mv10-a1","restart_ap", ap_id="ap-MEL-2"),
+                      _a("mv10-a2","restart_ap", ap_id="ap-MEL-3"),
+                      _a("mv10-a3","create_service_request", service_id="svc-wifi")],
              canonical_event_id=CE_WIFI),
     ]
     for m in moves:
         if db.get(Move, m["id"]):
             continue
-        import hashlib
         fp = hashlib.sha1(f"{m['title']}{m['summary']}".encode()).hexdigest()[:10]
         db.add(Move(
             id=m["id"], key=m["key"], kind=m["kind"],
